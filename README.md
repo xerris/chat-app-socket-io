@@ -1,2 +1,5 @@
-# chat-app-socket-io
-Socket.io working example of a chat app
+# How to Create a Chat App With Socket.io
+
+More to come here..
+
+`npm run`
