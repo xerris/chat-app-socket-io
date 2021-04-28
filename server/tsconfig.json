@@ -1,0 +1,11 @@
+{
+    "include": ["src"],
+    "compilerOptions": {
+      "target": "ES2015",
+      "module": "commonjs",
+      "outDir": "./dist",
+      "strict": true,
+      "esModuleInterop": true,
+      "strictPropertyInitialization": false
+    }
+}
