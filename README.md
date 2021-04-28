@@ -1,5 +1,5 @@
 # How to Create a Chat App With Socket.io
-This repository contains an implementation of a real-time chat application built using Socket.io.
+This repository contains an implementation of a real-time chat application using Socket.io.
 
 # Setup
 
