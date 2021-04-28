@@ -10,7 +10,7 @@ First, ensure that you have the following installed:
    
 ## Clone the project
 ```
-git clone https://github.com/KillianFrappartDev/GroupChat.git
+git clone https://github.com/xerris/chat-app-socket-io.git
 ```
 
 ## Install Dependencies
