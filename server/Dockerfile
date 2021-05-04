@@ -7,6 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-
+FROM base as production
+ENV NODE_PATH=./dist
 EXPOSE 3001
 CMD [ "nodemon", "dist/index.js" ]
