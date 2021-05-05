@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
+import socketIOClient from "socket.io-client";
 import "./App.css";
 
-const socket = io("localhost:3001", {
-  withCredentials: true,
-  extraHeaders: {
-    "my-custom-header": "abcd",
-  },
-});
-
+const socket =
+  process.env.REACT_APP_ENV === "dev"
+    ? socketIOClient("localhost:3001")
+    : socketIOClient();
+    
 function App() {
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
+
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -40,14 +39,14 @@ function App() {
 
   const onMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
-  }
+  };
 
   return (
     <div className="App">
       <header className="App-header">
         <p>Connected: {"" + isConnected}</p>
         <p>Last message: {lastMessage || " -"}</p>
-        <input value={message} onChange={onMessageChange}/>
+        <input value={message} onChange={onMessageChange} />
         <button onClick={sendMessage}>Send</button>
       </header>
     </div>

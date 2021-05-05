@@ -19,7 +19,7 @@ gulp.task('serve', function() {
   livereload.listen();
   // make sure you have installed ts-node via npm i ts-node
   nodemon({
-    exec: 'ts-node ./src/index.ts',
+    exec: 'ts-node ./index.ts',
     ext: 'ts'
   }).on('restart', function() {
     setTimeout(function() {
