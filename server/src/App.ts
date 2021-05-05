@@ -2,13 +2,25 @@ import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
+require("dotenv").config({ path: "./.env" });
 
 const app = express();
 app.use(cors());
 
 const server = createServer(app);
 const port = process.env.PORT || 3001;
-const io = new Server(server);
+const env = process.env.ENV;
+const io =
+  env === "dev"
+    ? new Server(server, {
+        cors: {
+          origin: "http://localhost:3000",
+          methods: ["GET", "POST"],
+          allowedHeaders: ["my-custom-header"],
+          credentials: true
+        }
+      })
+    : new Server(server);
 
 // Serve the react file build
 app.use(express.static("build"));

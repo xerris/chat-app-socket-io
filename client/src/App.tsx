@@ -2,14 +2,18 @@ import React, { useState, useEffect } from "react";
 import socketIOClient from "socket.io-client";
 import "./App.css";
 
+const socket =
+  process.env.REACT_APP_ENV === "dev"
+    ? socketIOClient("localhost:3001")
+    : socketIOClient();
+    
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
-  const [socket, setSocket] = useState(socketIOClient);
+
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // const socket = socketIOClient();
     socket.on("connect", () => {
       setIsConnected(true);
     });
