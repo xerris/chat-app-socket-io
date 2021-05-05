@@ -56,6 +56,7 @@ docker push <YOUR_DOCKER_USERNAME>/xerris-socket-app
 [Follow this tutorial and login to set up your secret key and access key](https://docs.aws.amazon.com/polly/latest/dg/setup-aws-cli.html). This is required to deploy resources to AWS through the Terraform code.
 
 ## 3) Deploy infrastructure with Terraform
+[You will first need to install the Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 ```
 cd infrastructure
