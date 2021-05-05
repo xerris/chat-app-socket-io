@@ -61,12 +61,7 @@ resource "aws_security_group" "sg_22" {
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
   }
-  ingress {
-      from_port   = 3000
-      to_port     = 3000
-      protocol    = "TCP"
-      cidr_blocks = ["0.0.0.0/0"]
-  }
+ 
   ingress {
       from_port   = 3001
       to_port     = 3001
@@ -107,4 +102,14 @@ resource "aws_instance" "testInstance" {
   tags = {
 		"Environment" = var.environment_tag
 	}
+}
+
+resource "aws_elasticache_cluster" "redisCluster" {
+  cluster_id           = "xerris-redis-cluster"
+  engine               = "redis"
+  node_type            = "cache.t2.micro"
+  num_cache_nodes      = 1
+  parameter_group_name = "default.redis3.2"
+  engine_version       = "3.2.10"
+  port                 = 6379
 }

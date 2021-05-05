@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
+import socketIOClient from "socket.io-client";
 import "./App.css";
-import config from "./config.json";
-
-const socket = io(`${config.ec2iP}:3000`, {
-  withCredentials: true,
-  extraHeaders: {
-    "my-custom-header": "abcd"
-  }
-});
 
 function App() {
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
+  const [socket, setSocket] = useState(socketIOClient);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // const socket = socketIOClient();
     socket.on("connect", () => {
       setIsConnected(true);
     });

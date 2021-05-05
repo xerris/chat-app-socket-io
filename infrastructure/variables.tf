@@ -6,7 +6,7 @@
 #   default = "SECRET_KEY_HERE"
 # }
 variable "region" {
-  default = "us-west-2"
+  default = "us-east-2"
 }
 variable "cidr_vpc" {
   description = "CIDR block for the VPC"
