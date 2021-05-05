@@ -1,4 +1,4 @@
-import { createServer } from "http"
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
@@ -17,23 +17,25 @@ const io = new Server(server, {
   }
 });
 
-app.get('/', (req, res) => res.send("Hello!"));
+// Serve the react file build
+app.use(express.static("build"));
+app.get("*", (req, res) => res.sendFile("index.html"));
 
 server.listen(port, () => {
-    console.log("Running server on port %s", port);
+  console.log("Running server on port %s", port);
 });
 
 io.on("connect", (socket: Socket) => {
-    console.log("Connected client on port %s", port);
+  console.log("Connected client on port %s", port);
 
-    socket.on("message", (m: any) => {
-      console.log("got it")
-        io.emit("message", m);
-      });
+  socket.on("message", (m: any) => {
+    console.log("got it");
+    io.emit("message", m);
+  });
 
-      socket.on("disconnect", () => {
-        console.log("Client disconnected");
-      });
-})
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
 
 export default app;
