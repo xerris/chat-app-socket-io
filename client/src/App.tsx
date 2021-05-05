@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import "./App.css";
+import config from "./config.json";
 
-const socket = io("localhost:3000", {
+const socket = io(`${config.ec2iP}:3000`, {
   withCredentials: true,
   extraHeaders: {
-    "my-custom-header": "abcd",
-  },
+    "my-custom-header": "abcd"
+  }
 });
 
 function App() {
@@ -40,14 +41,14 @@ function App() {
 
   const onMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
-  }
+  };
 
   return (
     <div className="App">
       <header className="App-header">
         <p>Connected: {"" + isConnected}</p>
         <p>Last message: {lastMessage || " -"}</p>
-        <input value={message} onChange={onMessageChange}/>
+        <input value={message} onChange={onMessageChange} />
         <button onClick={sendMessage}>Send</button>
       </header>
     </div>

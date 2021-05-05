@@ -30,14 +30,17 @@ npm install
 ## Starting the Application
 The server and client are two separate applications, they must both be running in parrallel.
 
-## Run Server
+## Run Client & Server
 ```
-cd server
-npm start
+npm dev
 ```
 
-## Run Client
+## Build Docker Image
 ```
 cd client
-npm start
+npm run build
+
+cd ../server
+docker build . -t xerris-socket-app
+docker tag xerris-socket-app <YOUR_DOCKER_USERNAME>/xerris-socket-app
 ````
