@@ -1,0 +1,59 @@
+input.call-picker {
+  border: 1px solid #aaa;
+  color: #666;
+  text-transform: uppercase;
+  float: left;
+  outline: none;
+  padding: 10px;
+  text-transform: uppercase;
+  width: 85px;
+}
+
+.color-picker {
+  width: 130px;
+  background: #f3f3f3;
+  height: 81px;
+  padding: 5px;
+  border: 5px solid #fff;
+  box-shadow: 0px 0px 3px 1px #ddd;
+  position: absolute;
+  top: 61px;
+  left: 2px;
+}
+
+.color-holder {
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid #aaa;
+  width: 40px;
+  height: 36px;
+  float: left;
+  margin-left: 5px;
+}
+
+input.stroke_width_picker {
+  border: 1px solid #aaa;
+  color: #666;
+  text-transform: uppercase;
+  float: left;
+  outline: none;
+  padding: 10px;
+  text-transform: uppercase;
+  width: 85px;
+}
+
+p {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  color: #ddd;
+}
+
+button {
+  margin-left: 1rem;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: #373d55;
+}
