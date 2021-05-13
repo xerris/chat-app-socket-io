@@ -2,8 +2,10 @@ import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
-require("dotenv").config({ path: "./.env" });
+import { createAdapter } from "socket.io-redis";
+import { RedisClient } from "redis";
 
+require("dotenv").config({ path: "./.env" });
 const app = express();
 app.use(cors());
 
@@ -21,6 +23,14 @@ const io =
         }
       })
     : new Server(server);
+
+const pubClient = new RedisClient({
+  host: process.env.REDIS_ENDPOINT,
+  port: 6379
+});
+const subClient = pubClient.duplicate();
+
+io.adapter(createAdapter({ pubClient, subClient }));
 
 // Serve the react file build
 app.use(express.static("build"));
