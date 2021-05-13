@@ -67,15 +67,4 @@ function mouseDragged() {
 }
 
 // Sending data to the socket
-function sendmouse(x, y, pX, pY) {
-  const data = {
-    x: x,
-    y: y,
-    px: pX,
-    py: pY,
-    color: color,
-    strokeWidth: strokeWidth
-  };
 
-  socket.emit("mouse", data);
-}
