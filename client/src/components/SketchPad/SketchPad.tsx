@@ -41,7 +41,7 @@ const SketchPad: React.FC<Props> = ({}) => {
         movementX,
         movementY
       } = event;
-      sendMouse(x, y, x - movementX, y + movementY);
+      sendMouse(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
     };
   };
 
