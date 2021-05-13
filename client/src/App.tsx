@@ -9,7 +9,6 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
   const socket = useContext(SocketContext);
-  console.log("🚀 ~ file: App.tsx ~ line 12 ~ App ~ socket", socket);
 
   const [message, setMessage] = useState("");
 

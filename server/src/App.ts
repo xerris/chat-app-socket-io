@@ -24,13 +24,17 @@ const io =
       })
     : new Server(server);
 
-const pubClient = new RedisClient({
-  host: process.env.REDIS_ENDPOINT,
-  port: 6379
-});
-const subClient = pubClient.duplicate();
+// Toggle Redis while troubleshooting
+const redis = false;
+if (redis) {
+  const pubClient = new RedisClient({
+    host: process.env.REDIS_ENDPOINT,
+    port: 6379
+  });
+  const subClient = pubClient.duplicate();
 
-io.adapter(createAdapter({ pubClient, subClient }));
+  io.adapter(createAdapter({ pubClient, subClient }));
+}
 
 // Serve the react file build
 app.use(express.static("build"));
@@ -50,6 +54,14 @@ io.on("connect", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
+  });
+
+  socket.on("press", () => {
+    console.log("someone pressed");
+  });
+
+  socket.on("mouse", (data) => {
+    io.emit("mouse", data);
   });
 });
 
