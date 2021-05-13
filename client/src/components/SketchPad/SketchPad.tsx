@@ -43,13 +43,13 @@ const SketchPad: React.FC<Props> = ({}) => {
   });
 
   const draw = (p5: p5Types) => {
-    p5.background(1);
+    // p5.background(1);
     // p5.ellipse(x, y, 70, 70);
     // p5.line(40, 60, 80, 200);
     if (socket) {
       socket.on("mouse", (data) => {
         if (data.color) {
-          p5.stroke(data.color);
+          p5.stroke("red");
           p5.strokeWeight(data.strokeWidth);
           p5.line(data.x, data.y, data.px, data.py);
         }
