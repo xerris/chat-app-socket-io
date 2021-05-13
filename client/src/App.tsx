@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import Sketch from "react-p5";
-import p5Types from "p5";
 import "./App.css";
 import SketchPad from "./components/SketchPad";
 import { SocketContext } from "./components/SocketContext";
