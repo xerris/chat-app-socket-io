@@ -1,35 +1,36 @@
-import React, { useState, useEffect } from "react";
-import socketIOClient from "socket.io-client";
+import React, { useState, useEffect, useContext } from "react";
 import "./App.css";
+import SketchPad from "./components/SketchPad";
+import { SocketContext } from "./components/SocketContext";
 
-const socket =
-  process.env.REACT_APP_ENV === "dev"
-    ? socketIOClient("localhost:3001")
-    : socketIOClient();
-    
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
+  const socket = useContext(SocketContext);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    socket.on("connect", () => {
-      setIsConnected(true);
-    });
+    if (socket && socket?.on && socket?.off) {
+      socket.on("connect", () => {
+        setIsConnected(true);
+      });
 
-    socket.on("disconnect", () => {
-      setIsConnected(false);
-    });
+      socket.on("disconnect", () => {
+        setIsConnected(false);
+      });
 
-    socket.on("message", (data) => {
-      setLastMessage(data);
-    });
+      socket.on("message", (data) => {
+        setLastMessage(data);
+      });
+    }
 
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("message");
+      if (socket) {
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.off("message");
+      }
     };
   });
 
@@ -44,6 +45,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <SketchPad />
         <p>Connected: {"" + isConnected}</p>
         <p>Last message: {lastMessage || " -"}</p>
         <input value={message} onChange={onMessageChange} />

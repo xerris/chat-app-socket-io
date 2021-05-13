@@ -1,11 +1,11 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import { SocketProvider } from "./components/SocketContext";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <SocketProvider>
     <App />
-  </React.StrictMode>,
+  </SocketProvider>,
   document.getElementById("root")
 );
