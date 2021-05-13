@@ -5,24 +5,10 @@ import { SocketContext } from "../SocketContext";
 
 interface Props {}
 
-const drawingList = [
-  "Banana",
-  "Happy",
-  "Angry",
-  "Olympics",
-  "Lion",
-  "Bus",
-  "Dragon",
-  "Sand Castle",
-  "Fireworks"
-];
 const SketchPad: React.FC<Props> = ({}) => {
   const socket = useContext(SocketContext);
   const [color, setColor] = useState("#1362b0");
   const [strokeWidth, setStrokeWidth] = useState(1);
-  const [clue, setClue] = useState(
-    drawingList[Math.floor(Math.random() * drawingList.length)]
-  );
 
   useEffect(() => {
     if (socket) {
@@ -30,13 +16,7 @@ const SketchPad: React.FC<Props> = ({}) => {
         username: "alex"
       });
     }
-
-    const interval = setInterval(() => {
-      setClue(drawingList[Math.floor(Math.random() * drawingList.length)]);
-    }, 3000);
-
-    return clearInterval(interval);
-  }, [drawingList, socket]);
+  }, [socket]);
 
   const sendMouse = (x, y, pX, pY) => {
     const data = {
@@ -73,7 +53,6 @@ const SketchPad: React.FC<Props> = ({}) => {
 
   return (
     <div>
-      <p>{clue}</p>
       <Sketch setup={setup} draw={draw} />
     </div>
   );
