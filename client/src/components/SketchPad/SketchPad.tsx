@@ -1,9 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import p5 from "p5";
 import { SocketContext } from "../SocketContext";
 
 interface Props {
   color: string;
+}
+
+interface SocketDrawing {
+  color: string;
+  strokeWidth: number;
+  px: number;
+  py: number;
+  y: number;
+  x: number;
 }
 
 const SketchPad: React.FC<Props> = ({ color }) => {
@@ -32,13 +41,13 @@ const SketchPad: React.FC<Props> = ({ color }) => {
 
   useEffect(() => {
     let p5Obj;
-    if (socket && divRef.current) {
-      p5Obj = new p5((sketch) => {
+    if (socket) {
+      p5Obj = new p5((sketch: p5) => {
         sketch.setup = () => {
           sketch.createCanvas(1000, 500);
         };
 
-        sketch.mouseDragged = (event: any) => {
+        sketch.mouseDragged = (event: MouseEvent) => {
           const { offsetX, offsetY, movementX, movementY } = event;
           sendDrawing(
             offsetX,
@@ -48,9 +57,8 @@ const SketchPad: React.FC<Props> = ({ color }) => {
           );
         };
 
-        socket.on("draw", (data) => {
+        socket.on("draw", (data: SocketDrawing) => {
           sketch.stroke(data.color);
-          sketch.color(data.color);
           sketch.strokeWeight(data.strokeWidth);
           sketch.line(data.px, data.py, data.x, data.y);
         });
@@ -59,10 +67,7 @@ const SketchPad: React.FC<Props> = ({ color }) => {
     return p5Obj;
   }, [socket, divRef]);
 
-  useEffect(() => {
-    console.log(color);
-  }, [color]);
-  return <div ref={divRef}></div>;
+  return <div ref={divRef} />;
 };
 
 export default SketchPad;
