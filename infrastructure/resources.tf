@@ -74,6 +74,12 @@ resource "aws_security_group" "sg_22" {
       protocol    = "TCP"
       cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+      from_port   = 6379
+      to_port     = 6379
+      protocol    = "TCP"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -98,18 +104,23 @@ resource "aws_instance" "testInstance" {
   subnet_id = aws_subnet.subnet_public.id
   vpc_security_group_ids = [aws_security_group.sg_22.id]
   key_name = aws_key_pair.ec2key.key_name
-
+  user_data = "${file("user_data.sh")}"
   tags = {
 		"Environment" = var.environment_tag
 	}
 }
-
+resource "aws_elasticache_subnet_group" "redis_subnet_group" {
+  name       = "redis-subnet-group"
+  subnet_ids = [aws_subnet.subnet_public.id]
+}        
 resource "aws_elasticache_cluster" "redisCluster" {
   cluster_id           = "xerris-redis-cluster"
   engine               = "redis"
   node_type            = "cache.t2.micro"
+  availability_zone = "us-east-2a"
   num_cache_nodes      = 1
   parameter_group_name = "default.redis3.2"
   engine_version       = "3.2.10"
   port                 = 6379
+  subnet_group_name =   aws_elasticache_subnet_group.redis_subnet_group.name
 }

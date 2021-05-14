@@ -12,7 +12,11 @@ const SocketProvider = (props: any) => {
       process.env.REACT_APP_ENV === "dev"
         ? socketIOClient("localhost:3001")
         : socketIOClient();
-
+    console.log(
+      process.env.REACT_APP_ENV === "dev"
+        ? "connecting to localhost:3001"
+        : "connecting to server..."
+    );
     if (socketConnection) {
       setSocket(socketConnection);
     }

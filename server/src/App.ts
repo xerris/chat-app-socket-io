@@ -24,13 +24,14 @@ const io =
       })
     : new Server(server);
 
-// Toggle Redis while troubleshooting
-const redis = false;
-if (redis) {
+// Toggle Redis if you want to test locally
+const redis = true;
+if (redis && env === "prod") {
   const pubClient = new RedisClient({
     host: process.env.REDIS_ENDPOINT,
     port: 6379
   });
+  console.log(`Connecting to Redis client @ ${process.env.REDIS_ENDPOINT}`);
   const subClient = pubClient.duplicate();
 
   io.adapter(createAdapter({ pubClient, subClient }));
@@ -56,12 +57,8 @@ io.on("connect", (socket: Socket) => {
     console.log("Client disconnected");
   });
 
-  socket.on("press", () => {
-    console.log("someone pressed");
-  });
-
-  socket.on("mouse", (data) => {
-    io.emit("mouse", data);
+  socket.on("draw", (data) => {
+    io.emit("draw", data);
   });
 });
 

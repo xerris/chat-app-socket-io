@@ -112,8 +112,10 @@ dist
 .env.test.local
 .env.production.local
 server/build
+client/build
 infrastructure/.terraform.lock.hcl
 infrastructure/terraform.tfstate
 infrastructure/terraform.tfstate.backup
 infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/3.38.0/darwin_amd64/terraform-provider-aws_v3.38.0_x5
 infrastructure/.terraform
+infrastructure/.terraform.tfstate.lock.info

@@ -1,59 +1,86 @@
-import { useContext, useEffect, useState } from "react";
-import Sketch from "react-p5";
-import p5Types from "p5";
+import React, { useContext, useEffect, useRef } from "react";
+import p5 from "p5";
 import { SocketContext } from "../SocketContext";
 
-interface Props {}
+interface Props {
+  color: string;
+}
 
-const SketchPad: React.FC<Props> = ({}) => {
+interface SocketDrawing {
+  color: string;
+  strokeWidth: number;
+  px: number;
+  py: number;
+  y: number;
+  x: number;
+}
+
+const SketchPad: React.FC<Props> = ({ color }) => {
   const socket = useContext(SocketContext);
-  const [color, setColor] = useState("#1362b0");
-  const [strokeWidth, setStrokeWidth] = useState(1);
-
+  const divRef = useRef<HTMLDivElement>();
+  const colorRef = useRef<string>();
+  const boardRef: React.MutableRefObject<p5> = React.useRef();
   useEffect(() => {
-    if (socket) {
-      socket.emit("join", {
-        username: "alex"
-      });
-    }
-  }, [socket]);
+    colorRef.current = color;
+  }, [color]);
 
-  const sendMouse = (x, y, pX, pY) => {
+  const sendDrawing = (x, y, pX, pY) => {
     const data = {
       x: x,
       y: y,
       px: pX,
       py: pY,
-      color,
-      strokeWidth
+      color: colorRef.current,
+      strokeWidth: 5
     };
 
     if (socket) {
-      socket.emit("mouse", data);
+      socket.emit("draw", data);
     }
   };
 
-  const setup = (p5: p5Types, canvasParentRef: Element) => {
-    p5.createCanvas(1000, 500).parent(canvasParentRef);
-    p5.mouseDragged = (event: any) => {
-      const { offsetX, offsetY, movementX, movementY } = event;
-      sendMouse(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
-    };
-  };
-
-  const draw = (p5: p5Types) => {
+  useEffect(() => {
     if (socket) {
-      socket.on("mouse", (data) => {
-        p5.stroke(data.color);
-        p5.strokeWeight(data.strokeWidth);
-        p5.line(data.px, data.py, data.x, data.y);
-      });
+      // Prevents glitch where multiple canvasses appear
+      if (boardRef.current) {
+        boardRef.current.remove();
+      }
+
+      boardRef.current = new p5((sketch: p5) => {
+        sketch.setup = () => {
+          sketch.createCanvas(
+            window.window.innerWidth,
+            window.window.innerHeight
+          );
+        };
+
+        socket.on("draw", (data: SocketDrawing) => {
+          sketch.stroke(data.color);
+          sketch.strokeWeight(data.strokeWidth);
+
+          sketch.line(data.px, data.py, data.x, data.y);
+        });
+      }, divRef.current);
     }
-  };
+    return () => {
+      if (socket) {
+        socket.off("draw");
+      }
+    };
+  }, [socket, divRef]);
+
+  useEffect(() => {
+    if (boardRef.current) {
+      boardRef.current.mouseDragged = (event: MouseEvent) => {
+        const { offsetX, offsetY, movementX, movementY } = event;
+        sendDrawing(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
+      };
+    }
+  });
 
   return (
-    <div>
-      <Sketch setup={setup} draw={draw} />
+    <div ref={divRef}>
+      <button onClick={() => boardRef.current.save("drawing.jpg")}>Save</button>
     </div>
   );
 };
