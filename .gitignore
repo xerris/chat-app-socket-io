@@ -112,6 +112,7 @@ dist
 .env.test.local
 .env.production.local
 server/build
+client/build
 infrastructure/.terraform.lock.hcl
 infrastructure/terraform.tfstate
 infrastructure/terraform.tfstate.backup

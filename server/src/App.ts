@@ -24,8 +24,8 @@ const io =
       })
     : new Server(server);
 
-// Toggle Redis while troubleshooting
-const redis = false;
+// Toggle Redis if you want to test locally
+const redis = true;
 if (redis) {
   const pubClient = new RedisClient({
     host: process.env.REDIS_ENDPOINT,
