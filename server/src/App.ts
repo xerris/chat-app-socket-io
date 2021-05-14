@@ -26,7 +26,7 @@ const io =
 
 // Toggle Redis if you want to test locally
 const redis = true;
-if (redis) {
+if (redis && env === "prod") {
   const pubClient = new RedisClient({
     host: process.env.REDIS_ENDPOINT,
     port: 6379

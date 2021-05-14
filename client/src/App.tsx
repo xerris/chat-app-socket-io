@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { Socket } from "socket.io-client";
 import "./App.css";
 import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
@@ -9,12 +10,12 @@ function App() {
   const [lastMessage, setLastMessage] = useState(null);
   const [color, setColor] = useState("#1362b0");
 
-  const socket = useContext(SocketContext);
+  const socket: Socket = useContext(SocketContext);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (socket && socket?.on && socket?.off) {
+    if (socket) {
       socket.on("connect", () => {
         setIsConnected(true);
       });
