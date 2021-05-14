@@ -31,6 +31,7 @@ if (redis) {
     host: process.env.REDIS_ENDPOINT,
     port: 6379
   });
+  console.log(`Connecting to Redis client @ ${process.env.REDIS_ENDPOINT}`);
   const subClient = pubClient.duplicate();
 
   io.adapter(createAdapter({ pubClient, subClient }));
