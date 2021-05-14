@@ -2,6 +2,8 @@
 
 This repository contains an implementation of a real-time chat application using Socket.io.
 
+Deployment can also be done to multiple EC2 instances on AWS with a terraform script. It will deploy the appropriate networking tools and Redis instance to connect multiple apps.
+
 # Setup
 
 ## Prerequisites
@@ -137,7 +139,7 @@ Your application should now be accessable through your `<EC2 Instance IPv4>:3001
 
 Run `terraform destroy` to remove the AWS resources you created
 
-## Scaling
+#  Scaling
 
-- Sticky load balancing
-  If you plan to distribute the load of connections among different processes or machines, you have to make sure that all requests associated with a particular session ID reach the process that originated them.
+## Sticky load balancing
+  If you plan to distribute the load of connections among different processes or machines, you have to make sure that all requests associated with a particular session ID reach the process that originated them. This means enabling sticky-connections for any load balancers.
