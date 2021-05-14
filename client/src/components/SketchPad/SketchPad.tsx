@@ -62,6 +62,11 @@ const SketchPad: React.FC<Props> = ({ color }) => {
         });
       }, divRef.current);
     }
+    return () => {
+      if (socket) {
+        socket.off("draw");
+      }
+    };
   }, [socket, divRef]);
 
   useEffect(() => {
