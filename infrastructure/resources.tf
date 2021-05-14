@@ -98,7 +98,18 @@ resource "aws_key_pair" "ec2key" {
   public_key = file(var.public_key_path)
 }
 
-resource "aws_instance" "testInstance" {
+resource "aws_instance" "instance1" {
+  ami           = var.instance_ami
+  instance_type = var.instance_type
+  subnet_id = aws_subnet.subnet_public.id
+  vpc_security_group_ids = [aws_security_group.sg_22.id]
+  key_name = aws_key_pair.ec2key.key_name
+  user_data = "${file("user_data.sh")}"
+  tags = {
+		"Environment" = var.environment_tag
+	}
+}
+resource "aws_instance" "instance2" {
   ami           = var.instance_ami
   instance_type = var.instance_type
   subnet_id = aws_subnet.subnet_public.id
@@ -123,4 +134,10 @@ resource "aws_elasticache_cluster" "redisCluster" {
   engine_version       = "3.2.10"
   port                 = 6379
   subnet_group_name =   aws_elasticache_subnet_group.redis_subnet_group.name
+  security_group_ids = [aws_security_group.sg_22.id]
+}
+
+resource "local_file" "instance_ips" {
+    content     = "${aws_elasticache_cluster.redisCluster.cache_nodes[0].address}"
+    filename = "${path.module}/redis_endpoint.txt"
 }
