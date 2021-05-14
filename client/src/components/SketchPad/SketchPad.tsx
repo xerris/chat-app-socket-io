@@ -8,7 +8,6 @@ interface Props {
 
 const SketchPad: React.FC<Props> = ({ color }) => {
   const socket = useContext(SocketContext);
-  const [strokeWidth, setStrokeWidth] = useState(5);
   const divRef = React.useRef<any>();
   const colorRef = React.useRef<any>();
 
@@ -16,18 +15,18 @@ const SketchPad: React.FC<Props> = ({ color }) => {
     colorRef.current = color;
   }, [color]);
 
-  const sendMouse = (x, y, pX, pY) => {
+  const sendDrawing = (x, y, pX, pY) => {
     const data = {
       x: x,
       y: y,
       px: pX,
       py: pY,
       color: colorRef.current,
-      strokeWidth
+      strokeWidth: 5
     };
 
     if (socket) {
-      socket.emit("mouse", data);
+      socket.emit("draw", data);
     }
   };
 
@@ -41,12 +40,15 @@ const SketchPad: React.FC<Props> = ({ color }) => {
 
         sketch.mouseDragged = (event: any) => {
           const { offsetX, offsetY, movementX, movementY } = event;
-          sendMouse(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
+          sendDrawing(
+            offsetX,
+            offsetY,
+            offsetX - movementX,
+            offsetY - movementY
+          );
         };
 
-        sketch.mouseClicked = () => console.log("clicked");
-
-        socket.on("mouse", (data) => {
+        socket.on("draw", (data) => {
           sketch.stroke(data.color);
           sketch.color(data.color);
           sketch.strokeWeight(data.strokeWidth);
