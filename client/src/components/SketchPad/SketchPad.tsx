@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import p5 from "p5";
 import { SocketContext } from "../SocketContext";
 
@@ -17,9 +17,9 @@ interface SocketDrawing {
 
 const SketchPad: React.FC<Props> = ({ color }) => {
   const socket = useContext(SocketContext);
-  const divRef = React.useRef<any>();
-  const colorRef = React.useRef<any>();
-
+  const divRef = useRef<HTMLDivElement>();
+  const colorRef = useRef<string>();
+  const boardRef: React.MutableRefObject<p5> = React.useRef();
   useEffect(() => {
     colorRef.current = color;
   }, [color]);
@@ -40,34 +40,44 @@ const SketchPad: React.FC<Props> = ({ color }) => {
   };
 
   useEffect(() => {
-    let p5Obj;
     if (socket) {
-      p5Obj = new p5((sketch: p5) => {
-        sketch.setup = () => {
-          sketch.createCanvas(1000, 500);
-        };
+      // Prevents glitch where multiple canvasses appear
+      if (boardRef.current) {
+        boardRef.current.remove();
+      }
 
-        sketch.mouseDragged = (event: MouseEvent) => {
-          const { offsetX, offsetY, movementX, movementY } = event;
-          sendDrawing(
-            offsetX,
-            offsetY,
-            offsetX - movementX,
-            offsetY - movementY
+      boardRef.current = new p5((sketch: p5) => {
+        sketch.setup = () => {
+          sketch.createCanvas(
+            window.window.innerWidth,
+            window.window.innerHeight
           );
         };
 
         socket.on("draw", (data: SocketDrawing) => {
           sketch.stroke(data.color);
           sketch.strokeWeight(data.strokeWidth);
+
           sketch.line(data.px, data.py, data.x, data.y);
         });
       }, divRef.current);
     }
-    return p5Obj;
   }, [socket, divRef]);
 
-  return <div ref={divRef} />;
+  useEffect(() => {
+    if (boardRef.current) {
+      boardRef.current.mouseDragged = (event: MouseEvent) => {
+        const { offsetX, offsetY, movementX, movementY } = event;
+        sendDrawing(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
+      };
+    }
+  });
+
+  return (
+    <div ref={divRef}>
+      <button onClick={() => boardRef.current.save("drawing.jpg")}>Save</button>
+    </div>
+  );
 };
 
 export default SketchPad;
