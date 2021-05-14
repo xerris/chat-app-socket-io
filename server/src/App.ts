@@ -56,10 +56,6 @@ io.on("connect", (socket: Socket) => {
     console.log("Client disconnected");
   });
 
-  socket.on("press", () => {
-    console.log("someone pressed");
-  });
-
   socket.on("mouse", (data) => {
     io.emit("mouse", data);
   });
