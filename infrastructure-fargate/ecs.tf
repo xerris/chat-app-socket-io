@@ -1,7 +1,7 @@
 # ecs.tf
 
 resource "aws_ecs_cluster" "main" {
-  name = "cb-cluster"
+  name = "xerris-cluster"
 }
 
 data "template_file" "cb_app" {
@@ -17,7 +17,7 @@ data "template_file" "cb_app" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "cb-app-task"
+  family                   = "xerris-app-task"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -27,7 +27,7 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_ecs_service" "main" {
-  name            = "cb-service"
+  name            = "xerris-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.app_count
@@ -41,7 +41,7 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name   = "cb-app"
+    container_name   = "xerris-app"
     container_port   = var.app_port
   }
 

@@ -1,6 +1,6 @@
 [
   {
-    "name": "cb-app",
+    "name": "xerris-app",
     "image": "${app_image}",
     "cpu": ${fargate_cpu},
     "memory": ${fargate_memory},
@@ -8,7 +8,7 @@
     "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/cb-app",
+          "awslogs-group": "/ecs/xerris-app",
           "awslogs-region": "${aws_region}",
           "awslogs-stream-prefix": "ecs"
         }
