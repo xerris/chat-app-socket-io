@@ -133,3 +133,4 @@ infrastructure-fargate/redis_endpoint.txt
 infrastructure-fargate/.env
 infrastructure-fargate/user_data.sh
 # Module directory
+dump.rdb

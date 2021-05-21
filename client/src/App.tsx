@@ -48,6 +48,9 @@ function App() {
   const [roomList, setRoomList] = useState<IRoom[]>([
     { name: "Lobby", id: "abcdef" }
   ]);
+  const [roomUserList, setRoomUserList] = useState<string[]>([
+    "rexx92, tobi22"
+  ]);
   const [color, setColor] = useState("#1362b0");
 
   const socket: Socket = useContext(SocketContext);
@@ -65,13 +68,16 @@ function App() {
       });
 
       socket.on("message", (data: ISocketMessage) => {
-        console.log("message received for room", data);
         setLastMessage(data.message);
       });
 
       socket.on("messageList", (data: DynamoMessageQuery[]) => {
-        console.log("🚀 ~ file: App.tsx ~ line 65 ~ socket.on ~ data", data);
+        console.log("🚀 ~ messageList", data);
         setChatData(data);
+      });
+      socket.on("roomListUpdate", (data: string[]) => {
+        console.log("🚀 ~ roomListUpdate", data);
+        setRoomUserList(data);
       });
     }
 

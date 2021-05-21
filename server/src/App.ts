@@ -88,12 +88,7 @@ io.on("connect", async (socket: Socket) => {
   // Send list of active users to room
   const updateRoomList = (roomName: string) => {
     localClient.lrange(`${roomName}Users`, 0, -1, (err, reply: IUserList) => {
-      socket.to(roomName).emit(
-        JSON.stringify({
-          type: "roomListUpdate",
-          users: reply
-        })
-      );
+      socket.to(roomName).emit("roomListUpdate", reply);
     });
   };
 
