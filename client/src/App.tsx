@@ -11,11 +11,43 @@ interface ISocketMessage {
   message: string;
   timestamp: number;
 }
+
+interface IRoom {
+  id: string;
+  name: string;
+}
+
+export interface DynamoMessageQuery {
+  SK: string;
+  PK: string;
+  message: string;
+  username: string;
+  timestamp: number;
+}
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
   const [username, setUsername] = useState("rexx92");
   const [roomName, setRoomName] = useState("Lobby");
+  const [chatData, setChatData] = useState([
+    {
+      SK: "#MESSAGE#rexx921621570384619",
+      message: "Test hello dynamoooo",
+      username: "rexx92",
+      PK: "ROOM#Lobby",
+      timestamp: 1621570384618
+    },
+    {
+      SK: "#MESSAGE#rexx921621571157926",
+      message: "Hi Tobi",
+      username: "rexx92",
+      PK: "ROOM#Lobby",
+      timestamp: 1621571157923
+    }
+  ]);
+  const [roomList, setRoomList] = useState<IRoom[]>([
+    { name: "Lobby", id: "abcdef" }
+  ]);
   const [color, setColor] = useState("#1362b0");
 
   const socket: Socket = useContext(SocketContext);
@@ -35,6 +67,11 @@ function App() {
       socket.on("message", (data: ISocketMessage) => {
         console.log("message received for room", data);
         setLastMessage(data.message);
+      });
+
+      socket.on("messageList", (data: DynamoMessageQuery[]) => {
+        console.log("🚀 ~ file: App.tsx ~ line 65 ~ socket.on ~ data", data);
+        setChatData(data);
       });
     }
 
