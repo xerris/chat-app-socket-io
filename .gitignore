@@ -122,3 +122,15 @@ infrastructure/.terraform.tfstate.lock.info
 infrastructure/redis_endpoint.txt
 infrastructure/.env
 infrastructure/user_data.sh
+# Compiled files
+infrastructure-fargate/.terraform.lock.hcl
+infrastructure-fargate/terraform.tfstate
+infrastructure-fargate/terraform.tfstate.backup
+infrastructure-fargate/.terraform/providers/registry.terraform.io/hashicorp/aws/3.38.0/darwin_amd64/terraform-provider-aws_v3.38.0_x5
+infrastructure-fargate/.terraform
+infrastructure-fargate/.terraform.tfstate.lock.info
+infrastructure-fargate/redis_endpoint.txt
+infrastructure-fargate/.env
+infrastructure-fargate/user_data.sh
+# Module directory
+dump.rdb

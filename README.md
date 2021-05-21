@@ -47,22 +47,58 @@ The server and client are two separate applications, they must both be running i
 npm run dev
 ```
 
+## Run REDIS Client locally
+
+[Download Redis here](https://redis.io/topics/quickstart), and run `redis-server` in a terminal.
+
 # Deploying to AWS
 
 ## 1) Set up AWS CLI with profile
 
 [Follow this tutorial and login to set up your secret key and access key](https://docs.aws.amazon.com/polly/latest/dg/setup-aws-cli.html). This is required to deploy resources to AWS through the Terraform code.
 
-## 2a) Build and deploy with Terraform shell script
+## 2) Install Terraform
 
-- This will skip step 2 and 3 below
+[Do this by installing the Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+
+## 3a) Option 1: Build and deploy to multiple EC2 instances with Terraform shell script
+
+- This will skip step 4 below
 - Make sure you are logged in to docker with `docker login`
 - Set your Docker username and password in the ./infrastructure/.env file, following the convention set in .env.example
-- Run `sh terraform_exec 1` and your infrastructure will be built, code will be dockerized and pushed to docker. Go to step 4.
+- Run `sh terraform_exec 1` within the infrastructure/ folder and your infrastructure will be built, code will be dockerized and pushed to docker.
+- Go to step 5.
 
-## 2b) Deploy infrastructure with Terraform
+## 3b) Option 2: Deploy to an AWS ECS Cluster with Fargate and Terraform
 
-[You will first need to install the Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+- This will use AWS ECS instead of multiple EC2 instances.
+- Follow step 4 below, and then replace the app_image in infrastructure-fargate/variables.tf with <YOUR_DOCKER_USERNAME>/xerris-socket-app:latest
+- Run the following in your terminal:
+
+```
+cd infrastructure-fargate
+terraform init
+terraform plan
+terraform apply
+```
+
+This will create the following resources in your AWS Account:
+
+- ECS task which runs our socket-app Docker image
+- ECS service which runs our task
+- ECS cluster which runs our service
+- VPC
+- Internet Gateway
+- Subnet
+- Route Table & associated to subnet
+- Application Load Balancer that will point at our ECS cluster
+- AWS Redis Elasticache cluster
+- Public security group with port 3001 open for public access to our app
+- Private security group for internal communication between ECS, our ALB and Redis.
+
+It will also the hostname of our ALB for connecting. Once complete, you can go to <ALB_HOST_NAME>:3001 and connect to one of your ECS tasks.
+
+## 3c) Option 3: Deploy infrastructure with Terraform manually
 
 ```
 cd infrastructure
@@ -84,7 +120,7 @@ This will create the following resources in your AWS Account:
 
 It will also output some information for the resources you created, including the Public IPV4 address of the EC2 instance you created.
 
-## 3) Build Docker Image
+## 4) Build Docker Image
 
 Docker and Docker CLI tool must be installed for this step. Use `docker login` to authenticate.
 
@@ -103,7 +139,7 @@ docker tag xerris-socket-app <YOUR_DOCKER_USERNAME>/xerris-socket-app
 docker push <YOUR_DOCKER_USERNAME>/xerris-socket-app
 ```
 
-## 4) Connect to instance
+## 5) Connect to instance
 
 ```
 cd ~/.ssh
@@ -111,11 +147,11 @@ chmod 400 id_rsa.pub
 ssh -i id_rsa ec2-user@<IPV4 ADDRESS OF EC2 INSTANCE>
 ```
 
-## 5) Deploy App to EC2 Instance
+## 6) Deploy App to EC2 Instance
 
 Your EC2 instance included the user_data script in infrastructure, so it should be updated and have docker installed & running when you SSH into it.
 
-If you didn't follow step 2a, run the following:
+If you are following step 3b, you will have to install docker manually by running the following in your EC2 instance:
 
 ```
 sudo yum update -y
@@ -135,11 +171,12 @@ docker run -t -i -p 3001:3001 <YOUR_DOCKER_USERNAME>/xerris-socket-app
 
 Your application should now be accessable through your `<EC2 Instance IPv4>:3001` OR `<IPv4 DNS>:3001`
 
-## Teardown
+# Teardown (important!)
 
-Run `terraform destroy` to remove the AWS resources you created
+Run `terraform destroy` to remove the AWS resources you created.
 
-#  Scaling
+## Resources used
 
-## Sticky load balancing
-  If you plan to distribute the load of connections among different processes or machines, you have to make sure that all requests associated with a particular session ID reach the process that originated them. This means enabling sticky-connections for any load balancers.
+[Deploying to Fargate](https://medium.com/@bradford_hamilton/deploying-containers-on-amazons-ecs-using-fargate-and-terraform-part-2-2e6f6a3a957f)
+
+[Creating a Docker Image](https://dev.to/dariansampare/setting-up-docker-typescript-node-hot-reloading-code-changes-in-a-running-container-2b2f)
