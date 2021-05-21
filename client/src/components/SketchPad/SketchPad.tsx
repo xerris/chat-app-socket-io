@@ -55,11 +55,13 @@ const SketchPad: React.FC<Props> = ({ color }) => {
         };
 
         socket.on("draw", (data: SocketDrawing) => {
-          // Prevents crash on initial load
-          if (boardRef.current) {
+          try {
             sketch.stroke(data.color);
             sketch.strokeWeight(data.strokeWidth);
             sketch.line(data.px, data.py, data.x, data.y);
+          } catch (error) {
+            // Prevents crashing on inital draw data
+            console.log("error drawing", error);
           }
         });
 
