@@ -59,7 +59,7 @@ server.listen(port, () => {
 
 interface IRoomData {
   roomName: string;
-  userName: string;
+  username: string;
 }
 
 type IUserList = string[];
@@ -86,9 +86,13 @@ io.on("connect", async (socket: Socket) => {
   socket.emit("messageList", roomMessageList);
 
   // Send list of active users to room
-  const updateRoomList = (roomName: string) => {
+  const updateRoomList = async (roomName: string) => {
     localClient.lrange(`${roomName}Users`, 0, -1, (err, reply: IUserList) => {
-      socket.to(roomName).emit("roomListUpdate", reply);
+      console.log(
+        "🚀 ~ file: App.ts ~ line 91 ~ localClient.lrange ~ reply",
+        reply
+      );
+      io.in(roomName).emit("roomListUpdate", reply);
     });
   };
 
@@ -109,6 +113,7 @@ io.on("connect", async (socket: Socket) => {
 
   socket.on("clearBoard", () => {
     // Clears the drawing data from REDIS and tells clients to do the same
+    console.log("Clearing board...");
     localClient.DEL("drawDataRoom1");
     io.emit("clearBoard");
   });
@@ -124,8 +129,9 @@ io.on("connect", async (socket: Socket) => {
   });
 
   socket.on("joinRoom", async (data: IRoomData) => {
+    console.log("socket joining", data.roomName);
     socket.join(data.roomName);
-    localClient.lpush(`${data.roomName}Users`, data.userName);
+    localClient.lpush(`${data.roomName}Users`, data.username);
     // Emit new list of users to room so UI can update
     updateRoomList(data.roomName);
 
@@ -137,7 +143,7 @@ io.on("connect", async (socket: Socket) => {
 
   socket.on("leaveRoom", (data: IRoomData) => {
     socket.leave(data.roomName);
-    localClient.LREM(`${data.roomName}Users`, 1, data.userName);
+    localClient.LREM(`${data.roomName}Users`, 1, data.username);
     // Emit new list of users to room so UI can update
     updateRoomList(data.roomName);
   });

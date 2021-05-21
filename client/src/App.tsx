@@ -88,7 +88,7 @@ function App() {
         socket.off("message");
       }
     };
-  });
+  }, [socket]);
 
   const sendMessage = () => {
     socket.emit("message", {
