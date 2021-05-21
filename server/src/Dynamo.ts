@@ -34,10 +34,6 @@ export const getMessagesForRoom = async (roomName: string) => {
           }
         })
         .promise();
-      console.log(
-        "🚀 ~ file: Dynamo.ts ~ line 50 ~ returnnewPromise ~ roomMessageList.items",
-        roomMessageList.Items
-      );
 
       resolve(roomMessageList.Items);
     } catch (err) {
