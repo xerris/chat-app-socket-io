@@ -58,6 +58,7 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
           }
         })
         .promise();
+      resolve("Success");
     } catch (error) {
       console.log("error posting message", m, error);
       reject(error);
