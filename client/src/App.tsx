@@ -5,9 +5,17 @@ import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
 import { SocketContext } from "./components/SocketContext";
 
+interface ISocketMessage {
+  room: string;
+  username: string;
+  message: string;
+  timestamp: number;
+}
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
+  const [username, setUsername] = useState("rexx92");
+  const [roomName, setRoomName] = useState("Lobby");
   const [color, setColor] = useState("#1362b0");
 
   const socket: Socket = useContext(SocketContext);
@@ -24,8 +32,9 @@ function App() {
         setIsConnected(false);
       });
 
-      socket.on("message", (data) => {
-        setLastMessage(data);
+      socket.on("message", (data: ISocketMessage) => {
+        console.log("message received for room", data);
+        setLastMessage(data.message);
       });
     }
 
@@ -39,7 +48,12 @@ function App() {
   });
 
   const sendMessage = () => {
-    socket.emit("message", message);
+    socket.emit("message", {
+      room: roomName,
+      username,
+      message,
+      timestamp: Date.now()
+    });
   };
 
   const onMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

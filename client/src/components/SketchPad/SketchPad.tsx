@@ -55,11 +55,15 @@ const SketchPad: React.FC<Props> = ({ color }) => {
         };
 
         socket.on("draw", (data: SocketDrawing) => {
-          sketch.stroke(data.color);
-          sketch.strokeWeight(data.strokeWidth);
-
-          sketch.line(data.px, data.py, data.x, data.y);
+          // Prevents crash on initial load
+          if (boardRef.current) {
+            sketch.stroke(data.color);
+            sketch.strokeWeight(data.strokeWidth);
+            sketch.line(data.px, data.py, data.x, data.y);
+          }
         });
+
+        socket.on("clearBoard", () => boardRef.current.clear());
       }, divRef.current);
     }
     return () => {
@@ -81,6 +85,14 @@ const SketchPad: React.FC<Props> = ({ color }) => {
   return (
     <div ref={divRef}>
       <button onClick={() => boardRef.current.save("drawing.jpg")}>Save</button>
+      <button
+        onClick={() => {
+          boardRef.current.clear();
+          socket.emit("clearBoard");
+        }}
+      >
+        Clear Board
+      </button>
     </div>
   );
 };

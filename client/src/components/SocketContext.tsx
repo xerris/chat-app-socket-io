@@ -1,11 +1,11 @@
 import React, { createContext, useEffect, useState } from "react";
-import socketIOClient from "socket.io-client";
+import socketIOClient, { Socket } from "socket.io-client";
 require("dotenv").config({ path: "./.env" });
 
 const SocketContext = createContext(null);
 
 const SocketProvider = (props: any) => {
-  const [socket, setSocket] = useState<any>(null);
+  const [socket, setSocket] = useState<Socket>(null);
 
   useEffect(() => {
     const socketConnection =
