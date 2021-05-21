@@ -47,6 +47,10 @@ The server and client are two separate applications, they must both be running i
 npm run dev
 ```
 
+## Run REDIS Client locally
+
+[Download Redis here](https://redis.io/topics/quickstart), and run `redis-server` in a terminal.
+
 # Deploying to AWS
 
 ## 1) Set up AWS CLI with profile
