@@ -1,10 +1,11 @@
-import { createServer } from "http";
+import { createServer } from "https";
 import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
-import { getMessagesForRoom, saveRoomMessage } from "./Dynamo";
+import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
+import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
 
 require("dotenv").config({ path: "./.env" });
 const app = express();
@@ -58,8 +59,8 @@ server.listen(port, () => {
 });
 
 interface IRoomData {
-  roomName: string;
-  username: string;
+  userId: string;
+  roomId: string;
 }
 
 type IUserList = string[];
@@ -86,25 +87,18 @@ io.on("connect", async (socket: Socket) => {
   socket.emit("messageList", roomMessageList);
 
   // Send list of active users to room
-  const updateRoomList = async (roomName: string) => {
-    localClient.lrange(`${roomName}Users`, 0, -1, (err, reply: IUserList) => {
-      console.log(
-        "🚀 ~ file: App.ts ~ line 91 ~ localClient.lrange ~ reply",
-        reply
-      );
-      io.in(roomName).emit("roomListUpdate", reply);
-    });
+  const updateRoomList = async (roomId: string) => {
+    const userList = await getUsersInRoom(roomId);
+    io.in(roomId).emit("roomListUpdate", userList);
   };
 
   socket.on("message", async (m: ISocketMessage) => {
     // Send to all clients
-    io.emit("message", m);
+    // io.emit("message", m);
 
     // Sent to room only
-    // io.to(m.room).emit("message", m);
-    console.log("🚀 ~ Message received", m);
-
-    await saveRoomMessage(m);
+    io.to(m.room).emit("message", m);
+    saveRoomMessage(m);
   });
 
   socket.on("disconnect", () => {
@@ -129,23 +123,25 @@ io.on("connect", async (socket: Socket) => {
   });
 
   socket.on("joinRoom", async (data: IRoomData) => {
-    console.log("socket joining", data.roomName);
-    socket.join(data.roomName);
-    localClient.lpush(`${data.roomName}Users`, data.username);
+    console.log("socket joining room ID", data.roomId);
+    socket.join(data.roomId);
+    localClient.lpush(`${data.roomId}Users`, data.userId);
+    joinRoom(data.roomId, data.userId, false);
     // Emit new list of users to room so UI can update
-    updateRoomList(data.roomName);
+    updateRoomList(data.roomId);
 
     // Dynamo query room messages for newly connected user
-    const roomMessageList = await getMessagesForRoom(data.roomName);
+    const roomMessageList = await getMessagesForRoom(data.id);
 
     socket.emit("messageList", roomMessageList);
   });
 
   socket.on("leaveRoom", (data: IRoomData) => {
-    socket.leave(data.roomName);
-    localClient.LREM(`${data.roomName}Users`, 1, data.username);
+    socket.leave(data.roomId);
+    localClient.LREM(`${data.roomId}Users`, 1, data.userId);
+    leaveRoom(data.roomId, data.userId);
     // Emit new list of users to room so UI can update
-    updateRoomList(data.roomName);
+    updateRoomList(data.roomId);
   });
 });
 
