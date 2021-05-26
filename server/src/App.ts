@@ -4,7 +4,8 @@ import cors from "cors";
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
-import { getMessagesForRoom, saveRoomMessage } from "./Dynamo";
+import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
+import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
 
 require("dotenv").config({ path: "./.env" });
 const app = express();
@@ -25,26 +26,22 @@ const io =
       })
     : new Server(server);
 
-let localClient: redis.RedisClient;
-// Toggle Redis if you want to test locally
-const remoteRedis = false;
+let pubClient: redis.RedisClient;
+// Toggle Redis / Dynamo connection if you want to test locally
 const localRedis = true;
-if (remoteRedis) {
-  const redisEndpoint =
-    env === "dev"
-      ? process.env.LOCAL_REDIS_ENDPOINT
-      : process.env.REDIS_ENDPOINT;
+const localDynamo = true;
+if (env === "prod") {
+  const redisEndpoint = process.env.REDIS_ENDPOINT;
 
-  const pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
+  pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
   console.log(`Connecting to Redis client @ ${redisEndpoint}`);
   const subClient = pubClient.duplicate();
 
   io.adapter(createAdapter({ pubClient, subClient }));
-  // }
 } else if (localRedis) {
-  localClient = redis.createClient();
+  pubClient = redis.createClient();
 
-  localClient.on("error", (err) => {
+  pubClient.on("error", (err) => {
     console.log("Redis error: ", err);
   });
 }
@@ -58,7 +55,8 @@ server.listen(port, () => {
 });
 
 interface IRoomData {
-  roomName: string;
+  userId: string;
+  roomId: string;
   username: string;
 }
 
@@ -76,35 +74,34 @@ io.on("connect", async (socket: Socket) => {
 
   // Send connected client drawing information.
   // Can be whatever room we choose, i just hardcoded drawDataRoom1
-  localClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
-    console.log("Sending new client list of draw items. Size:", reply.length);
-    reply.forEach((drawData) => socket.emit("draw", JSON.parse(drawData)));
-  });
+  if (localRedis) {
+    pubClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
+      console.log("Sending new client list of draw items. Size:", reply.length);
+      reply.forEach((drawData) => socket.emit("draw", JSON.parse(drawData)));
+    });
+  }
 
   // Get list of messages for room.
-  const roomMessageList = await getMessagesForRoom("Lobby");
-  socket.emit("messageList", roomMessageList);
+  if (localDynamo) {
+    const roomMessageList = await getMessagesForRoom("Lobby");
+    socket.emit("messageList", roomMessageList);
+  }
 
   // Send list of active users to room
-  const updateRoomList = async (roomName: string) => {
-    localClient.lrange(`${roomName}Users`, 0, -1, (err, reply: IUserList) => {
-      console.log(
-        "🚀 ~ file: App.ts ~ line 91 ~ localClient.lrange ~ reply",
-        reply
-      );
-      io.in(roomName).emit("roomListUpdate", reply);
-    });
+  const updateRoomList = async (roomId: string) => {
+    const userList = await getUsersInRoom(roomId);
+    io.in(roomId).emit("roomListUpdate", userList);
   };
 
   socket.on("message", async (m: ISocketMessage) => {
     // Send to all clients
-    io.emit("message", m);
+    // io.emit("message", m);
 
     // Sent to room only
-    // io.to(m.room).emit("message", m);
-    console.log("🚀 ~ Message received", m);
-
-    await saveRoomMessage(m);
+    io.to(m.room).emit("message", m);
+    if (localDynamo) {
+      saveRoomMessage(m);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -114,38 +111,51 @@ io.on("connect", async (socket: Socket) => {
   socket.on("clearBoard", () => {
     // Clears the drawing data from REDIS and tells clients to do the same
     console.log("Clearing board...");
-    localClient.DEL("drawDataRoom1");
+    if (localRedis) {
+      pubClient.DEL("drawDataRoom1");
+    }
     io.emit("clearBoard");
   });
 
   socket.on("draw", (data) => {
     // Send to all clients. Will replace with io.to('roomName')
     io.emit("draw", data);
-    localClient.lpush("drawDataRoom1", JSON.stringify(data));
+    if (localRedis) {
+      pubClient.lpush("drawDataRoom1", JSON.stringify(data));
 
-    // Limit to....10,000 draw items? Don't want browser to crash on inital load.
-    // Running into some crashing issues.
-    localClient.ltrim("drawDataRoom1", 0, 10000);
+      // Limit to....10,000 draw items? Don't want browser to crash on inital load.
+      // Running into some crashing issues.
+      pubClient.ltrim("drawDataRoom1", 0, 10000);
+    }
   });
 
   socket.on("joinRoom", async (data: IRoomData) => {
-    console.log("socket joining", data.roomName);
-    socket.join(data.roomName);
-    localClient.lpush(`${data.roomName}Users`, data.username);
-    // Emit new list of users to room so UI can update
-    updateRoomList(data.roomName);
+    console.log("socket joining room ID", data.roomId);
+    socket.join(data.roomId);
+    if (localRedis) {
+      pubClient.lpush(`${data.roomId}Users`, data.userId);
+      // Emit new list of users to room so UI can update
+      updateRoomList(data.roomId);
+    }
+    if (localDynamo) {
+      joinRoom(data.roomId, data.userId, data.username, false);
+      // Dynamo query room messages for newly connected user
+      const roomMessageList = await getMessagesForRoom(data.roomId);
 
-    // Dynamo query room messages for newly connected user
-    const roomMessageList = await getMessagesForRoom(data.roomName);
-
-    socket.emit("messageList", roomMessageList);
+      socket.emit("messageList", roomMessageList);
+    }
   });
 
   socket.on("leaveRoom", (data: IRoomData) => {
-    socket.leave(data.roomName);
-    localClient.LREM(`${data.roomName}Users`, 1, data.username);
-    // Emit new list of users to room so UI can update
-    updateRoomList(data.roomName);
+    socket.leave(data.roomId);
+    if (localRedis) {
+      pubClient.LREM(`${data.roomId}Users`, 1, data.userId);
+    }
+    if (localDynamo) {
+      leaveRoom(data.roomId, data.userId);
+      // Emit new list of users to room so UI can update
+      updateRoomList(data.roomId);
+    }
   });
 });
 

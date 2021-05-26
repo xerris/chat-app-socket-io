@@ -10,7 +10,12 @@ const SocketProvider = (props: any) => {
   useEffect(() => {
     const socketConnection =
       process.env.REACT_APP_ENV === "dev"
-        ? socketIOClient("localhost:3001")
+        ? socketIOClient("localhost:3001", {
+            withCredentials: true,
+            extraHeaders: {
+              "my-custom-header": "abcd"
+            }
+          })
         : socketIOClient();
     console.log(
       process.env.REACT_APP_ENV === "dev"
