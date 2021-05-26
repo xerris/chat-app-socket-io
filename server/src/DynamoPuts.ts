@@ -1,6 +1,7 @@
 import { dynamo } from "./Dynamo";
 import { v4 as uuidv4 } from "uuid";
 import { ISocketMessage } from "./App";
+const env = process.env.ENV;
 
 const createRoomList = async (
   roomList: {

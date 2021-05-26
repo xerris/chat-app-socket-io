@@ -1,4 +1,5 @@
 import { dynamo } from "./Dynamo";
+const env = process.env.ENV;
 
 export interface IUserRoom {
   PK: string;

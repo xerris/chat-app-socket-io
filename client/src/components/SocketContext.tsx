@@ -7,10 +7,20 @@ const SocketContext = createContext(null);
 const SocketProvider = (props: any) => {
   const [socket, setSocket] = useState<Socket>(null);
 
+  console.log(
+    "🚀 ~ file: SocketContext.tsx ~ line 13 ~ useEffect ~ process.env.REACT_APP_ENV",
+    process.env.REACT_APP_ENV
+  );
+
   useEffect(() => {
     const socketConnection =
       process.env.REACT_APP_ENV === "dev"
-        ? socketIOClient("localhost:3001")
+        ? socketIOClient("localhost:3001", {
+            withCredentials: true,
+            extraHeaders: {
+              "my-custom-header": "abcd"
+            }
+          })
         : socketIOClient();
     console.log(
       process.env.REACT_APP_ENV === "dev"
