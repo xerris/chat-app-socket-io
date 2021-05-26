@@ -1,4 +1,4 @@
-import { createServer } from "https";
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
@@ -14,7 +14,6 @@ app.use(cors());
 const server = createServer(app);
 const port = process.env.PORT || 3001;
 const env = process.env.ENV;
-console.log("🚀 ~ file: App.ts ~ line 17 ~ env", env, port);
 const io =
   env === "dev"
     ? new Server(server, {
