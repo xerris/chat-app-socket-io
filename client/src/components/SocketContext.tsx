@@ -7,11 +7,6 @@ const SocketContext = createContext(null);
 const SocketProvider = (props: any) => {
   const [socket, setSocket] = useState<Socket>(null);
 
-  console.log(
-    "🚀 ~ file: SocketContext.tsx ~ line 13 ~ useEffect ~ process.env.REACT_APP_ENV",
-    process.env.REACT_APP_ENV
-  );
-
   useEffect(() => {
     const socketConnection =
       process.env.REACT_APP_ENV === "dev"

@@ -27,10 +27,9 @@ const io =
     : new Server(server);
 
 let pubClient: redis.RedisClient;
-// Toggle Redis if you want to test locally
-
-const localRedis = false;
-const localDynamo = false;
+// Toggle Redis / Dynamo connection if you want to test locally
+const localRedis = true;
+const localDynamo = true;
 if (env === "prod") {
   const redisEndpoint = process.env.REDIS_ENDPOINT;
 
