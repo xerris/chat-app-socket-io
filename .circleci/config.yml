@@ -28,7 +28,8 @@ jobs:
       -image: circleci/node@4.2.0
     steps:
       -checkout
-      -run: cd client && npm run build
+      -run: |
+        cd client && npm run build
       -run: |
         cd ../infrastructure-fargate
         sh terraform_exec 1
