@@ -2,7 +2,7 @@
 
 # ALB Security Group: Edit to restrict access to the application
 resource "aws_security_group" "lb" {
-  name        = "xerris-load-balancer-security-group"
+  name        = "socket-app-balancer-security-group"
   description = "controls access to the ALB"
   vpc_id      = aws_vpc.main.id
 
