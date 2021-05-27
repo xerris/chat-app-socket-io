@@ -11,6 +11,7 @@ anchors:
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
 
   deploy-infra: &deploy-infra
+  working_directory: fargate-infrastructure/
     run:
       name: Deploy terraform platform infra
       command: |
@@ -42,18 +43,21 @@ jobs:
           name: Install node dependencies npm run build
           command: |
             npm run build
-      - run: |
-          cd ../infrastructure-fargate
-          sh terraform_exec 1
-      - run: |
-          ECR_ENDPOINT=$(cat ecr_endpoint.txt)
-          echo "Your ECR endpoint: $ECR_ENDPOINT"
-          cd ../server/
-          docker build . -t xerris-socket-app
-          login=”$(aws ecr get-login)” 
-          ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
-          docker push “${ECR_ENDPOINT}/app:latest”
-
+      - run: 
+          name: Deploy Terraform to AWS
+          command: |
+            cd ../infrastructure-fargate
+            sh terraform_exec 1
+      - run:
+          name: Build & Push docker image to ECR
+          command: |
+            ECR_ENDPOINT=$(cat ecr_endpoint.txt)
+            echo "Your ECR endpoint: $ECR_ENDPOINT"
+            cd ../server/
+            docker build . -t xerris-socket-app
+            login=”$(aws ecr get-login)” 
+            ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+            docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
     executor: default
     steps:
@@ -65,5 +69,7 @@ workflows:
   version: 2
   devDeploy:
     jobs:
+     - build:
+          context: FIND_PROPER_CONTEXT_CIRCLE
       - deployInfra:
           context: FIND_PROPER_CONTEXT_CIRCLE
