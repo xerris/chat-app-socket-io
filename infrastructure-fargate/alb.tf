@@ -1,7 +1,7 @@
 # alb.tf
 
 resource "aws_alb" "main" {
-  name            = "xerris-load-balancer"
+  name            = "socket-app-load-balancer"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.lb.id]
 }
@@ -20,7 +20,7 @@ resource "aws_alb_target_group" "app" {
   }
 
   health_check {
-    healthy_threshold   = "3"
+    healthy_threshold   = "2"
     interval            = "30"
     protocol            = "HTTP"
     matcher             = "200"

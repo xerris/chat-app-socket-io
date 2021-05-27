@@ -134,3 +134,4 @@ infrastructure-fargate/.env
 infrastructure-fargate/user_data.sh
 # Module directory
 dump.rdb
+infrastructure-fargate/ecr_endpoint.txt

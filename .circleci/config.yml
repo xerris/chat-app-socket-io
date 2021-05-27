@@ -1,0 +1,59 @@
+version: 2.1
+anchors:
+  configure-aws-access: &configure-aws-access
+    run:
+      name: Configure AWS access
+      command: |
+        mkdir -p ~/.aws
+        file=~/.aws/credentials
+        echo "[default]" > $file
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
+        echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
+
+  deploy-infra: &deploy-infra
+    run:
+      name: Deploy terraform platform infra
+      command: |
+        sh ./terraform_exec.sh 1
+orbs:
+  aws-cli: circleci/aws-cli@1.0.0
+  node: circleci/node@4.2.0
+executors:
+  default:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+jobs:
+  build:
+    docker:
+      -image: circleci/node@4.2.0
+    steps:
+      -checkout
+      -run: cd client && npm run build
+      -run: |
+        cd ../infrastructure-fargate
+        sh terraform_exec 1
+      -setup_remote_docker:
+        version: 19.03.13
+        docker_layer_caching: true
+      -run: |
+        ECR_ENDPOINT=$(cat ecr_endpoint.txt)
+        echo "Your ECR endpoint: $ECR_ENDPOINT"
+        cd ../server/
+        docker build . -t xerris-socket-app
+        login=”$(aws ecr get-login)” 
+        ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+        docker push “${ECR_ENDPOINT}/app:latest”
+
+  deployInfra:
+    executor: default
+    steps:
+      - checkout
+      - *configure-aws-access
+      - *deploy-infra
+
+workflows:
+  version: 2
+  devDeploy:
+    jobs:
+      - deployInfra:
+          context: FIND_PROPER_CONTEXT_CIRCLE

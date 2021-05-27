@@ -118,6 +118,7 @@ resource "aws_instance" "instance2" {
   user_data = "${file("user_data.sh")}"
   tags = {
 		"Environment" = var.environment_tag
+    "Name"        = "xerris-socket-app"
 	}
 }
 resource "aws_elasticache_subnet_group" "redis_subnet_group" {

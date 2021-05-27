@@ -27,7 +27,7 @@ variable "app_port" {
 
 variable "app_count" {
   description = "Number of docker containers to run"
-  default     = 3
+  default     = 2
 }
 
 variable "health_check_path" {
@@ -42,5 +42,21 @@ variable "fargate_cpu" {
 variable "fargate_memory" {
   description = "Fargate instance memory to provision (in MiB)"
   default     = "2048"
+}
+
+
+variable "images_to_keep" {
+  description= "Number of ECR images to keep before cleaning"
+  default = 10
+}
+
+variable "env" {
+  description= "Environemnt"
+  default = "dev"
+}
+
+variable "ecr_name" {
+  description= "ECR registry name"
+  default = "dev"
 }
 
