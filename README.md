@@ -39,7 +39,7 @@ npm install
 
 ## Starting the Application Locally
 
-The server and client are two separate applications, they must both be running in parrallel. You will need to rename the .env.example files in client/ and server/ to .env
+The server and client are two separate applications, they must both be running in parallel. You will need to rename the .env.example files in client/ and server/ to .env
 
 ## Run Client & Server
 
@@ -139,7 +139,8 @@ Your application should now be accessable through your `<EC2 Instance IPv4>:3001
 
 Run `terraform destroy` to remove the AWS resources you created
 
-#  Scaling
+# Scaling
 
 ## Sticky load balancing
-  If you plan to distribute the load of connections among different processes or machines, you have to make sure that all requests associated with a particular session ID reach the process that originated them. This means enabling sticky-connections for any load balancers.
+
+If you plan to distribute the load of connections among different processes or machines, you have to make sure that all requests associated with a particular session ID reach the process that originated them. This means enabling sticky-connections for any load balancers.

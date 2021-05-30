@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import "./index.css";
+import "./css/index.css";
 import App from "./App";
 import { SocketProvider } from "./components/SocketContext";
 
