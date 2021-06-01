@@ -41,7 +41,7 @@ jobs:
             CI=false npm run build
             cd ../server
             npm install .
-  Build docker image:
+  Build docker image & deploy:
     working_directory: server/
     docker:
       - image: docker:17.05.0-ce-git
@@ -73,6 +73,7 @@ jobs:
           command: |
             ls
             cd server
+            ls
             docker build --cache-from=app -t app .
       - run:
           name: Save Docker image layer cache
@@ -88,6 +89,7 @@ jobs:
           command: |
             ls
             cd infrastructure-fargate
+            ls
             sh terraform_exec 1
       - run:
           name: Build & Push docker image to ECR
