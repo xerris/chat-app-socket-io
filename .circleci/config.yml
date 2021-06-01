@@ -25,7 +25,8 @@ jobs:
   build:
     working_directory: client/
     docker:
-      - image: circleci/node@4.2.0
+      - image: docker:17.05.0-ce-git
+      # - image: circleci/node@4.2.0
     steps:
       - checkout
       - setup_remote_docker
