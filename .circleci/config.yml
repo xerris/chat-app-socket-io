@@ -104,7 +104,6 @@ jobs:
       - run:
           name: Build & Push docker image to ECR
           command: |
-
             ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
@@ -117,6 +116,30 @@ jobs:
           root: .
           paths:
             - .
+  plan-destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform create destroy plan
+          command: |
+            terraform plan -destroy -out tfdestroy -var-file variables.tfvars
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform destroy
+          command: |
+            terraform apply -auto-approve tfdestroy
 
 workflows:
   version: 2
@@ -130,5 +153,14 @@ workflows:
             - Build React app
       - Deploy infrastructure & docker image:
           context: CIRCLE
+          type: approval
           requires:
             - Build docker image
+      - hold-destroy:
+          context: CIRCLE
+          type: approval
+          requires: 
+            - Build docker image
+      - destroy:
+          requires:
+            - hold-destroy
