@@ -9,13 +9,6 @@ anchors:
         echo "[default]" > $file
         echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
-
-  deploy-infra: &deploy-infra
-    run:
-      name: Deploy terraform platform infra
-      command: |
-        ls
-        sh infrastructure-fargate/terraform_exec.sh 1
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
@@ -29,6 +22,7 @@ executors:
 jobs:
   Build React app:
     executor: docker
+    working_directory: /tmp/project
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
@@ -41,60 +35,75 @@ jobs:
             CI=false npm run build
             cd ../server
             npm install .
-  Build docker image & deploy:
-    working_directory: server/
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  
+  Build docker image:
+      docker:
+        - image: docker:17.05.0-ce-git
+      steps:
+        - attach_workspace:
+            at: .
+        - checkout
+        - setup_remote_docker
+        - *configure-aws-access
+        - run:
+            name: Install docker & aws dependencies
+            command: |
+              ls
+              apk add --no-cache \
+                py-pip=9.0.0-r1
+              pip install \
+                docker-compose==1.12.0 \
+                awscli==1.11.76
+              wget -O terraform.zip https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
+              unzip terraform.zip && rm terraform.zip
+              sudo mv terraform /usr/local/bin/
+              terraform version
+        - restore_cache:
+            keys:
+              - v1-{{ .Branch }}
+            paths:
+              - /caches/app.tar
+        - run:
+            name: Load Docker image layer cache
+            command: |
+              set +o pipefail
+              docker load -i /caches/app.tar | true
+        - run:
+            name: Build application Docker image
+            command: |
+              ls
+              cd server
+              ls
+              docker build --cache-from=app . -t xerris-socket-app
+        - run:
+            name: Save Docker image layer cache
+            command: |
+              mkdir -p /caches
+              docker save -o /caches/app.tar app
+        - save_cache:
+            key: v1-{{ .Branch }}-{{ epoch }}
+            paths:
+              - /caches/app.tar
+        
+  Deploy infrastructure & docker image:
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
+      - attach_workspace:
+         at: .
       - checkout
-      - setup_remote_docker
       - *configure-aws-access
       - run:
-          name: Install docker & aws dependencies
-          command: |
-            ls
-            apk add --no-cache \
-              py-pip=9.0.0-r1
-            pip install \
-              docker-compose==1.12.0 \
-              awscli==1.11.76
-            wget -O terraform.zip https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
-            unzip terraform.zip && rm terraform.zip
-            sudo mv terraform /usr/local/bin/
-            terraform init
-      - restore_cache:
-          keys:
-            - v1-{{ .Branch }}
-          paths:
-            - /caches/app.tar
-      - run:
-          name: Load Docker image layer cache
-          command: |
-            set +o pipefail
-            docker load -i /caches/app.tar | true
-      - run:
-          name: Build application Docker image
-          command: |
-            ls
-            cd server
-            ls
-            docker build --cache-from=app -t app .
-      - run:
-          name: Save Docker image layer cache
-          command: |
-            mkdir -p /caches
-            docker save -o /caches/app.tar app
-      - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
-          paths:
-            - /caches/app.tar
-      - run:
-          name: Deploy Terraform to AWS
-          command: |
-            ls
-            cd infrastructure-fargate
-            ls
-            sh terraform-exec.sh 1
+            name: Deploy Terraform to AWS
+            command: |
+              ls
+              cd infrastructure-fargate
+              ls
+              sh terraform-exec.sh 1
       - run:
           name: Build & Push docker image to ECR
           command: |
@@ -102,20 +111,15 @@ jobs:
             ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
-            docker build . -t xerris-socket-app
+            # docker build . -t xerris-socket-app
             login=”$(aws ecr get-login)” 
             ${login} 
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
-  Deploy infrastructure to AWS:
-    steps:
-      - checkout
-      - *configure-aws-access
-      - *deploy-infra
-    docker:
-      - image: docker:17.05.0-ce-git
-      # - image: circleci/node@4.2.0
-      # executor: docker
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
 workflows:
   version: 2
@@ -123,11 +127,11 @@ workflows:
     jobs:
       - Build React app:
           context: CIRCLE
-      - Build docker image & deploy:
+      - Build docker image:
           context: CIRCLE
           requires:
             - Build React app
-      # - Deploy infrastructure to AWS:
-      #     context: CIRCLE
-      #     requires:
-      #       - Build docker image
+      - Deploy infrastructure & docker image:
+          context: CIRCLE
+          requires:
+            - Build docker image
