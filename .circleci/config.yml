@@ -98,7 +98,7 @@ jobs:
       - run:
             name: Deploy Terraform to AWS
             command: |
-              cd client
+              cd server
               ls
               cd ../infrastructure-fargate
               ls
@@ -106,6 +106,10 @@ jobs:
       - run:
           name: Build & Push docker image to ECR
           command: |
+            echo "Your curent directory:"
+            ls
+            cd terraform-infrastructure
+            ls
             # ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             ECR_ENDPOINT=$(terraform output ecr_endpoint)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
