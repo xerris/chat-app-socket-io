@@ -14,7 +14,7 @@ anchors:
     run:
       name: Deploy terraform platform infra
       command: |
-        sh ./infrastructure-fargate/terraform_exec.sh 1
+        sh ../infrastructure-fargate/terraform_exec.sh 1
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
@@ -22,19 +22,28 @@ executors:
   docker:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
-jobs:
-  build:
-    working_directory: client/
+  default:
     docker:
-      - image: docker:17.05.0-ce-git
-      # - image: circleci/node@4.2.0
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+jobs:
+  build node image:
+    executor: default
+    working_directory: client/
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Install node dependencies npm run build
           command: |
             npm run build
+  build:
+    requires: build node image
+    working_directory: client/
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+     
       - run:
           name: Install docker & aws dependencies
           command: |
