@@ -30,10 +30,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-       - run:
-          name: Install node dependencies npm run build
-          command: |
-            npm run build
+      - run:
+        name: Install node dependencies npm run build
+        command: |
+          npm run build
       - run:
           name: Install docker & aws dependencies
           command: |
