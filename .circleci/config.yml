@@ -30,6 +30,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+       - run:
+          name: Install node dependencies npm run build
+          command: |
+            npm run build
       - run:
           name: Install docker & aws dependencies
           command: |
@@ -51,6 +55,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
+            cd ../server
             docker build --cache-from=app -t app .
       - run:
           name: Save Docker image layer cache
@@ -62,10 +67,6 @@ jobs:
           paths:
             - /caches/app.tar
       - run:
-          name: Install node dependencies npm run build
-          command: |
-            npm run build
-      - run:
           name: Deploy Terraform to AWS
           command: |
             cd ../infrastructure-fargate
@@ -73,6 +74,7 @@ jobs:
       - run:
           name: Build & Push docker image to ECR
           command: |
+
             ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
@@ -82,6 +84,7 @@ jobs:
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
+    requires: build
     steps:
     - checkout
     - *configure-aws-access
