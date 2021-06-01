@@ -90,7 +90,7 @@ jobs:
             ls
             cd infrastructure-fargate
             ls
-            sh terraform-exec 1
+            sh terraform-exec.sh 1
       - run:
           name: Build & Push docker image to ECR
           command: |
