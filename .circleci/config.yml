@@ -48,6 +48,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - *configure-aws-access
       - run:
           name: Install docker & aws dependencies
           command: |
@@ -85,7 +86,8 @@ jobs:
       - run:
           name: Deploy Terraform to AWS
           command: |
-            cd ../infrastructure-fargate
+            ls
+            cd infrastructure-fargate
             sh terraform_exec 1
       - run:
           name: Build & Push docker image to ECR
@@ -99,7 +101,7 @@ jobs:
             ${login} 
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
-  deployInfra:
+  Deploy infrastructure to AWS:
     steps:
       - checkout
       - *configure-aws-access
@@ -115,11 +117,11 @@ workflows:
     jobs:
       - Build React app:
           context: CIRCLE
-      - Build docker image:
+      - Build docker image & deploy:
           context: CIRCLE
           requires:
             - Build React app
-      - deployInfra:
-          context: CIRCLE
-          requires:
-            - Build docker image
+      # - Deploy infrastructure to AWS:
+      #     context: CIRCLE
+      #     requires:
+      #       - Build docker image
