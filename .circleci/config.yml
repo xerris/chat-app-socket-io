@@ -26,7 +26,7 @@ executors:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
-  build node image:
+  build node app:
     executor: docker
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
