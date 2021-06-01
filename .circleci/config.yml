@@ -14,7 +14,8 @@ anchors:
     run:
       name: Deploy terraform platform infra
       command: |
-        sh ../infrastructure-fargate/terraform_exec.sh 1
+        ls
+        sh infrastructure-fargate/terraform_exec.sh 1
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
