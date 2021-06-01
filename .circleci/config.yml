@@ -38,7 +38,6 @@ jobs:
           command: |
             npm run build
   build:
-    requires: build node image
     working_directory: client/
     docker:
       - image: docker:17.05.0-ce-git
@@ -95,7 +94,6 @@ jobs:
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
-    requires: build
     steps:
     - checkout
     - *configure-aws-access
@@ -109,7 +107,13 @@ workflows:
   version: 2
   devDeploy:
     jobs:
+      - build node app:
+          context: CIRCLE
       - build:
           context: CIRCLE
+          requires: 
+            - build node app
       - deployInfra:
           context: CIRCLE
+          requires:
+            - build
