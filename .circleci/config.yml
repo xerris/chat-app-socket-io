@@ -38,8 +38,10 @@ jobs:
             cd client
             npm install .
             CI=false npm run build
+            cd ../server
+            npm install .
   Build docker image:
-    working_directory: client/
+    working_directory: server/
     docker:
       - image: docker:17.05.0-ce-git
     steps:
@@ -48,6 +50,7 @@ jobs:
       - run:
           name: Install docker & aws dependencies
           command: |
+            ls
             apk add --no-cache \
               py-pip=9.0.0-r1
             pip install \
@@ -66,7 +69,8 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            cd ../server
+            ls
+            cd server
             docker build --cache-from=app -t app .
       - run:
           name: Save Docker image layer cache
