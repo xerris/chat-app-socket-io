@@ -61,7 +61,7 @@ jobs:
             wget -O terraform.zip https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
             unzip terraform.zip && rm terraform.zip
             sudo mv terraform /usr/local/bin/
-            terraform init
+            terraform version
       - restore_cache:
           keys:
             - v1-{{ .Branch }}
@@ -78,7 +78,7 @@ jobs:
             ls
             cd server
             ls
-            docker build --cache-from=app -t app .
+            docker build --cache-from=app . -t xerris-socket-app
       - run:
           name: Save Docker image layer cache
           command: |
@@ -102,7 +102,7 @@ jobs:
             ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
-            docker build . -t xerris-socket-app
+            # docker build . -t xerris-socket-app
             login=”$(aws ecr get-login)” 
             ${login} 
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
