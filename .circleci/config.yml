@@ -144,7 +144,7 @@ jobs:
       - run:
           name: terraform destroy
           command: |
-            terraform apply -auto-approve tfdestroy
+            terraform destroy -auto-approve -var-file envs/dev.tfvars
 
 workflows:
   version: 2
