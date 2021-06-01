@@ -27,7 +27,9 @@ executors:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
   build node image:
-    executor: default
+    executor: docker
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     working_directory: client/
     steps:
       - checkout
@@ -43,7 +45,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-     
       - run:
           name: Install docker & aws dependencies
           command: |
