@@ -26,7 +26,7 @@ executors:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
-  build node app:
+  Build React app:
     executor: docker
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
@@ -34,10 +34,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install node dependencies npm run build
+          name: Install node dependencies and run build
           command: |
+            npm install
             npm run build
-  build:
+  Build docker image:
     working_directory: client/
     docker:
       - image: docker:17.05.0-ce-git
@@ -107,13 +108,13 @@ workflows:
   version: 2
   devDeploy:
     jobs:
-      - build node app:
+      - Build React app:
           context: CIRCLE
-      - build:
+      - Build docker image:
           context: CIRCLE
           requires: 
-            - build node app
+            - Build React app
       - deployInfra:
           context: CIRCLE
           requires:
-            - build
+            - Build docker image
