@@ -30,12 +30,12 @@ jobs:
     executor: docker
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
-    working_directory: client/
     steps:
       - checkout
       - run:
           name: Install node dependencies and run build
           command: |
+            cd client
             npm install .
             CI=false npm run build
   Build docker image:
@@ -96,14 +96,14 @@ jobs:
             docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
     steps:
-    - checkout
-    - *configure-aws-access
-    - *deploy-infra
+      - checkout
+      - *configure-aws-access
+      - *deploy-infra
     docker:
-        - image: docker:17.05.0-ce-git
-        # - image: circleci/node@4.2.0
+      - image: docker:17.05.0-ce-git
+      # - image: circleci/node@4.2.0
       # executor: docker
-  
+
 workflows:
   version: 2
   devDeploy:
@@ -112,7 +112,7 @@ workflows:
           context: CIRCLE
       - Build docker image:
           context: CIRCLE
-          requires: 
+          requires:
             - Build React app
       - deployInfra:
           context: CIRCLE
