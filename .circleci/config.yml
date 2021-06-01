@@ -123,6 +123,7 @@ jobs:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
+      - *configure-aws-access
       - attach_workspace:
           at: .
       - run:
@@ -137,6 +138,7 @@ jobs:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
+      - *configure-aws-access
       - attach_workspace:
           at: .
       - run:
@@ -148,22 +150,25 @@ workflows:
   version: 2
   devDeploy:
     jobs:
+      - hold-deploy:
+          context: CIRCLE
+          type: approval
+      - hold-destroy:
+          context: CIRCLE
+          type: approval
+      - destroy:
+          requires:
+            - hold-destroy
       - Build React app:
           context: CIRCLE
+          requires:
+            - hold-deploy
       - Build docker image:
           context: CIRCLE
           requires:
             - Build React app
       - Deploy infrastructure & docker image:
           context: CIRCLE
-          type: approval
           requires:
-            - Build docker image
-      - hold-destroy:
-          context: CIRCLE
-          type: approval
-          requires: 
-            - Build docker image
-      - destroy:
-          requires:
-            - hold-destroy
+            - hold-deploy
+      
