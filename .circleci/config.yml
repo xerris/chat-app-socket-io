@@ -52,7 +52,9 @@ jobs:
         - run:
             name: Install docker & aws dependencies
             command: |
+              cd client
               ls
+              cd ..
               apk add --no-cache \
                 py-pip=9.0.0-r1
               pip install \
@@ -104,7 +106,8 @@ jobs:
       - run:
           name: Build & Push docker image to ECR
           command: |
-            ECR_ENDPOINT=$(cat ecr_endpoint.txt)
+            # ECR_ENDPOINT=$(cat ecr_endpoint.txt)
+            ECR_ENDPOINT=$(terraform output ecr_endpoint)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
             # docker build . -t xerris-socket-app
@@ -125,7 +128,7 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
-            terraform plan -destroy -out tfdestroy -var-file variables.tfvars
+            terraform plan -destroy -out tfdestroy -var-file envs/dev.tfvars
       - persist_to_workspace:
           root: .
           paths:
