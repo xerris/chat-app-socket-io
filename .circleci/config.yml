@@ -96,8 +96,9 @@ jobs:
       - run:
             name: Deploy Terraform to AWS
             command: |
+              cd client
               ls
-              cd infrastructure-fargate
+              cd ../infrastructure-fargate
               ls
               sh terraform-exec.sh 1
       - run:
