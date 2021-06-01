@@ -82,15 +82,15 @@ jobs:
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
-   docker:
-      - image: docker:17.05.0-ce-git
-      # - image: circleci/node@4.2.0
-    # executor: docker
     steps:
-      - checkout
-      - *configure-aws-access
-      - *deploy-infra
-
+    - checkout
+    - *configure-aws-access
+    - *deploy-infra
+    docker:
+        - image: docker:17.05.0-ce-git
+        # - image: circleci/node@4.2.0
+      # executor: docker
+  
 workflows:
   version: 2
   devDeploy:
