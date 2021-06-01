@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 anchors:
   configure-aws-access: &configure-aws-access
     run:
@@ -14,7 +14,7 @@ anchors:
     run:
       name: Deploy terraform platform infra
       command: |
-        sh ./terraform_exec.sh 1
+        sh ./infrastructure-fargate/terraform_exec.sh 1
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
@@ -24,26 +24,39 @@ executors:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
   build:
+    working_directory: client/
     docker:
-      -image: circleci/node@4.2.0
+      - image: circleci/node@4.2.0
     steps:
-      -checkout
-      -run: cd client && npm run build
-      -run: |
-        cd ../infrastructure-fargate
-        sh terraform_exec 1
-      -setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-      -run: |
-        ECR_ENDPOINT=$(cat ecr_endpoint.txt)
-        echo "Your ECR endpoint: $ECR_ENDPOINT"
-        cd ../server/
-        docker build . -t xerris-socket-app
-        login=”$(aws ecr get-login)” 
-        ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
-        docker push “${ECR_ENDPOINT}/app:latest”
-
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Install docker & aws dependencies
+          command: |
+              apk add --no-cache \
+                py-pip=9.0.0-r1
+              pip install \
+                docker-compose==1.12.0 \
+                awscli==1.11.76
+      - run:
+          name: Install node dependencies npm run build
+          command: |
+            npm run build
+      - run: 
+          name: Deploy Terraform to AWS
+          command: |
+            cd ../infrastructure-fargate
+            sh terraform_exec 1
+      - run:
+          name: Build & Push docker image to ECR
+          command: |
+            ECR_ENDPOINT=$(cat ecr_endpoint.txt)
+            echo "Your ECR endpoint: $ECR_ENDPOINT"
+            cd ../server/
+            docker build . -t xerris-socket-app
+            login=”$(aws ecr get-login)” 
+            ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+            docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
     executor: default
     steps:
@@ -55,5 +68,7 @@ workflows:
   version: 2
   devDeploy:
     jobs:
-      - deployInfra:
+      - build:
           context: FIND_PROPER_CONTEXT_CIRCLE
+      - deployInfra:
+         context: FIND_PROPER_CONTEXT_CIRCLE
