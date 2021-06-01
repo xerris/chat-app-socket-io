@@ -20,7 +20,8 @@ orbs:
   node: circleci/node@4.2.0
 executors:
   docker:
-    - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
   build:
     working_directory: client/
@@ -30,7 +31,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-       - run:
+      - run:
           name: Install node dependencies npm run build
           command: |
             npm run build
@@ -86,14 +87,14 @@ jobs:
   deployInfra:
     requires: build
     steps:
-    - checkout
-    - *configure-aws-access
-    - *deploy-infra
+      - checkout
+      - *configure-aws-access
+      - *deploy-infra
     docker:
-        - image: docker:17.05.0-ce-git
-        # - image: circleci/node@4.2.0
+      - image: docker:17.05.0-ce-git
+      # - image: circleci/node@4.2.0
       # executor: docker
-  
+
 workflows:
   version: 2
   devDeploy:
