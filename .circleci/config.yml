@@ -19,7 +19,6 @@ orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
 executors:
-  default:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
@@ -58,7 +57,7 @@ jobs:
             ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
             docker push “${ECR_ENDPOINT}/app:latest”
   deployInfra:
-    executor: default
+    executor: docker
     steps:
       - checkout
       - *configure-aws-access
