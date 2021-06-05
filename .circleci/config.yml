@@ -9,6 +9,7 @@ anchors:
         echo "[default]" > $file
         echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
+        echo "aws_region = $AWS_REGION >> $file
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
@@ -104,28 +105,27 @@ jobs:
               cd ../infrastructure-fargate
               ls
               sh terraform-exec.sh 1
-      - run:
-          name: Configure AWS Access Key ID
-          command: |
-            source ${AWS_ACCESS_KEY_ID}
-            aws configure set aws_access_key_id \
-            $AWS_ACCESS_KEY_ID \
-            --profile aws
+      # - run:
+      #     name: Configure AWS Access Key ID
+      #     command: |
+      #       source ${AWS_ACCESS_KEY_ID}
+      #       aws configure set aws_access_key_id \
+      #       $AWS_ACCESS_KEY_ID \
+      #       --profile aws
 
-      - run:
-          name: Configure AWS Secret Access Key
-          command: |
-            source ${AWS_SECRET_ACCESS_KEY}
-            aws configure set aws_secret_access_key \
-            $AWS_SECRET_ACCESS_KEY \
-            --profile aws
+      # - run:
+      #     name: Configure AWS Secret Access Key
+      #     command: |
+      #       aws configure set aws_secret_access_key \
+      #       $AWS_SECRET_ACCESS_KEY \
+      #       --profile aws
 
-      - run:
-            name: Configure AWS default region
-            command: |
-                  source ${AWS_REGION}
-                  aws configure set region $AWS_DEFAULT_REGION \
-                  --profile aws
+      # - run:
+      #       name: Configure AWS default region
+      #       command: |
+      #             source ${AWS_REGION}
+      #             aws configure set region $AWS_DEFAULT_REGION \
+      #             --profile aws
       - run:
           name: Build & Push docker image to ECR
           command: |
@@ -184,14 +184,14 @@ workflows:
       - destroy:
           requires:
             - hold-destroy
-      - Build React app:
-          context: CIRCLE
-          requires:
-            - hold-deploy
-      - Build docker image:
-          context: CIRCLE
-          requires:
-            - Build React app
+      # - Build React app:
+      #     context: CIRCLE
+      #     requires:
+      #       - hold-deploy
+      # - Build docker image:
+      #     context: CIRCLE
+      #     requires:
+      #       - Build React app
       - Deploy infrastructure & docker image:
           context: CIRCLE
           requires:
