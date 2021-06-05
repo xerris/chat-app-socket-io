@@ -13,6 +13,8 @@ anchors:
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
+  terraform: 'circleci/terraform@dev:alpha'
+  aws-ecr: circleci/aws-ecr@7.0.0
 executors:
   docker:
     docker:
@@ -71,13 +73,17 @@ jobs:
             command: |
               set +o pipefail
               docker load -i /caches/app.tar | true
-        - run:
-            name: Build application Docker image
-            command: |
-              ls
-              cd server
-              ls
-              docker build --cache-from=app . -t xerris-socket-app
+        # - run:
+        #     name: Build application Docker image
+        #     command: |
+        #       ls
+        #       cd server
+        #       ls
+        #       docker build --cache-from=app . -t xerris-socket-app
+        - aws-ecr/build-and-push-image:
+            repo: "${AWS_ECR_REPO}"
+            tag: "xerris-socket-app${CIRCLE_SHA1}"
+
         - run:
             name: Save Docker image layer cache
             command: |
@@ -87,9 +93,8 @@ jobs:
             key: v1-{{ .Branch }}-{{ epoch }}
             paths:
               - /caches/app.tar
-  Deploy infrastructure & docker image:
+  Deploy infrastructure:
     docker:
-      # - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - attach_workspace:
@@ -105,39 +110,24 @@ jobs:
               cd ../infrastructure-fargate
               ls
               sh terraform-exec.sh 1
-      # - run:
-      #     name: Configure AWS Access Key ID
-      #     command: |
-      #       source ${AWS_ACCESS_KEY_ID}
-      #       aws configure set aws_access_key_id \
-      #       $AWS_ACCESS_KEY_ID \
-      #       --profile aws
-
-      # - run:
-      #     name: Configure AWS Secret Access Key
-      #     command: |
-      #       aws configure set aws_secret_access_key \
-      #       $AWS_SECRET_ACCESS_KEY \
-      #       --profile aws
-
       - run:
             name: Configure AWS default region
             command: |
                   aws configure set region $AWS_REGION
-      - run:
-          name: Build & Push docker image to ECR
-          command: |
-            echo "Your curent directory:"
-            ls
-            cd infrastructure-fargate
-            ls
-            ECR_ENDPOINT=$(terraform output ecr_endpoint)
-            echo "Your ECR endpoint: $ECR_ENDPOINT"
-            cd ../server/
-            login=”$(aws ecr get-login)” 
-            ${login} 
-            docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
-            docker push “${ECR_ENDPOINT}/app:latest”
+      # - run:
+      #     name: Build & Push docker image to ECR
+      #     command: |
+      #       echo "Your curent directory:"
+      #       ls
+      #       cd infrastructure-fargate
+      #       ls
+      #       ECR_ENDPOINT=$(terraform output ecr_endpoint)
+      #       echo "Your ECR endpoint: $ECR_ENDPOINT"
+      #       cd ../server/
+      #       login=”$(aws ecr get-login)” 
+      #       ${login} 
+      #       docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+      #       docker push “${ECR_ENDPOINT}/app:latest”
       - persist_to_workspace:
           root: .
           paths:
@@ -182,15 +172,15 @@ workflows:
       - destroy:
           requires:
             - hold-destroy
-      # - Build React app:
-      #     context: CIRCLE
-      #     requires:
-      #       - hold-deploy
-      # - Build docker image:
-      #     context: CIRCLE
-      #     requires:
-      #       - Build React app
-      - Deploy infrastructure & docker image:
+      - Build React app:
+          context: CIRCLE
+          requires:
+            - hold-deploy
+      - Build docker image:
+          context: CIRCLE
+          requires:
+            - Build React app
+      - Deploy infrastructure:
           context: CIRCLE
           requires:
            - hold-deploy
