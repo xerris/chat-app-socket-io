@@ -110,11 +110,45 @@ jobs:
             ls
             cd infrastructure-fargate
             ls
-            # ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             ECR_ENDPOINT=$(terraform output ecr_endpoint)
             echo "Your ECR endpoint: $ECR_ENDPOINT"
             cd ../server/
-            # docker build . -t xerris-socket-app
+            login=”$(aws ecr get-login)” 
+            ${login} 
+            docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+            docker push “${ECR_ENDPOINT}/app:latest”
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  Deploy infrastructure & docker image:
+    docker:
+      # - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    steps:
+      - attach_workspace:
+         at: .
+      - checkout
+      - *configure-aws-access
+      - run:
+            name: Deploy Terraform to AWS
+            command: |
+              which aws
+              cd server
+              ls
+              cd ../infrastructure-fargate
+              ls
+              sh terraform-exec.sh 1
+      - run:
+          name: Build & Push docker image to ECR
+          command: |
+            echo "Your curent directory:"
+            ls
+            cd infrastructure-fargate
+            ls
+            ECR_ENDPOINT=$(terraform output ecr_endpoint)
+            echo "Your ECR endpoint: $ECR_ENDPOINT"
+            cd ../server/
             login=”$(aws ecr get-login)” 
             ${login} 
             docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
