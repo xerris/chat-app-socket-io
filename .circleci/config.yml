@@ -142,6 +142,7 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
+            ls
             cd infrastructure-fargate
             terraform init \
             -backend-config="bucket=terraform-state-socket-app-${ENV}" \
