@@ -183,6 +183,7 @@ workflows:
       - Deploy infrastructure:
           context: CIRCLE
           requires:
-           - hold-deploy
-            # - Build docker image
+          - Build docker image
+          #  - hold-deploy
+          
       
