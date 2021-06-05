@@ -142,12 +142,13 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
+            cd infrastructure-fargate
             terraform init \
             -backend-config="bucket=terraform-state-socket-app-${ENV}" \
             -backend-config="key=${ENV}/platform-infra.tfstate" \
             -backend-config="dynamodb_table=${ENV}-socket-app-terraform-state-lock" \
             -backend-config="region=${AWS_REGION}"
-            terraform plan -destroy -out tfdestroy -var-file envs/dev.tfvars
+            terraform plan -destroy -out tfdestroy -var-file envs/${ENV}.tfvars
       - persist_to_workspace:
           root: .
           paths:
