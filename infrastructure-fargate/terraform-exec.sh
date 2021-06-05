@@ -8,6 +8,8 @@ echo "###############################"
 APPLY=$1
 echo "${ENV}"
 echo "${AWS_REGION}"
+echo "dynamo: ${ENV}-socket-app-terraform-state-lock"
+echo "s3 bucket: terraform-state-socket-app-${ENV}"
 terraform init \
   -backend-config="bucket=terraform-state-socket-app-${ENV}" \
   -backend-config="key=${ENV}/platform-infra.tfstate" \
