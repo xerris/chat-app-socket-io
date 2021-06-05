@@ -108,7 +108,7 @@ jobs:
           command: |
             echo "Your curent directory:"
             ls
-            cd terraform-infrastructure
+            cd infrastructure-fargate
             ls
             # ECR_ENDPOINT=$(cat ecr_endpoint.txt)
             ECR_ENDPOINT=$(terraform output ecr_endpoint)
