@@ -174,9 +174,12 @@ workflows:
       - hold-destroy:
           context: CIRCLE
           type: approval
-      - destroy:
+      - plan-destroy:
           requires:
             - hold-destroy
+      - destroy:
+          requires:
+            - plan-destroy
       - Build React app:
           context: CIRCLE
           requires:
