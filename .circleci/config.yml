@@ -120,12 +120,10 @@ jobs:
       #       $AWS_SECRET_ACCESS_KEY \
       #       --profile aws
 
-      # - run:
-      #       name: Configure AWS default region
-      #       command: |
-      #             source ${AWS_REGION}
-      #             aws configure set region $AWS_DEFAULT_REGION \
-      #             --profile aws
+      - run:
+            name: Configure AWS default region
+            command: |
+                  aws configure set region $AWS_REGION
       - run:
           name: Build & Push docker image to ECR
           command: |
