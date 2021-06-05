@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 anchors:
   configure-aws-access: &configure-aws-access
     run:
@@ -14,7 +14,7 @@ orbs:
   aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
   # terraform: 'circleci/terraform@dev:alpha'
-  # aws-ecr: circleci/aws-ecr@7.0.0
+  aws-ecr: circleci/aws-ecr@7.0.0
 executors:
   docker:
     docker:
@@ -132,7 +132,7 @@ jobs:
           root: .
           paths:
             - .
-  plan-destroy:
+  destroy:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -145,27 +145,11 @@ jobs:
           command: |
             ls
             cd infrastructure-fargate
-            terraform init \
-            -backend-config="bucket=terraform-state-socket-app-${ENV}" \
-            -backend-config="key=${ENV}/platform-infra.tfstate" \
-            -backend-config="dynamodb_table=${ENV}-socket-app-terraform-state-lock" \
-            -backend-config="region=${AWS_REGION}"
-            terraform plan -destroy -out tfdestroy -var-file envs/${ENV}.tfvars
+            sh terraform-destroy.sh 1
       - persist_to_workspace:
           root: .
           paths:
             - .
-  destroy:
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-    steps:
-      - *configure-aws-access
-      - attach_workspace:
-          at: .
-      - run:
-          name: terraform destroy
-          command: |
-            terraform destroy -auto-approve
 
 workflows:
   version: 2
@@ -177,12 +161,9 @@ workflows:
       - hold-destroy:
           context: CIRCLE
           type: approval
-      - plan-destroy:
-          requires:
-            - hold-destroy
       - destroy:
           requires:
-            - plan-destroy
+            - hold-destroy
       - Build React app:
           context: CIRCLE
           requires:
