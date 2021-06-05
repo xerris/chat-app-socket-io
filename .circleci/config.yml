@@ -1,6 +1,4 @@
 version: 2
-orbs:
-  aws-ecr: circleci/aws-ecr@7.0.0
 anchors:
   configure-aws-access: &configure-aws-access
     run:
@@ -106,13 +104,13 @@ jobs:
               cd ../infrastructure-fargate
               ls
               sh terraform-exec.sh 1
-       - run:
-          name: Configure AWS Access Key ID
-          command: |
-            source ${AWS_ACCESS_KEY_ID}
-            aws configure set aws_access_key_id \
-            $AWS_ACCESS_KEY_ID \
-            --profile aws
+      - run:
+            name: Configure AWS Access Key ID
+            command: |
+              source ${AWS_ACCESS_KEY_ID}
+              aws configure set aws_access_key_id \
+              $AWS_ACCESS_KEY_ID \
+              --profile aws
 
       - run:
           name: Configure AWS Secret Access Key
