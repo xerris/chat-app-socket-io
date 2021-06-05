@@ -142,6 +142,11 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
+            terraform init \
+            -backend-config="bucket=terraform-state-socket-app-${ENV}" \
+            -backend-config="key=${ENV}/platform-infra.tfstate" \
+            -backend-config="dynamodb_table=${ENV}-socket-app-terraform-state-lock" \
+            -backend-config="region=${AWS_REGION}"
             terraform plan -destroy -out tfdestroy -var-file envs/dev.tfvars
       - persist_to_workspace:
           root: .
