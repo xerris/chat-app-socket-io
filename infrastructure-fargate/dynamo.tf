@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "dynamodb-table" {
-  name           = "dev-socket-app-terraform-state-lock"
+  name           = "xerris-socket-app-db"
   billing_mode   = "PROVISIONED"
   read_capacity  = 5
   write_capacity = 5

@@ -11,7 +11,7 @@ const createRoomList = async (
 ) => {
   await dynamo
     .put({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       Item: {
         PK: `ROOMLIST`,
         SK: `ROOMLIST`,
@@ -29,7 +29,7 @@ export const joinRoom = async (
 ) => {
   await dynamo
     .put({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       Item: {
         PK: `user#${userId}`,
         SK: `#ROOM#${roomId}`,
@@ -44,7 +44,7 @@ export const joinRoom = async (
 export const leaveRoom = async (roomId: string, userId: string) => {
   await dynamo
     .delete({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       Key: {
         PK: `user#${userId}`,
         SK: `#ROOM#${roomId}`
@@ -60,7 +60,7 @@ export const createPrivateMessage = async (
   const uuid = uuidv4();
   await dynamo
     .put({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       Item: {
         PK: `user#${senderUserId}`,
         SK: `#ROOM#${uuid}`,
@@ -73,7 +73,7 @@ export const createPrivateMessage = async (
     .promise();
   await dynamo
     .put({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       Item: {
         PK: `user#${receiverUserId}`,
         SK: `#ROOM#${uuid}`,
@@ -91,7 +91,7 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
     try {
       await dynamo
         .put({
-          TableName: "xerris",
+          TableName: "xerris-socket-app-db",
           Item: {
             PK: `#ROOM#${m.room}`,
             SK: `#MESSAGE#${m.username}${Date.now()}`,

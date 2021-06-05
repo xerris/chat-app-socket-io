@@ -16,7 +16,7 @@ export const getUsersInRoom = async (roomId: string) => {
   // All users in a particular room
   const usersInRoomQuery: GetUsersInRoomQueryReponse = await dynamo
     .query({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       IndexName: "SK-PK-inverted-index",
       KeyConditionExpression: "SK = :sk and begins_with(PK, :pk) ",
       ExpressionAttributeValues: {
@@ -45,7 +45,7 @@ export const getMessagesForRoom = async (roomId: string) => {
   // Get messages for room
   const roomMessageList: GetMessagesForRoomQueryResponse = await dynamo
     .query({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
       ExpressionAttributeValues: {
         ":pk": `#ROOM#${roomId}`,
@@ -72,7 +72,7 @@ export const getMetadataForUser = async (userId: string) => {
   // The metaData for a user...not really using this method
   const userMetadataQuery: GetUserMetadataQueryResponse = await dynamo
     .query({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       KeyConditionExpression: "PK = :pk and SK=:sk ",
       ExpressionAttributeValues: {
         ":pk": `user#${userId}`,
@@ -105,7 +105,7 @@ export const getRoomlistForUser = async (username: string) => {
   // Rooms a particular user is in
   const userRoomQuery: any = await dynamo
     .query({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       KeyConditionExpression: "PK = :pk and begins_with(SK, :sk) ",
       ExpressionAttributeValues: {
         ":pk": `user#${username}`,
@@ -131,7 +131,7 @@ export const getRoomList = async () => {
   // General RoomList
   const roomListQuery: GetRoomlistQueryResponse = await dynamo
     .query({
-      TableName: "xerris",
+      TableName: "xerris-socket-app-db",
       KeyConditionExpression: "PK = :pk and SK=:sk ",
       ExpressionAttributeValues: {
         ":pk": `ROOMLIST`,
