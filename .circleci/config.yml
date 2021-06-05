@@ -156,12 +156,11 @@ workflows:
   devDeploy:
     jobs:
       - hold-deploy:
-          context: CIRCLE
           type: approval
       - hold-destroy:
-          context: CIRCLE
           type: approval
       - destroy:
+          context: CIRCLE
           requires:
             - hold-destroy
       - Build React app:
