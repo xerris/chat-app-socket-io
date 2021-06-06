@@ -23,7 +23,7 @@ executors:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
-  Build and deploy react app:
+  Build react app:
     executor: docker
     working_directory: /tmp/project
     docker:
@@ -38,16 +38,6 @@ jobs:
             CI=false npm run build
             cd ../server
             npm install .
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          path: ./server
-          region: AWS_REGION
-          repo: xerris-socket-app-repo
-          tag: "$CIRCLE_SHA1"
       - persist_to_workspace:
           root: .
           paths:
@@ -171,11 +161,23 @@ workflows:
           context: CIRCLE
           requires:
             - hold-destroy
-      - Build and deploy react app:
+      - Build react app:
           context: CIRCLE
           requires:
             - hold-deploy
-      
+      - aws-ecr/build-and-push-image:
+          context: CIRCLE
+          requires: - Build react app
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "$CIRCLE_SHA1"
+          attach-workspace: true
       # - Build docker image:
       #     context: CIRCLE
       #     requires:
@@ -183,6 +185,6 @@ workflows:
       - Deploy infrastructure:
           context: CIRCLE
           requires:
-          -  Build and deploy react app
+          -  aws-ecr/build-and-push-image
           
       
