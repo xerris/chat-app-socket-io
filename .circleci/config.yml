@@ -50,48 +50,55 @@ jobs:
         - attach_workspace:
             at: .
         - checkout
-        - setup_remote_docker
+        # - setup_remote_docker
         - *configure-aws-access
-        - run:
-            name: Install docker & aws dependencies
-            command: |
-              cd client
-              ls
-              cd ..
-              apk add --no-cache \
-                py-pip=9.0.0-r1
-              pip install \
-                docker-compose==1.12.0 \
-                awscli==1.11.76
-        - restore_cache:
-            keys:
-              - v1-{{ .Branch }}
-            paths:
-              - /caches/app.tar
-        - run:
-            name: Load Docker image layer cache
-            command: |
-              set +o pipefail
-              docker load -i /caches/app.tar | true
-        - run:
-            name: Build application Docker image
-            command: |
-              ls
-              cd server
-              ls
-              docker build --cache-from=app . -t xerris-socket-app
-        # - aws-ecr/build-and-push-image:
-        #     repo: "${AWS_ECR_REPO}"
-        #     tag: "xerris-socket-app${CIRCLE_SHA1}"
-        - run:
-            name: Save Docker image layer cache
-            command: |
-              mkdir -p /caches
-              docker save -o /caches/app.tar app
-        - save_cache:
-            key: v1-{{ .Branch }}-{{ epoch }}
-            paths:
-              - /caches/app.tar
+        # - run:
+        #     name: Install docker & aws dependencies
+        #     command: |
+        #       cd client
+        #       ls
+        #       cd ..
+        #       apk add --no-cache \
+        #         py-pip=9.0.0-r1
+        #       pip install \
+        #         docker-compose==1.12.0 \
+        #         awscli==1.11.76
+        # - restore_cache:
+        #     keys:
+        #       - v1-{{ .Branch }}
+        #     paths:
+        #       - /caches/app.tar
+        # - run:
+        #     name: Load Docker image layer cache
+        #     command: |
+        #       set +o pipefail
+        #       docker load -i /caches/app.tar | true
+        # - run:
+        #     name: Build application Docker image
+        #     command: |
+        #       ls
+        #       cd server
+        #       ls
+        #       docker build --cache-from=app . -t xerris-socket-app
+        - aws-ecr/build-and-push-image:
+              account-url: AWS_ECR_RPO
+              aws-access-key-id: AWS_ACCESS_KEY_ID
+              aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+              create-repo: true
+              dockerfile: Dockerfile
+              path: .
+              region: AWS_REGION
+              repo: xerris-socket-app-repo
+              tag: "$CIRCLE_SHA1"
+        # - run:
+        #     name: Save Docker image layer cache
+        #     command: |
+        #       mkdir -p /caches
+        #       docker save -o /caches/app.tar app
+        # - save_cache:
+        #     key: v1-{{ .Branch }}-{{ epoch }}
+        #     paths:
+        #       - /caches/app.tar
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
@@ -114,20 +121,20 @@ jobs:
             name: Configure AWS default region
             command: |
                   aws configure set region $AWS_REGION
-      - run:
-          name: Build & Push docker image to ECR
-          command: |
-            echo "Your curent directory:"
-            ls
-            cd infrastructure-fargate
-            ls
-            ECR_ENDPOINT=$(terraform output ecr_endpoint)
-            echo "Your ECR endpoint: $ECR_ENDPOINT"
-            cd ../server/
-            login=”$(aws ecr get-login)” 
-            ${login} 
-            docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
-            docker push “${ECR_ENDPOINT}/app:latest”
+      # - run:
+      #     name: Build & Push docker image to ECR
+      #     command: |
+      #       echo "Your curent directory:"
+      #       ls
+      #       cd infrastructure-fargate
+      #       ls
+      #       ECR_ENDPOINT=$(terraform output ecr_endpoint)
+      #       echo "Your ECR endpoint: $ECR_ENDPOINT"
+      #       cd ../server/
+      #       login=”$(aws ecr get-login)” 
+      #       ${login} 
+      #       docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
+      #       docker push “${ECR_ENDPOINT}/app:latest”
       - persist_to_workspace:
           root: .
           paths:
