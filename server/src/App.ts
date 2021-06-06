@@ -14,6 +14,7 @@ app.use(cors());
 const server = createServer(app);
 const port = process.env.PORT || 3001;
 const env = process.env.ENV;
+console.log("🚀 ~ file: App.ts ~ line 17 ~ env", env);
 const io =
   env === "local"
     ? new Server(server, {
