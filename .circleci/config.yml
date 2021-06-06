@@ -23,7 +23,7 @@ executors:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
-  Build React app:
+  Build & deploy react app:
     executor: docker
     working_directory: /tmp/project
     docker:
@@ -38,6 +38,16 @@ jobs:
             CI=false npm run build
             cd ../server
             npm install .
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "$CIRCLE_SHA1"
       - persist_to_workspace:
           root: .
           paths:
@@ -109,10 +119,10 @@ jobs:
               cd ../infrastructure-fargate
               ls
               sh terraform-exec.sh 1
-      - run:
-            name: Configure AWS default region
-            command: |
-                  aws configure set region $AWS_REGION
+      # - run:
+      #       name: Configure AWS default region
+      #       command: |
+      #             aws configure set region $AWS_REGION
       # - run:
       #     name: Build & Push docker image to ECR
       #     command: |
@@ -161,23 +171,11 @@ workflows:
           context: CIRCLE
           requires:
             - hold-destroy
-      # - Build React app:
-      #     context: CIRCLE
-      #     requires:
-      #       - hold-deploy
-      - aws-ecr/build-and-push-image:
+      - Build & deploy react app:
           context: CIRCLE
-          requires: 
+          requires:
             - hold-deploy
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          path: ./server
-          region: AWS_REGION
-          repo: xerris-socket-app-repo
-          tag: "$CIRCLE_SHA1"
+      
       # - Build docker image:
       #     context: CIRCLE
       #     requires:
@@ -185,6 +183,6 @@ workflows:
       - Deploy infrastructure:
           context: CIRCLE
           requires:
-          - aws-ecr/build-and-push-image
+          -  Build & deploy react app
           
       
