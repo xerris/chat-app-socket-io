@@ -170,13 +170,13 @@ workflows:
           context: CIRCLE
           requires: 
             - hold-deploy
-          account-url: AWS_ECR_RPO
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          account-url: $AWS_ECR_RPO
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: Dockerfile
           path: .
-          region: AWS_REGION
+          region: $AWS_REGION
           repo: xerris-socket-app-repo
           tag: "$CIRCLE_SHA1"
       # - Build docker image:
