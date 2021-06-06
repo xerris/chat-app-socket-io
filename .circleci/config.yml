@@ -169,10 +169,10 @@ workflows:
           context: CIRCLE
           requires: 
             - hold-deploy
-          account-url: AWS_ECR_RPO
+          # account-url: AWS_ECR_RPO
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          # create-repo: true
+          create-repo: true
           dockerfile: Dockerfile
           path: .
           region: AWS_REGION
