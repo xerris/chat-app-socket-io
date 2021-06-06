@@ -81,16 +81,7 @@ jobs:
         #       cd server
         #       ls
         #       docker build --cache-from=app . -t xerris-socket-app
-        - aws-ecr/build-and-push-image:
-              account-url: AWS_ECR_RPO
-              aws-access-key-id: AWS_ACCESS_KEY_ID
-              aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-              create-repo: true
-              dockerfile: Dockerfile
-              path: .
-              region: AWS_REGION
-              repo: xerris-socket-app-repo
-              tag: "$CIRCLE_SHA1"
+       
         # - run:
         #     name: Save Docker image layer cache
         #     command: |
@@ -171,14 +162,26 @@ workflows:
           context: CIRCLE
           requires:
             - hold-destroy
-      - Build React app:
-          context: CIRCLE
-          requires:
-            - hold-deploy
-      - Build docker image:
-          context: CIRCLE
-          requires:
-            - Build React app
+      # - Build React app:
+      #     context: CIRCLE
+      #     requires:
+      #       - hold-deploy
+       - aws-ecr/build-and-push-image:
+      #  Keep this step here to save time building
+              requires: - hold-deploy
+              account-url: AWS_ECR_RPO
+              aws-access-key-id: AWS_ACCESS_KEY_ID
+              aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+              create-repo: true
+              dockerfile: Dockerfile
+              path: .
+              region: AWS_REGION
+              repo: xerris-socket-app-repo
+              tag: "$CIRCLE_SHA1"
+      # - Build docker image:
+      #     context: CIRCLE
+      #     requires:
+      #       - Build React app
       - Deploy infrastructure:
           context: CIRCLE
           requires:
