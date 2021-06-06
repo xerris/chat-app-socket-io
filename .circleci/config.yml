@@ -98,7 +98,7 @@ jobs:
       - attach_workspace:
          at: .
       - checkout
-      - setup_remote_docker
+      # - setup_remote_docker
       - *configure-aws-access
       - run:
             name: Deploy Terraform to AWS
