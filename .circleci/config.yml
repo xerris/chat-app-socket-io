@@ -11,7 +11,7 @@ anchors:
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
         echo "aws_region = $AWS_REGION" >> $file
 orbs:
-  aws-cli: circleci/aws-cli@1.0.0
+  # aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
   # terraform: 'circleci/terraform@dev:alpha'
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -45,7 +45,8 @@ jobs:
   
   Build docker image:
       docker:
-        - image: docker:17.05.0-ce-git
+        - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+        # - image: docker:17.05.0-ce-git
       steps:
         - attach_workspace:
             at: .
