@@ -116,7 +116,7 @@ jobs:
       # - run:
       #     name: Build & Push docker image to ECR
       #     command: |
-      #       echo "Your curent directory:" 
+      #       echo "Your curent directory:"  
       #       ls
       #       cd infrastructure-fargate
       #       ls
