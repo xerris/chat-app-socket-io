@@ -176,7 +176,7 @@ workflows:
           path: ./server
           region: AWS_REGION
           repo: xerris-socket-app-repo
-          tag: "$CIRCLE_SHA1"
+          tag: "latest"
           attach-workspace: true
       # - Build docker image:
       #     context: CIRCLE
