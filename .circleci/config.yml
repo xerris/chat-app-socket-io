@@ -70,7 +70,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: terraform create destroy plan
+          name: terraform run destroy plan
           command: |
             ls
             cd infrastructure-fargate

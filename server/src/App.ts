@@ -15,7 +15,7 @@ const server = createServer(app);
 const port = process.env.PORT || 3001;
 const env = process.env.ENV;
 const io =
-  env === "dev"
+  env === "local"
     ? new Server(server, {
         cors: {
           origin: "http://localhost:3000",
@@ -30,7 +30,7 @@ let pubClient: redis.RedisClient;
 // Toggle Redis / Dynamo connection if you want to test locally
 const localRedis = true;
 const localDynamo = true;
-if (env === "prod") {
+if (env !== "local") {
   const redisEndpoint = process.env.REDIS_ENDPOINT;
 
   pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
