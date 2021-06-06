@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import socketIOClient, { Socket } from "socket.io-client";
-require("dotenv").config({ path: "./.env" });
+// require("dotenv").config({ path: "./.env" });
 
 const SocketContext = createContext(null);
 

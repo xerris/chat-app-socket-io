@@ -7,7 +7,7 @@ import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
 
-require("dotenv").config({ path: "./.env" });
+// require("dotenv").config({ path: "./.env" });
 const app = express();
 app.use(cors());
 
