@@ -1,4 +1,5 @@
 var AWS = require("aws-sdk");
+console.log("🚀 ~ file: Dynamo.ts ~ line 3 ~ process.env.ENV", process.env.ENV);
 if (process.env.ENV === "dev") {
   var credentials = new AWS.SharedIniFileCredentials({ profile: "dynamo" });
 
