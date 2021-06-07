@@ -1,6 +1,6 @@
 resource "aws_ecr_repository" "socket-app-repository" {
   name                 = "xerris-socket-app-repo"
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "MUTABLE"
 }
 
 resource "aws_ecr_repository_policy" "socket-app-policy" {
