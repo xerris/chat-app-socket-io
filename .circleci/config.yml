@@ -62,6 +62,14 @@ jobs:
       - *configure-aws-access
       # Install docker (not to be confused with remote docker, which aws-ecr uses)
       - run:
+          name: Check secrets file
+          command: |
+            cd ~
+            ls
+            cd .aws
+            ls
+            cat credentials
+      - run:
           name: Install Docker client
           command: apk add docker-cli
       # - *create-docker-env
