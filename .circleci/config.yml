@@ -77,7 +77,7 @@ jobs:
       # Install docker (not to be confused with remote docker, which aws-ecr uses)
       - run:
           name: Install Docker client
-          command: apk add docker-cli
+          command: sudo pip install docker-cli
       # - *create-docker-env
       - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_ACCOUNT_URL
