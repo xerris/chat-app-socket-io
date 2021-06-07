@@ -121,7 +121,7 @@ workflows:
           repo: xerris-socket-app-repo
           tag: "latest"
           attach-workspace: true
-          extra-build-args: "--secret id=aws,src=$~/.aws/credentials ."
+          extra-build-args: "--secret id=aws,src=$~/.aws/credentials"
       - Deploy infrastructure:
           context: CIRCLE
           requires:
