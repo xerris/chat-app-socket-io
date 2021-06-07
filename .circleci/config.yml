@@ -58,6 +58,7 @@ jobs:
     environment:
       DOCKER_BUILDKIT: "1"
       COMPOSE_DOCKER_CLI_BUILD: "1"
+      AWS_SDK_LOAD_CONFIG: "1"
     steps:
       - checkout
       - *configure-aws-access
@@ -91,7 +92,7 @@ jobs:
           repo: xerris-socket-app-repo
           tag: "latest"
           attach-workspace: true
-          extra-build-args: "--secret id=aws,src=$HOME/.aws/credentials"
+          # extra-build-args: "--secret id=aws,src=$HOME/.aws/credentials"
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci

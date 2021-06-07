@@ -7,9 +7,10 @@ import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
 const dotenv = require("dotenv");
+console.log("🚀 ~ file: App.ts ~ line 17 ~ process.env", process.env);
 dotenv.config();
 const env = process.env.ENV;
-console.log("🚀 ~ file: App.ts ~ line 17 ~ ENV HELLO", process.env.ENV);
+console.log("🚀 ~ file: App.ts ~ line 17 ~ process.env", process.env);
 
 const app = express();
 app.use(cors());
