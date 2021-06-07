@@ -10,6 +10,13 @@ anchors:
         echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
         echo "aws_region = $AWS_REGION" >> $file
+  create-docker-env: &create-docker-env
+    run:
+      name: Configure ENV file
+      command: |
+        file=server/.env
+        echo "ENV=$ENV" >> $file
+        echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
 orbs:
   node: circleci/node@4.2.0
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -28,6 +35,7 @@ jobs:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - checkout
+      - *create-docker-env
       - run:
           name: Install node dependencies and run build
           command: |
@@ -35,6 +43,8 @@ jobs:
             npm install .
             CI=false npm run build
             cd ../server
+            ls
+            cat .env
             npm install .
       - persist_to_workspace:
           root: .
