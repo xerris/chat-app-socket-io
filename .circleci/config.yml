@@ -14,6 +14,7 @@ anchors:
     run:
       name: Configure ENV file
       command: |
+        ls
         file=server/.env
         echo "ENV=$ENV" >> $file
         echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
@@ -54,9 +55,12 @@ jobs:
   Build and deploy app docker image:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    environment:
+      DOCKER_BUILDKIT: "1"
     steps:
+      - checkout
       - *configure-aws-access
-      - *create-docker-env
+      # - *create-docker-env
       - setup_remote_docker:
           version: 18.09.3
       - aws-ecr/build-and-push-image:
