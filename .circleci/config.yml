@@ -53,8 +53,8 @@ jobs:
           paths:
             - .
   Build and deploy app docker image:
-    docker:
-      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    machine:
+      image: ubuntu-1604:202007-01
     environment:
       DOCKER_BUILDKIT: "1"
       COMPOSE_DOCKER_CLI_BUILD: "1"
