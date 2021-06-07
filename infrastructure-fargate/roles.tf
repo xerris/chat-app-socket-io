@@ -29,7 +29,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
 data "aws_iam_policy_document" "ecs_task_role" {
   version = "2012-10-17"
   statement {
-            sid = ""
+            sid = "1"
             effect = "Allow"
             actions = ["dynamodb:*"]
             resources = [
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "ecs_task_role" {
              ]
         }
   statement {
-            sid = ""
+            sid = "2"
             effect = "Allow"
             actions = ["dynamodb:*"]
             resources = ["${aws_dynamodb_table.dynamodb-table.arn}"]
@@ -52,5 +52,5 @@ resource "aws_iam_role" "ecs_task_role" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_role" {
   role       = aws_iam_role.ecs_task_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  policy_arn = aws_iam_policy_document.ecs_task_role
 }
