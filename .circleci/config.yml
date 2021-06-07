@@ -139,14 +139,15 @@ workflows:
           context: CIRCLE
           requires:
             - hold-DESTROY
-      - Build react app:
-          context: CIRCLE
-          requires:
-            - hold-deploy-app
+      # - Build react app:
+      #     context: CIRCLE
+      #     requires:
+      #       - hold-deploy-app
       - Build and deploy app docker image:
           context: CIRCLE
           requires:
-            - Build react app
+            # - Build react app
+            - hold-deploy-app
       - Deploy infrastructure:
           context: CIRCLE
           requires:
