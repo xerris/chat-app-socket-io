@@ -9,7 +9,7 @@ import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
 const dotenv = require("dotenv");
 dotenv.config();
 const env = process.env.ENV;
-console.log("🚀 ~ file: App.ts ~ line 17 ~ env", process.env);
+console.log("🚀 ~ file: App.ts ~ line 17 ~ ENV HELLO", process.env.ENV);
 
 const app = express();
 app.use(cors());
