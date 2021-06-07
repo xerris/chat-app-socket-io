@@ -77,7 +77,7 @@ jobs:
           repo: xerris-socket-app-repo
           tag: "latest"
           attach-workspace: true
-          extra-build-args: "--secret id=aws,src=$~/.aws/credentials"
+          extra-build-args: "--secret id=aws,src=~/.aws/credentials"
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
