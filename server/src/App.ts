@@ -33,13 +33,17 @@ let pubClient: redis.RedisClient;
 const localRedis = true;
 const localDynamo = true;
 if (env !== "local") {
-  const redisEndpoint = process.env.REDIS_ENDPOINT;
+  try {
+    const redisEndpoint = process.env.REDIS_ENDPOINT;
 
-  pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
-  console.log(`Connecting to Redis client @ ${redisEndpoint}`);
-  const subClient = pubClient.duplicate();
+    pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
+    console.log(`Connecting to Redis client @ ${redisEndpoint}`);
+    const subClient = pubClient.duplicate();
 
-  io.adapter(createAdapter({ pubClient, subClient }));
+    io.adapter(createAdapter({ pubClient, subClient }));
+  } catch (err) {
+    console.log("REDIS ERROR", err);
+  }
 } else if (localRedis) {
   pubClient = redis.createClient();
 

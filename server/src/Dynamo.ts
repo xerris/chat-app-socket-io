@@ -10,5 +10,10 @@ if (process.env.ENV === "dev") {
   });
 }
 // May need to put credentials in here once deployed
-var dynamo = new AWS.DynamoDB.DocumentClient();
+let dynamo;
+try {
+  dynamo = new AWS.DynamoDB.DocumentClient();
+} catch (err) {
+  console.log("DYNAMO err", err);
+}
 export { dynamo };
