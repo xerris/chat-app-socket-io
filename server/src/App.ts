@@ -6,16 +6,16 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
-const dotenv = require("dotenv");
-dotenv.config();
+// const dotenv = require("dotenv");
+// dotenv.config();
+const env = process.env.ENV;
+console.log("🚀 ~ file: App.ts ~ line 17 ~ env", process.env);
 
 const app = express();
 app.use(cors());
 
 const server = createServer(app);
 const port = process.env.PORT || 3001;
-const env = process.env.ENV;
-console.log("🚀 ~ file: App.ts ~ line 17 ~ env", env);
 const io =
   env === "local"
     ? new Server(server, {
