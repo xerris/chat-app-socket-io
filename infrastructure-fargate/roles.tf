@@ -35,12 +35,22 @@ data "aws_iam_policy_document" "ecs_task_role" {
             resources = [
              "${aws_dynamodb_table.dynamodb-table.arn}"
              ]
+
+              principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
         }
   statement {
             sid = "2"
             effect = "Allow"
             actions = ["dynamodb:*"]
             resources = ["${aws_dynamodb_table.dynamodb-table.arn}"]
+
+             principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
         }
 }
 
