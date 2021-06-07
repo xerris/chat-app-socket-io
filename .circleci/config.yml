@@ -57,6 +57,7 @@ jobs:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     environment:
       DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
     steps:
       - checkout
       - *configure-aws-access
