@@ -5,6 +5,6 @@ RUN npm install
 COPY . .
 FROM base as production
 ENV NODE_PATH=./dist
-RUN --mount=type=secret,id=aws,target=~/.aws/credentials npm run build
+RUN --mount=type=secret,id=aws,target=$HOME/.aws/credentials npm run build
 EXPOSE 3001
 CMD [ "node", "dist/index.js" ]
