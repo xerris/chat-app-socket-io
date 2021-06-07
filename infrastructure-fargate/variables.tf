@@ -60,3 +60,7 @@ variable "ecr_name" {
   default = "dev"
 }
 
+variable "dynamodb_table_name" {
+  description = "table name for Dynamo table"
+  default = "dev-socket-app-terraform-state-lock"
+}

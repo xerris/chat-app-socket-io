@@ -8,7 +8,7 @@ data "template_file" "cb_app" {
   template = file("./templates/ecs/cb_app.json.tpl")
 
   vars = {
-    app_image      = var.app_image
+    app_image      = "${aws_ecr_repository.socket-app-repository.repository_url}:latest"
     app_port       = var.app_port
     fargate_cpu    = var.fargate_cpu
     fargate_memory = var.fargate_memory

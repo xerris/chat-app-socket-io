@@ -6,16 +6,18 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
+const dotenv = require("dotenv");
+dotenv.config();
+const env = process.env.ENV;
+console.log("🚀 ~ file: App.ts ~ line 17 ~ ENV HELLO", process.env.ENV);
 
-require("dotenv").config({ path: "./.env" });
 const app = express();
 app.use(cors());
 
 const server = createServer(app);
 const port = process.env.PORT || 3001;
-const env = process.env.ENV;
 const io =
-  env === "dev"
+  env === "local"
     ? new Server(server, {
         cors: {
           origin: "http://localhost:3000",
@@ -30,14 +32,18 @@ let pubClient: redis.RedisClient;
 // Toggle Redis / Dynamo connection if you want to test locally
 const localRedis = true;
 const localDynamo = true;
-if (env === "prod") {
-  const redisEndpoint = process.env.REDIS_ENDPOINT;
+if (env !== "local") {
+  try {
+    const redisEndpoint = process.env.REDIS_ENDPOINT;
 
-  pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
-  console.log(`Connecting to Redis client @ ${redisEndpoint}`);
-  const subClient = pubClient.duplicate();
+    pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
+    console.log(`Connecting to Redis client @ ${redisEndpoint}`);
+    const subClient = pubClient.duplicate();
 
-  io.adapter(createAdapter({ pubClient, subClient }));
+    io.adapter(createAdapter({ pubClient, subClient }));
+  } catch (err) {
+    console.log("REDIS ERROR", err);
+  }
 } else if (localRedis) {
   pubClient = redis.createClient();
 

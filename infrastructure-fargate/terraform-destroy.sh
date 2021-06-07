@@ -23,7 +23,7 @@ if [ $APPLY == 1 ]; then
   echo "###############################"
   echo "## Executing terraform apply ##"
   echo "###############################"
-  terraform apply --auto-approve -var-file=envs/${ENV}.tfvars
+  terraform destroy --auto-approve -var-file=envs/${ENV}.tfvars
 fi
 
 # aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin XXXXXXXXXXX.dkr.ecr.<REGION>.amazonaws.com/

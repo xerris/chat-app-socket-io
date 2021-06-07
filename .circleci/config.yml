@@ -9,51 +9,124 @@ anchors:
         echo "[default]" > $file
         echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
         echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
-
-  deploy-infra: &deploy-infra
+        echo "aws_region = $AWS_REGION" >> $file
+  create-docker-env: &create-docker-env
     run:
-      name: Deploy terraform platform infra
+      name: Configure ENV file
       command: |
-        sh ./terraform_exec.sh 1
+        file=server/.env
+        echo "ENV=$ENV" >> $file
+        echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
+        echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $file
+        echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $file
+        echo "aws_region=$AWS_REGION" >> $file
 orbs:
-  aws-cli: circleci/aws-cli@1.0.0
   node: circleci/node@4.2.0
+  aws-ecr: circleci/aws-ecr@7.0.0
 executors:
+  docker:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
   default:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
 jobs:
-  build:
+  Build react app:
+    executor: docker
+    working_directory: /tmp/project
     docker:
-      -image: circleci/node@4.2.0
-    steps:
-      -checkout
-      -run: cd client && npm run build
-      -run: |
-        cd ../infrastructure-fargate
-        sh terraform_exec 1
-      -setup_remote_docker:
-        version: 19.03.13
-        docker_layer_caching: true
-      -run: |
-        ECR_ENDPOINT=$(cat ecr_endpoint.txt)
-        echo "Your ECR endpoint: $ECR_ENDPOINT"
-        cd ../server/
-        docker build . -t xerris-socket-app
-        login=”$(aws ecr get-login)” 
-        ${login} docker tag xeris-socket-app “${ECR_ENDPOINT}/app:${CIRCLE_SHA1}” 
-        docker push “${ECR_ENDPOINT}/app:latest”
-
-  deployInfra:
-    executor: default
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - checkout
       - *configure-aws-access
-      - *deploy-infra
+      - *create-docker-env
+      - run:
+          name: Install node dependencies and run build
+          command: |
+            cd client
+            npm install .
+            CI=false npm run build
+            cd ../server
+            ls
+            cat .env
+            npm install .
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  Deploy infrastructure:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    steps:
+      - attach_workspace:
+         at: .
+      - checkout
+      - *configure-aws-access
+      - run:
+            name: Deploy Terraform to AWS
+            command: |
+              which aws
+              cd server
+              ls
+              cd ../infrastructure-fargate
+              ls
+              sh terraform-exec.sh 1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - *configure-aws-access
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform run destroy plan
+          command: |
+            ls
+            cd infrastructure-fargate
+            sh terraform-destroy.sh 1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
 workflows:
-  version: 2
   devDeploy:
     jobs:
-      - deployInfra:
-          context: FIND_PROPER_CONTEXT_CIRCLE
+      - hold-deploy-app:
+          type: approval
+      - hold-deploy-infrastructure:
+          type: approval
+      - hold-DESTROY:
+          type: approval
+      - destroy:
+          context: CIRCLE
+          requires:
+            - hold-DESTROY
+      - Build react app:
+          context: CIRCLE
+          requires:
+            - hold-deploy-app
+      - aws-ecr/build-and-push-image:
+          context: CIRCLE
+          requires: 
+            - Build react app
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "latest"
+          attach-workspace: true
+      - Deploy infrastructure:
+          context: CIRCLE
+          requires:
+          -  hold-deploy-infrastructure
+          
+      
