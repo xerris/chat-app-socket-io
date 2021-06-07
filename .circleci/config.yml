@@ -17,9 +17,6 @@ anchors:
         file=server/.env
         echo "ENV=$ENV" >> $file
         echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
-        echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $BASH_ENV
-        echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $BASH_ENV
-        echo "export aws_region=$AWS_REGION" >> $BASH_ENV
 orbs:
   node: circleci/node@4.2.0
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -59,18 +56,18 @@ jobs:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - attach_workspace:
-         at: .
+          at: .
       - checkout
       - *configure-aws-access
       - run:
-            name: Deploy Terraform to AWS
-            command: |
-              which aws
-              cd server
-              ls
-              cd ../infrastructure-fargate
-              ls
-              sh terraform-exec.sh 1
+          name: Deploy Terraform to AWS
+          command: |
+            which aws
+            cd server
+            ls
+            cd ../infrastructure-fargate
+            ls
+            sh terraform-exec.sh 1
       - persist_to_workspace:
           root: .
           paths:
@@ -113,7 +110,7 @@ workflows:
             - hold-deploy-app
       - aws-ecr/build-and-push-image:
           context: CIRCLE
-          requires: 
+          requires:
             - Build react app
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
@@ -124,9 +121,8 @@ workflows:
           repo: xerris-socket-app-repo
           tag: "latest"
           attach-workspace: true
+          extra-build-args: "--secret id=aws,src=$~/.aws/credentials ."
       - Deploy infrastructure:
           context: CIRCLE
           requires:
-          -  hold-deploy-infrastructure
-          
-      
+            - hold-deploy-infrastructure
