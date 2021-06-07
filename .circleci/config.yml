@@ -54,22 +54,22 @@ jobs:
   Build and deploy app docker image:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    steps:
+      - *configure-aws-access
+      - *create-docker-env
       - setup_remote_docker:
           version: 18.09.3
       - aws-ecr/build-and-push-image:
-        context: CIRCLE
-        requires:
-          - Build react app
-        account-url: AWS_ECR_ACCOUNT_URL
-        aws-access-key-id: AWS_ACCESS_KEY_ID
-        aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-        create-repo: true
-        path: ./server
-        region: AWS_REGION
-        repo: xerris-socket-app-repo
-        tag: "latest"
-        attach-workspace: true
-        extra-build-args: "--secret id=aws,src=$~/.aws/credentials"
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "latest"
+          attach-workspace: true
+          extra-build-args: "--secret id=aws,src=$~/.aws/credentials"
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
