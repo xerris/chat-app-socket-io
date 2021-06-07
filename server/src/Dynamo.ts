@@ -1,19 +1,33 @@
 var AWS = require("aws-sdk");
-console.log("🚀 ~ file: Dynamo.ts ~ line 3 ~ process.env.ENV", process.env);
 if (process.env.ENV === "dev") {
-}
-// May need to put credentials in here once deployed
-let dynamo;
-try {
-  var credentials = new AWS.SharedIniFileCredentials({ profile: "default" });
-
+  var credentials = new AWS.SharedIniFileCredentials({
+    profile: "dynamo",
+    region: "us-west-2"
+  });
   AWS.config.update({
-    region: "us-east-2",
-    endpoint: "https://dynamodb.us-east-2.amazonaws.com",
+    region: "us-west-2",
+    endpoint: "https://dynamodb.us-west-2.amazonaws.com",
     credentials: credentials
   });
-  dynamo = new AWS.DynamoDB.DocumentClient();
-} catch (err) {
-  console.log("DYNAMO err", err);
 }
+// May need to put credentials in here once deployed
+if (process.env.ENV === "prod") {
+  var credentials = new AWS.SharedIniFileCredentials({
+    profile: "default",
+    region: "us-east-2"
+  });
+
+  try {
+    AWS.config.update({
+      region: "us-east-2",
+      endpoint: "https://dynamodb.us-east-2.amazonaws.com",
+      credentials: credentials
+    });
+  } catch (err) {
+    console.log("DYNAMO err", err);
+  }
+}
+const dynamo = new AWS.DynamoDB.DocumentClient({
+  region: "us-east-2"
+});
 export { dynamo };
