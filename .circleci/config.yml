@@ -53,14 +53,15 @@ jobs:
           paths:
             - .
   Build and deploy app docker image:
-    machine:
-      image: ubuntu-1604:202007-01
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     environment:
       DOCKER_BUILDKIT: "1"
       COMPOSE_DOCKER_CLI_BUILD: "1"
     steps:
       - checkout
       - *configure-aws-access
+      # Install docker (not to be confused with remote docker, which aws-ecr uses)
       - run:
           name: Check secrets file
           command: |
@@ -74,11 +75,12 @@ jobs:
             cd .aws
             ls
             cat credentials
-      # Install docker (not to be confused with remote docker, which aws-ecr uses)
-      # - run:
-      #     name: Install Docker client
-      #     command: sudo pip install docker-cli
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
       # - *create-docker-env
+      - setup_remote_docker:
+          version: 18.09.3
       - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
