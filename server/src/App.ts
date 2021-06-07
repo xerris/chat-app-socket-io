@@ -6,8 +6,9 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
+const dotenv = require("dotenv");
+dotenv.config();
 
-// require("dotenv").config({ path: "./.env" });
 const app = express();
 app.use(cors());
 
