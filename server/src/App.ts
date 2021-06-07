@@ -6,8 +6,8 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
-// const dotenv = require("dotenv");
-// dotenv.config();
+const dotenv = require("dotenv");
+dotenv.config();
 const env = process.env.ENV;
 console.log("🚀 ~ file: App.ts ~ line 17 ~ env", process.env);
 
