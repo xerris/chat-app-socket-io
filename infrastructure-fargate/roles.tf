@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "ecs_task_role" {
             effect = "Allow"
             actions = ["dynamodb:*"]
             resources = [
-             "${aws_dynamodb_table.dynamodb-table.arn}/*"
+             "${aws_dynamodb_table.dynamodb-table.arn}"
              ]
         }
   statement {
