@@ -64,6 +64,11 @@ jobs:
       - run:
           name: Check secrets file
           command: |
+            ls
+            cd ..
+            ls
+            cd ..
+            ls
             cd ~
             ls
             cd .aws
