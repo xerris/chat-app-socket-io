@@ -60,6 +60,10 @@ jobs:
     steps:
       - checkout
       - *configure-aws-access
+      # Install docker (not to be confused with remote docker, which aws-ecr uses)
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
       # - *create-docker-env
       - setup_remote_docker:
           version: 18.09.3
