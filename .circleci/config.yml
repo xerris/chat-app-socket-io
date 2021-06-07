@@ -35,6 +35,7 @@ jobs:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - checkout
+      - *configure-aws-access
       - *create-docker-env
       - run:
           name: Install node dependencies and run build
