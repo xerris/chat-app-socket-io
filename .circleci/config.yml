@@ -14,12 +14,10 @@ anchors:
     run:
       name: Configure ENV file
       command: |
+        ls
         file=server/.env
         echo "ENV=$ENV" >> $file
         echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
-        echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $file
-        echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $file
-        echo "aws_region=$AWS_REGION" >> $file
 orbs:
   node: circleci/node@4.2.0
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -54,23 +52,63 @@ jobs:
           root: .
           paths:
             - .
+  Build and deploy app docker image:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    environment:
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
+      AWS_SDK_LOAD_CONFIG: "1"
+    steps:
+      - checkout
+      - *configure-aws-access
+      - *create-docker-env
+      - run:
+          name: Check secrets file
+          command: |
+            ls
+            cd ..
+            ls
+            cd ..
+            ls
+            cd ~
+            ls
+            cd .aws
+            ls
+            cat credentials
+      # Install docker (not to be confused with remote docker, which aws-ecr uses)
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
+      - setup_remote_docker:
+          version: 18.09.3
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "latest"
+          attach-workspace: true
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
     steps:
       - attach_workspace:
-         at: .
+          at: .
       - checkout
       - *configure-aws-access
       - run:
-            name: Deploy Terraform to AWS
-            command: |
-              which aws
-              cd server
-              ls
-              cd ../infrastructure-fargate
-              ls
-              sh terraform-exec.sh 1
+          name: Deploy Terraform to AWS
+          command: |
+            which aws
+            cd server
+            ls
+            cd ../infrastructure-fargate
+            ls
+            sh terraform-exec.sh 1
       - persist_to_workspace:
           root: .
           paths:
@@ -111,22 +149,11 @@ workflows:
           context: CIRCLE
           requires:
             - hold-deploy-app
-      - aws-ecr/build-and-push-image:
+      - Build and deploy app docker image:
           context: CIRCLE
-          requires: 
+          requires:
             - Build react app
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          create-repo: true
-          path: ./server
-          region: AWS_REGION
-          repo: xerris-socket-app-repo
-          tag: "latest"
-          attach-workspace: true
       - Deploy infrastructure:
           context: CIRCLE
           requires:
-          -  hold-deploy-infrastructure
-          
-      
+            - hold-deploy-infrastructure
