@@ -52,7 +52,6 @@ npm run dev
 [Download Redis here](https://redis.io/topics/quickstart), and run `redis-server` in a terminal.
 
 # Deploying to AWS
-
 ## 1) Set up AWS CLI with profile
 
 [Follow this tutorial and login to set up your secret key and access key](https://docs.aws.amazon.com/polly/latest/dg/setup-aws-cli.html). This is required to deploy resources to AWS through the Terraform code.
@@ -61,7 +60,7 @@ npm run dev
 
 [Do this by installing the Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
-## 3a) Option 1: Build and deploy to multiple EC2 instances with Terraform shell script
+## 3a) Option 1: Build and deploy to multiple EC2 instances with Terraform shell script (locally)
 
 - This will skip step 4 below
 - Make sure you are logged in to docker with `docker login`
@@ -69,7 +68,7 @@ npm run dev
 - Run `sh terraform_exec 1` within the infrastructure/ folder and your infrastructure will be built, code will be dockerized and pushed to docker.
 - Go to step 5.
 
-## 3b) Option 2: Deploy to an AWS ECS Cluster with Fargate and Terraform
+## 3b) Option 2: Deploy to an AWS ECS Cluster with Fargate and Terraform (locally)
 
 - This will use AWS ECS instead of multiple EC2 instances.
 - Follow step 4 below, and then replace the app_image in infrastructure-fargate/variables.tf with <YOUR_DOCKER_USERNAME>/xerris-socket-app:latest
@@ -98,27 +97,31 @@ This will create the following resources in your AWS Account:
 
 It will also the hostname of our ALB for connecting. Once complete, you can go to <ALB_HOST_NAME>:3001 and connect to one of your ECS tasks.
 
-## 3c) Option 3: Deploy infrastructure with Terraform manually
+## 3c) Option 3: Deploy infrastructure with CircleCI (remote)
+You will need to fork this repository, and create an AWS account with proper permissions to create the resources.
 
-```
-cd infrastructure
-terraform init
-terraform plan
-terraform apply
-```
+Create a S3 bucket and DynamoDB table to hold the terraform state lock file. This is crucial as terraform will use this to reference the resources you created in order to update/destroy them later!
+- Go to S3 in the console and create an S3 bucket with a unique name. 
+- Go to DynamoDB in the console and create a table. The name doesn't matter, but the Primary partition key should be 'LockID' and type string.
+- Add these names to /infrastructure-fargate/terraform-exec.sh under bucket=<name> and dynamodb_table=<name>
 
-This will create the following resources in your AWS Account:
+Create the following Context variables in CircleCI:
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_REGION (ie us-east-2)
+- ENV (prod)
+- REACT_APP_ENV (prod)
+- REDIS_PORT (6379)
 
-- VPC
-- Internet Gateway
-- Subnet
-- Route Table & associated to subnet
-- Security group with ports opened for SSH & Public access
-- Key-Pair to SSH into your instance (~/.ssh/id_rsa.pub)
-- t2.micro EC2 Instance, which is free-tier eligible
-- AWS Redis Elasticache cluster
+Then in CircleCI, approve the 'hold-deploy-infrastructure' step. Your AWS resources will be created. 
+You then need to navigate to your AWS account and find the endpoint for your Redis Elasticache cluster (xerris-redis-cluster.XXXXXX.#####.xyz.cache.amazonaws.com
+), and the ECR repo endpoint (12345.dkr.ecr.us-east-2.amazonaws.com/xerris-socket-app-repo)
 
-It will also output some information for the resources you created, including the Public IPV4 address of the EC2 instance you created.
+You need to put these Context variables into CircleCI as well, under REDIS_ENDPOINT and AWS_ECR_ACCOUNT_URL, respectively.
+
+Next, you can approve the 'hold-deploy-app' step in CircleCI, to build & deploy the app. 
+
+If you did everything right, you should be able to go to EC2 > Application Load Balancer in the AWS console and find your load balancer URL. Add port 3001 on the end and you're good to go! Skip the steps below, and approve the 'hold-DESTROY' step in CircleCI to tear down your infrastructure.
 
 ## 4) Build Docker Image
 
