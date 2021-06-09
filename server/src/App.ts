@@ -6,14 +6,23 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
+const bodyParser = require("body-parser");
+const cookieSession = require("cookie-session");
 const dotenv = require("dotenv");
-console.log("🚀 ~ file: App.ts ~ line 17 ~ process.env", process.env);
+
 dotenv.config();
 const env = process.env.ENV;
-console.log("🚀 ~ file: App.ts ~ line 17 ~ process.env", process.env);
-
 const app = express();
 app.use(cors());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  })
+);
+app.use(bodyParser.urlencoded());
+app.use(express.static("build"));
 
 const server = createServer(app);
 const port = process.env.PORT || 3001;
@@ -54,7 +63,30 @@ if (env !== "local") {
 }
 
 // Serve the react file build
-app.use(express.static("build"));
+
+app.get("/login/:err", (req, res) => {
+  const errMessage = req.params.err;
+  const userID = req.session.userID;
+  const userId = req.cookies.userId;
+  if (userId) {
+    res.redirect("/");
+  }
+
+  res.render("/login");
+});
+app.post("/login", (req, res) => {
+  const loginInfo = req.body;
+  // const userInfo = dynamoDB.get(username)
+  const userInfo = "9e0dsjkljas";
+
+  bcrypt.compare(loginInfo.password, userInfo, (err, result) => {
+    if (result) {
+      res.cookie("userID", "test");
+      return res.redirect("/app");
+    }
+    return res.redirect("/login/401");
+  });
+});
 app.get("*", (req, res) => res.sendFile("index.html"));
 
 server.listen(port, () => {
