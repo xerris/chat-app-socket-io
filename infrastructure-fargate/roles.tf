@@ -72,9 +72,3 @@ data "aws_iam_policy_document" "s3_ecr_access" {
     }
   }
 }
-
-
-resource "aws_iam_role" "s3_ecr_role" {
-  name               = "sc_ecr_access_role"
-  assume_role_policy = data.aws_iam_policy_document.s3_ecr_access.json
-}

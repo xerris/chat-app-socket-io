@@ -18,7 +18,7 @@ variable "ecs_task_role_name" {
 
 variable "az_count" {
   description = "Number of AZs to cover in a given region"
-  default     = "1"
+  default     = "2"
 }
 
 variable "app_image" {
