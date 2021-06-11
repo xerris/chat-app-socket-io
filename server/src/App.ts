@@ -64,29 +64,29 @@ if (env !== "local") {
 
 // Serve the react file build
 
-app.get("/login/:err", (req, res) => {
-  const errMessage = req.params.err;
-  const userID = req.session.userID;
-  const userId = req.cookies.userId;
-  if (userId) {
-    res.redirect("/");
-  }
+// app.get("/login/:err", (req, res) => {
+//   const errMessage = req.params.err;
+//   // const userID = req.session.userID;
+//   const userId = req.cookies.userId;
+//   if (userId) {
+//     res.redirect("/");
+//   }
 
-  res.render("/login");
-});
-app.post("/login", (req, res) => {
-  const loginInfo = req.body;
-  // const userInfo = dynamoDB.get(username)
-  const userInfo = "9e0dsjkljas";
+//   res.render("/login");
+// });
+// app.post("/login", (req, res) => {
+//   const loginInfo = req.body;
+//   // const userInfo = dynamoDB.get(username)
+//   const userInfo = "9e0dsjkljas";
 
-  bcrypt.compare(loginInfo.password, userInfo, (err, result) => {
-    if (result) {
-      res.cookie("userID", "test");
-      return res.redirect("/app");
-    }
-    return res.redirect("/login/401");
-  });
-});
+//   bcrypt.compare(loginInfo.password, userInfo, (err, result) => {
+//     if (result) {
+//       res.cookie("userID", "test");
+//       return res.redirect("/app");
+//     }
+//     return res.redirect("/login/401");
+//   });
+// });
 app.get("*", (req, res) => res.sendFile("index.html"));
 
 server.listen(port, () => {
