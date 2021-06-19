@@ -13,7 +13,15 @@ const dotenv = require("dotenv");
 dotenv.config();
 const env = process.env.ENV;
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    methods: "POST",
+    allowedHeaders: ["Content-Type", "my-custom-header"],
+    credentials: true
+  })
+);
+
 app.use(
   cookieSession({
     name: "session",
@@ -93,7 +101,10 @@ if (env !== "local") {
 //     return res.redirect("/login/401");
 //   });
 // });
-app.get("*", (req, res) => res.sendFile("index.html"));
+app.get("*", (req, res) => {
+  console.log("🚀 ~ file: App.ts ~ line 97 ~ app.get ~ req", req);
+  res.sendFile("index.html");
+});
 
 server.listen(port, () => {
   console.log("Running server on port %s", port);
