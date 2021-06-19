@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { createUser } from "./DynamoPuts";
+import { verifyLogin } from "./DynamoQueries";
 
 const express = require("express");
 const router = express.Router();
@@ -9,22 +11,37 @@ router.get("/login", (req: Request, res: Response) => {
   res.send("ok");
 });
 
-router.post("/login", (req: Request, res: Response) => {
-  console.log(
-    "🚀 ~ file: App.ts ~ line 97 ~ app.post ~ req",
-    req.body.username
-  );
-  // const loginInfo = req.body;
-  // const userInfo = dynamoDB.get(username)
-  const userInfo = "9e0dsjkljas";
+router.post("/login", async (req: Request, res: Response) => {
+  try {
+    const loginResult = await verifyLogin({
+      username: req.body.username,
+      password: req.body.password
+    });
 
-  // bcrypt.compare(loginInfo.password, userInfo, (err, result) => {
-  //   if (result) {
-  //     res.cookie("userID", "test");
-  //     return res.redirect("/app");
-  //   }
-  //   return res.redirect("/login/401");
-  // });
+    if (loginResult) {
+      res.send(JSON.stringify(loginResult));
+    } else {
+      return res.sendStatus(500);
+    }
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+});
+router.post("/signup", async (req: Request, res: Response) => {
+  try {
+    const signupResult = await createUser({
+      username: req.body.username,
+      password: req.body.password,
+      email: req.body.email
+    });
+    if (signupResult) {
+      return res.sendStatus(200);
+    } else {
+      return res.sendStatus(500);
+    }
+  } catch (err) {
+    return res.sendStatus(500);
+  }
 });
 
 export default router;

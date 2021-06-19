@@ -13,7 +13,6 @@ dotenv.config();
 export const localRedis = true;
 export const localDynamo = true;
 const env = process.env.ENV;
-console.log("🚀 ~ file: Socket.ts ~ line 8 ~ env", env, localRedis);
 export interface IRoomData {
   userId: string;
   roomId: string;
@@ -68,7 +67,6 @@ const generateSocketServer = (server: http.Server) => {
       console.log("REDIS ERROR", err);
     }
   } else if (localRedis) {
-    console.log("creating REDIS CLIENT");
     pubClient = redis.createClient();
 
     pubClient.on("error", (err) => {

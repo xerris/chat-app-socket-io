@@ -4,6 +4,7 @@ import "./App.css";
 import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
 import Login from "./components/Login";
+import SignUp from "./components/SignUp";
 import { SocketContext } from "./components/SocketContext";
 
 interface ISocketMessage {
@@ -107,6 +108,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <SignUp />
         <Login />
         <SketchPad color={color} />
         <p>Connected: {"" + isConnected}</p>

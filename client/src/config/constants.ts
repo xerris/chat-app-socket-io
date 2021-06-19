@@ -5,3 +5,6 @@ export const fetchPostOptions = {
     "Content-Type": "application/json;charset=UTF-8"
   }
 };
+
+export const prefix =
+  process.env.REACT_APP_ENV === "dev" ? "http://localhost:3001" : "";

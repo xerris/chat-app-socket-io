@@ -1,8 +1,7 @@
 import { dynamo } from "./Dynamo";
 import { v4 as uuidv4 } from "uuid";
 import { ISocketMessage } from "./Socket";
-
-const env = process.env.ENV;
+import * as bcrypt from "bcrypt";
 
 const createRoomList = async (
   roomList: {
@@ -110,9 +109,41 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
   });
 };
 
+export interface ICreateUser {
+  username: string;
+  password: string;
+  email: string;
+}
+
+export const createUser = async (user: ICreateUser) =>
+  new Promise((resolve, reject) => {
+    try {
+      if (!(user.password && user.email && user.username)) {
+        reject("Missing credentials");
+      }
+      bcrypt.hash(user.password, 10, async (err, hash) => {
+        await dynamo
+          .put({
+            TableName: "xerris-socket-app-db",
+            Item: {
+              PK: `user#${user.username}`,
+              SK: `#METADATA`,
+              hash,
+              email: user.email,
+              username: user.username,
+              timestamp: Date.now()
+            }
+          })
+          .promise();
+      });
+      resolve("Success");
+    } catch (err) {
+      reject("Fail");
+    }
+  });
 // Sample queries (can be run if Dynamo is connected)
-joinRoom("3333", "id-1", "bobby", false);
-leaveRoom("3333", "id-1");
+// joinRoom("3333", "id-1", "bobby", false);
+// leaveRoom("3333", "id-1");
 // createPrivateMessage("bobby", "rexx92");
 // createRoomList([
 //   {
