@@ -85,9 +85,9 @@ jobs:
           tag: "latest"
           attach-workspace: true
       - run:
-        name: Force redeploy of ECS Cluster
-        command: |
-          aws ecs update-service --cluster xerris-socket-app-cluster --service xerris-socket-app-service --force-new-deployment
+          name: Force redeploy of ECS Cluster
+          command: |
+            aws ecs update-service --cluster xerris-socket-app-cluster --service xerris-socket-app-service --force-new-deployment
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
