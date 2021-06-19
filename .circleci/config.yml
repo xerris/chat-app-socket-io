@@ -66,15 +66,7 @@ jobs:
       - run:
           name: Check secrets file
           command: |
-            ls
-            cd ..
-            ls
-            cd ..
-            ls
-            cd ~
-            ls
-            cd .aws
-            ls
+            cd ~/.aws
             cat credentials
       # Install docker (not to be confused with remote docker, which aws-ecr uses)
       - run:
@@ -92,6 +84,10 @@ jobs:
           repo: xerris-socket-app-repo
           tag: "latest"
           attach-workspace: true
+      - run:
+        name: Force redeploy of ECS Cluster
+        command: |
+          aws ecs update-service --cluster xerris-socket-app-cluster --service xerris-socket-app-service --force-new-deployment
   Deploy infrastructure:
     docker:
       - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
