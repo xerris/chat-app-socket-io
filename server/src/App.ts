@@ -36,8 +36,14 @@ const io =
           credentials: true
         }
       })
-    : new Server(server);
-
+    : new Server(server, {
+        cors: {
+          origin: "http://localhost:3000",
+          methods: ["GET", "POST"],
+          allowedHeaders: ["my-custom-header"],
+          credentials: true
+        }
+      });
 let pubClient: redis.RedisClient;
 // Toggle Redis / Dynamo connection if you want to test locally
 const localRedis = true;
