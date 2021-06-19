@@ -38,7 +38,7 @@ const io =
   env === "local"
     ? new Server(server, {
         cors: {
-          origin: "*",
+          origin: "http://localhost:3000",
           methods: ["GET", "POST"],
           allowedHeaders: ["my-custom-header"],
           credentials: true
@@ -46,11 +46,16 @@ const io =
       })
     : new Server(server, {
         cors: {
-          origin: "*",
+          // Would change origin to eventual DNS for react app if 
+          // uploaded to S3 instead of served.
+          origin: "http://localhost:3000",
           methods: ["GET", "POST"],
           allowedHeaders: ["my-custom-header"],
           credentials: true
-        }
+        },
+        maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
+        pingInterval: 60 * 1000, // 1 minute
+        pingTimeout: 4 * 60 * 1000
       });
 let pubClient: redis.RedisClient;
 // Toggle Redis / Dynamo connection if you want to test locally

@@ -15,11 +15,17 @@ const SocketProvider = (props: any) => {
               "my-custom-header": "abcd"
             }
           })
-        : socketIOClient();
+        : socketIOClient(process.env.REACT_APP_SOCKET_CONNECTION, {
+            withCredentials: true,
+            extraHeaders: {
+              "my-custom-header": "abcd"
+            }
+          });
     console.log(
       process.env.REACT_APP_ENV === "dev"
         ? "connecting to localhost:3001"
-        : "connecting to server..."
+        : "connecting to server...",
+      process.env.REACT_APP_SOCKET_CONNECTION
     );
     if (socketConnection) {
       setSocket(socketConnection);
