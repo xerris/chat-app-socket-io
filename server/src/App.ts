@@ -6,12 +6,15 @@ import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
 import { saveRoomMessage, leaveRoom, joinRoom } from "./DynamoPuts";
-const bodyParser = require("body-parser");
+import routes from "./Routes";
 const cookieSession = require("cookie-session");
 const dotenv = require("dotenv");
+const morgan = require("morgan");
 
 dotenv.config();
 const env = process.env.ENV;
+
+// Express server config
 const app = express();
 app.use(
   cors({
@@ -21,7 +24,6 @@ app.use(
     credentials: true
   })
 );
-
 app.use(
   cookieSession({
     name: "session",
@@ -29,9 +31,13 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   })
 );
-app.use(bodyParser.urlencoded());
+app.use(express.urlencoded());
+app.use(express.json());
 app.use(express.static("build"));
+app.use(morgan("dev"));
+app.use("/api", routes);
 
+// Set up Socket.IO server
 const server = createServer(app);
 const port = process.env.PORT || 3001;
 const io =
@@ -46,7 +52,7 @@ const io =
       })
     : new Server(server, {
         cors: {
-          // Would change origin to eventual DNS for react app if 
+          // Would change origin to eventual DNS for react app if
           // uploaded to S3 instead of served.
           origin: "http://localhost:3000",
           methods: ["GET", "POST"],
@@ -58,9 +64,13 @@ const io =
         pingTimeout: 4 * 60 * 1000
       });
 let pubClient: redis.RedisClient;
-// Toggle Redis / Dynamo connection if you want to test locally
+
+// Toggle Redis / Dynamo connection if you want to test these locally
+// And have both services configured & running
 const localRedis = true;
 const localDynamo = true;
+
+// Redis config
 if (env !== "local") {
   try {
     const redisEndpoint = process.env.REDIS_ENDPOINT;
@@ -81,8 +91,6 @@ if (env !== "local") {
   });
 }
 
-// Serve the react file build
-
 // app.get("/login/:err", (req, res) => {
 //   const errMessage = req.params.err;
 //   // const userID = req.session.userID;
@@ -93,21 +101,8 @@ if (env !== "local") {
 
 //   res.render("/login");
 // });
-// app.post("/login", (req, res) => {
-//   const loginInfo = req.body;
-//   // const userInfo = dynamoDB.get(username)
-//   const userInfo = "9e0dsjkljas";
 
-//   bcrypt.compare(loginInfo.password, userInfo, (err, result) => {
-//     if (result) {
-//       res.cookie("userID", "test");
-//       return res.redirect("/app");
-//     }
-//     return res.redirect("/login/401");
-//   });
-// });
-app.get("*", (req, res) => {
-  console.log("🚀 ~ file: App.ts ~ line 97 ~ app.get ~ req", req);
+app.get("/", (req, res) => {
   res.sendFile("index.html");
 });
 
