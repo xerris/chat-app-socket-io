@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import { Socket } from "dgram";
+import React, { useContext, useState } from "react";
 import { fetchPostOptions, prefix } from "../../config/constants";
+import { ISocketContext, SocketContext } from "../SocketContext";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const socket: ISocketContext = useContext(SocketContext);
 
   const login = async (event) => {
     event.preventDefault();
@@ -25,6 +28,7 @@ const Login: React.FC = () => {
     if (res?.email) {
       setEmail(res.email);
       setError("");
+      socket.connectSocket(res.username);
     } else {
       setError("Login Error");
     }

@@ -5,7 +5,7 @@ import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
-import { SocketContext } from "./components/SocketContext";
+import { ISocketContext, SocketContext } from "./components/SocketContext";
 
 interface ISocketMessage {
   room: string;
@@ -55,45 +55,45 @@ function App() {
   ]);
   const [color, setColor] = useState("#1362b0");
 
-  const socket: Socket = useContext(SocketContext);
+  const socket: ISocketContext = useContext(SocketContext);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (socket) {
-      socket.on("connect", () => {
+    if (socket?.connection?.connected) {
+      socket.connection.on("connect", () => {
         setIsConnected(true);
       });
 
-      socket.on("disconnect", () => {
+      socket.connection.on("disconnect", () => {
         setIsConnected(false);
       });
 
-      socket.on("message", (data: ISocketMessage) => {
+      socket.connection.on("message", (data: ISocketMessage) => {
         setLastMessage(data.message);
       });
 
-      socket.on("messageList", (data: DynamoMessageQuery[]) => {
+      socket.connection.on("messageList", (data: DynamoMessageQuery[]) => {
         console.log("🚀 ~ messageList", data);
         setChatData(data);
       });
-      socket.on("roomListUpdate", (data: string[]) => {
+      socket.connection.on("roomListUpdate", (data: string[]) => {
         console.log("🚀 ~ roomListUpdate", data);
         setRoomUserList(data);
       });
     }
 
     return () => {
-      if (socket) {
-        socket.off("connect");
-        socket.off("disconnect");
-        socket.off("message");
+      if (socket?.connection) {
+        socket.connection.off("connect");
+        socket.connection.off("disconnect");
+        socket.connection.off("message");
       }
     };
-  }, [socket]);
+  }, [socket, socket?.connection]);
 
   const sendMessage = () => {
-    socket.emit("message", {
+    socket.connection.emit("message", {
       room: roomName,
       username,
       message,
@@ -110,7 +110,7 @@ function App() {
       <header className="App-header">
         <SignUp />
         <Login />
-        <SketchPad color={color} />
+        {socket?.connection && <SketchPad color={color} />}
         <p>Connected: {"" + isConnected}</p>
         <p>Last message: {lastMessage || " -"}</p>
         <input value={message} onChange={onMessageChange} />

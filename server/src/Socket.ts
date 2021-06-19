@@ -52,6 +52,19 @@ const generateSocketServer = (server: http.Server) => {
           pingTimeout: 4 * 60 * 1000
         });
 
+  io.use((socket, next) => {
+    console.log(
+      "🚀 ~ file: Socket.ts ~ line 79 ~ io.use ~ socket.handshake.auth",
+      socket.handshake
+    );
+    const username = socket.handshake.auth.username;
+    if (!username) {
+      return next(new Error("invalid username"));
+    }
+
+    next();
+  });
+
   let pubClient: redis.RedisClient;
 
   if (env !== "local") {
