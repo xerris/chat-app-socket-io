@@ -31,7 +31,7 @@ export interface IMessage {
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
-  const [username, setUsername] = useState("rexx92");
+  const [username, setUsername] = useState("undefined...");
   const [roomName, setRoomName] = useState("Lobby");
   const [chatData, setChatData] = useState([
     {
@@ -139,6 +139,8 @@ function App() {
     socket.connection.emit("joinRoom", { roomId: event.target.textContent });
   };
 
+  const onLogin = (username: string) => setUsername(username);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -146,7 +148,7 @@ function App() {
         {!isConnected && (
           <>
             <SignUp />
-            <Login />
+            <Login onLogin={onLogin} />
           </>
         )}
         {isConnected && (

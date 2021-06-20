@@ -3,7 +3,10 @@ import React, { useContext, useState } from "react";
 import { fetchPostOptions, prefix } from "../../config/constants";
 import { ISocketContext, SocketContext } from "../SocketContext";
 
-const Login: React.FC = () => {
+interface Props {
+  onLogin: (username: string) => void;
+}
+const Login: React.FC<Props> = ({ onLogin }: Props) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -29,6 +32,7 @@ const Login: React.FC = () => {
       setEmail(res.email);
       setError("");
       socket.connectSocket(res.username);
+      onLogin(res.username);
     } else {
       setError("Login Error");
     }
