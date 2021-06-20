@@ -121,7 +121,7 @@ class SocketManager {
           socket.username = session.username;
           console.log(
             "🚀 ~ file: SocketManager.ts ~ line 122 ~ SocketManager ~ this.io.use ~ username",
-            username
+            session.username
           );
           return next();
         }
