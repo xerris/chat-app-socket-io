@@ -48,6 +48,10 @@ class SocketManager {
   dynamoEnabled: boolean;
   constructor(server: http.Server, config: IServerConfig) {
     this.serverConfig = config;
+    console.log(
+      "🚀 ~ file: SocketManager.ts ~ line 51 ~ SocketManager ~ constructor ~  this.serverConfig",
+      this.serverConfig
+    );
     this.dynamoEnabled = config.configuredDynamo;
     this.generateSocketServer(server);
 
@@ -91,9 +95,7 @@ class SocketManager {
   connectToHostedRedis = (redisEndpoint: string) => {
     this.pubClient = new RedisClient({ host: redisEndpoint, port: 6379 });
     const subClient = this.pubClient.duplicate();
-    this.io.adapter(
-      createAdapter(createAdapter({ pubClient: this.pubClient, subClient }))
-    );
+    this.io.adapter(createAdapter({ pubClient: this.pubClient, subClient }));
     this.sessionStore = new RedisSessionStore(this.pubClient);
   };
 
