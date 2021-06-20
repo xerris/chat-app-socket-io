@@ -75,8 +75,9 @@ function App() {
     if (socket?.connection) {
       setIsConnected(true);
 
-      socket.connection.on("session", ({ sessionId }) => {
+      socket.connection.on("session", ({ sessionId, username }) => {
         // Store session in localStorage
+        onLogin(username);
         socket.connection.auth = { sessionId };
         localStorage.setItem("sessionId", sessionId);
       });
@@ -141,6 +142,11 @@ function App() {
 
   const onLogin = (username: string) => setUsername(username);
 
+  const logout = () => {
+    localStorage.clear();
+    socket.disconnectSocket();
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -161,6 +167,7 @@ function App() {
             <Messages messages={chatData} />
             <input value={message} onChange={onMessageChange} />
             <button onClick={sendMessage}>Send</button>
+            <button onClick={logout}>Logout</button>
             <SketchPad color={color} />
             <p>Last message: {lastMessage || " -"}</p>
             <ColorPicker color={color} setColor={setColor} />

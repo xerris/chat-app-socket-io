@@ -34,8 +34,8 @@ const SketchPad: React.FC<Props> = ({ color }) => {
       strokeWidth: 5
     };
 
-    if (socket) {
-      socket.connection.emit("draw", data);
+    if (socket?.connection) {
+      socket?.connection?.emit("draw", data);
     }
   };
 

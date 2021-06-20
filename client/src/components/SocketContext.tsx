@@ -36,8 +36,17 @@ const SocketProvider = (props: any) => {
     }
   };
 
+  const disconnectSocket = () => {
+    if (socket) {
+      localStorage.clear();
+      setSocket(null);
+    }
+  };
+
   return (
-    <SocketContext.Provider value={{ connection: socket, connectSocket }}>
+    <SocketContext.Provider
+      value={{ connection: socket, connectSocket, disconnectSocket }}
+    >
       {props.children}
     </SocketContext.Provider>
   );
@@ -46,6 +55,7 @@ const SocketProvider = (props: any) => {
 export interface ISocketContext {
   connection: Socket | null;
   connectSocket: (username?: string, sessionId?: string) => void;
+  disconnectSocket: () => void;
 }
 
 export { SocketContext, SocketProvider };

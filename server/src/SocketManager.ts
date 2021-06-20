@@ -168,7 +168,8 @@ class SocketManager {
           connected: `true`
         });
         socket.emit("session", {
-          sessionId: socket.sessionId
+          sessionId: socket.sessionId,
+          username: socket.username
         });
         // Put into online user list
         this.pubClient.lpush(`onlineUsers`, socket.username);
