@@ -2,9 +2,11 @@ import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import routes from "./Routes";
-import generateSocketServer from "./Socket";
+import * as dotenv from "dotenv";
+import { IServerConfig, SocketManager } from "./SocketManager";
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
+dotenv.config();
 
 // Express server config
 const app = express();
@@ -32,8 +34,14 @@ app.use("/api", routes);
 const server = createServer(app);
 export const port = process.env.PORT || 3001;
 // Set up Socket.IO server and redis client
-generateSocketServer(server);
+const config: IServerConfig = {
+  configuredDynamo: true,
+  configuredLocalRedis: true,
+  remoteRedisEndpoint: undefined,
+  environment: process.env.ENV === "local" ? "local" : "prod"
+};
 
+new SocketManager(server, config);
 
 app.get("/", (req, res) => {
   res.sendFile("index.html");

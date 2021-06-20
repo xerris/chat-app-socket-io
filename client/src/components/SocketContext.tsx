@@ -6,7 +6,7 @@ const SocketContext = createContext(null);
 const SocketProvider = (props: any) => {
   const [socket, setSocket] = useState<Socket>(null);
 
-  const connectSocket = (username) => {
+  const connectSocket = (username?, sessionId?) => {
     const socketConnection =
       process.env.REACT_APP_ENV === "dev"
         ? socketIOClient("localhost:3001", {
@@ -14,14 +14,14 @@ const SocketProvider = (props: any) => {
             extraHeaders: {
               "my-custom-header": "abcd"
             },
-            auth: { username }
+            auth: { username, sessionId }
           })
         : socketIOClient(process.env.REACT_APP_SOCKET_CONNECTION, {
             withCredentials: true,
             extraHeaders: {
               "my-custom-header": "abcd"
             },
-            auth: { username }
+            auth: { username, sessionId }
           });
     console.log(
       process.env.REACT_APP_ENV === "dev"
@@ -32,6 +32,7 @@ const SocketProvider = (props: any) => {
     if (socketConnection) {
       console.log("Setting up socket connection");
       setSocket(socketConnection);
+      socketConnection.emit("joinRoom", { roomId: "lobby" });
     }
   };
 
@@ -44,7 +45,7 @@ const SocketProvider = (props: any) => {
 
 export interface ISocketContext {
   connection: Socket | null;
-  connectSocket: (username: string) => void;
+  connectSocket: (username?: string, sessionId?: string) => void;
 }
 
 export { SocketContext, SocketProvider };

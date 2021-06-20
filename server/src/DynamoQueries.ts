@@ -25,7 +25,6 @@ export const getUsersInRoom = async (roomId: string) => {
       }
     })
     .promise();
-  console.log("🚀 ~ file: sampleQuery.ts ~", usersInRoomQuery);
   return usersInRoomQuery.Items;
 };
 

@@ -60,17 +60,33 @@ function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (socket?.connection?.connected) {
-      socket.connection.on("connect", () => {
-        setIsConnected(true);
-      });
+    // Connect to socket on refresh
+    const sessionId = localStorage.getItem("sessionId");
+    if (sessionId) {
+      socket.connectSocket(undefined, sessionId);
+    }
+  }, []);
 
+  useEffect(() => {
+    // Set up socket message handlers
+    if (socket?.connection) {
+      setIsConnected(true);
+
+      socket.connection.on("session", ({ sessionId }) => {
+        // Store session in localStorage
+        socket.connection.auth = { sessionId };
+        localStorage.setItem("sessionId", sessionId);
+      });
       socket.connection.on("disconnect", () => {
         setIsConnected(false);
       });
 
       socket.connection.on("message", (data: ISocketMessage) => {
         setLastMessage(data.message);
+      });
+
+      socket.connection.on("onlineUserUpdate", (data: string[]) => {
+        console.log("online user update", data);
       });
 
       socket.connection.on("messageList", (data: DynamoMessageQuery[]) => {
@@ -87,8 +103,13 @@ function App() {
       if (socket?.connection) {
         socket.connection.off("connect");
         socket.connection.off("disconnect");
+        socket.connection.off("session");
+        socket.connection.off("onlineUserUpdate");
+        socket.connection.off("messageList");
+        socket.connection.off("roomListUpdate");
         socket.connection.off("message");
       }
+      setIsConnected(false);
     };
   }, [socket, socket?.connection]);
 
@@ -108,14 +129,22 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <SignUp />
-        <Login />
-        {socket?.connection && <SketchPad color={color} />}
         <p>Connected: {"" + isConnected}</p>
-        <p>Last message: {lastMessage || " -"}</p>
-        <input value={message} onChange={onMessageChange} />
-        <button onClick={sendMessage}>Send</button>
-        <ColorPicker color={color} setColor={setColor} />
+        {!isConnected && (
+          <>
+            <SignUp />
+            <Login />
+          </>
+        )}
+        {isConnected && (
+          <>
+            <SketchPad color={color} />
+            <p>Last message: {lastMessage || " -"}</p>
+            <input value={message} onChange={onMessageChange} />
+            <button onClick={sendMessage}>Send</button>
+            <ColorPicker color={color} setColor={setColor} />
+          </>
+        )}
       </header>
     </div>
   );

@@ -1,13 +1,4 @@
-import SocketIO = require("socket.io");
-import { Server, Socket } from "socket.io";
-import { port } from "./App";
-import { joinRoom, leaveRoom, saveRoomMessage } from "./DynamoPuts";
-import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
-import { createAdapter } from "socket.io-redis";
-import redis, { RedisClient } from "redis";
-import http = require("http");
-import * as dotenv from "dotenv";
-import { v4 } from "uuid";
+import { RedisClient } from "redis";
 
 const SESSION_TTL = 24 * 60 * 60;
 const mapSession = ([username, connected]: string[]) => {
@@ -53,32 +44,3 @@ class RedisSessionStore {
 }
 
 export { RedisSessionStore };
-
-class SocketManager {
-  io: SocketIO.Server;
-  pubClient: redis.RedisClient;
-  sessionStore: RedisSessionStore;
-  constructor(server: http.Server) {
-    this.generateSocketServer(server);
-  }
-
-  generateSocketServer = (server: http.Server) => {
-    this.io = new Server(server, {
-      cors: {
-        // Would change origin to eventual DNS for react app if
-        // uploaded to S3 instead of served.
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
-      },
-      maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
-      pingInterval: 60 * 1000, // 1 minute
-      pingTimeout: 4 * 60 * 1000
-    });
-  };
-
-  connectToRedis = (env: string) => {
-    
-  };
-}
