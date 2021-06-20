@@ -173,6 +173,10 @@ export const verifyLogin = async (user: IUser) =>
         user.password,
         userInfo.Items[0].hash,
         (err, result) => {
+          console.log(
+            "🚀 ~ file: DynamoQueries.ts ~ line 176 ~ newPromise ~ result",
+            result
+          );
           if (result) {
             resolve({
               username: user.username,

@@ -37,7 +37,7 @@ class RedisSessionStore {
   saveSession(id: string, { username, connected }: { [key: string]: string }) {
     this.redisClient
       .multi()
-      .hset(`session:${id}`, "username", username, "connected", connected)
+      .hmset(`session:${id}`, "username", username, "connected", connected)
       .expire(`session:${id}`, SESSION_TTL)
       .exec();
   }
