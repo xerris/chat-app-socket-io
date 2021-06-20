@@ -32,7 +32,7 @@ const SocketProvider = (props: any) => {
     if (socketConnection) {
       console.log("Setting up socket connection");
       setSocket(socketConnection);
-      socketConnection.emit("joinRoom", { roomId: "lobby" });
+      socketConnection.emit("joinRoom", { roomId: "Lobby" });
     }
   };
 

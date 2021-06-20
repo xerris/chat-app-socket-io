@@ -131,20 +131,15 @@ export const getRoomList = async () => {
   const roomListQuery: GetRoomlistQueryResponse = await dynamo
     .query({
       TableName: "xerris-socket-app-db",
-      KeyConditionExpression: "PK = :pk and SK=:sk ",
+      KeyConditionExpression: "PK = :pk  ",
       ExpressionAttributeValues: {
-        ":pk": `ROOMLIST`,
-        ":sk": `ROOMLIST`
+        ":pk": `#ROOMMETADATA`
+        // ":sk": `ROOMLIST`
       }
     })
     .promise();
-  console.log(
-    "🚀 ~ file: sampleQuery.ts ~ line 173 ~ getRoomList ~ roomListQuery.Items?",
-    roomListQuery.Items
-  );
-  roomListQuery.Items[0].roomList.forEach((room: any) =>
-    console.log("room", room)
-  );
+
+  return roomListQuery?.Items;
 };
 
 export interface IUser {

@@ -3,23 +3,25 @@ import { Socket } from "socket.io-client";
 import "./App.css";
 import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
+import RoomList from "./components/RoomList";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import { ISocketContext, SocketContext } from "./components/SocketContext";
+import Messages from "./components/Messages";
 
-interface ISocketMessage {
+export interface ISocketMessage {
   room: string;
   username: string;
   message: string;
   timestamp: number;
 }
 
-interface IRoom {
-  id: string;
-  name: string;
+export interface IRoom {
+  roomId: string;
+  roomName: string;
 }
 
-export interface DynamoMessageQuery {
+export interface IMessage {
   SK: string;
   PK: string;
   message: string;
@@ -48,7 +50,8 @@ function App() {
     }
   ]);
   const [roomList, setRoomList] = useState<IRoom[]>([
-    { name: "Lobby", id: "abcdef" }
+    { roomName: "Lobby", roomId: "abcdef" },
+    { roomName: "Sports", roomId: "1223" }
   ]);
   const [roomUserList, setRoomUserList] = useState<string[]>([
     "rexx92, tobi22"
@@ -81,21 +84,25 @@ function App() {
         setIsConnected(false);
       });
 
-      socket.connection.on("message", (data: ISocketMessage) => {
+      socket.connection.on("message", (data: IMessage) => {
         setLastMessage(data.message);
+        setChatData((prev) => {
+          const chatDataCopy = prev.slice();
+          chatDataCopy.push(data);
+          return chatDataCopy;
+        });
       });
 
       socket.connection.on("onlineUserUpdate", (data: string[]) => {
         console.log("online user update", data);
       });
 
-      socket.connection.on("messageList", (data: DynamoMessageQuery[]) => {
+      socket.connection.on("messageList", (data: IMessage[]) => {
         console.log("🚀 ~ messageList", data);
         setChatData(data);
       });
-      socket.connection.on("roomListUpdate", (data: string[]) => {
-        console.log("🚀 ~ roomListUpdate", data);
-        setRoomUserList(data);
+      socket.connection.on("roomListUpdate", (data: IRoom[]) => {
+        setRoomList(data);
       });
     }
 
@@ -126,6 +133,12 @@ function App() {
     setMessage(event.target.value);
   };
 
+  const handleRoomChange = (event: any) => {
+    setRoomName(event.target.textContent);
+    setChatData([]);
+    socket.connection.emit("joinRoom", { roomId: event.target.textContent });
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -138,10 +151,16 @@ function App() {
         )}
         {isConnected && (
           <>
-            <SketchPad color={color} />
-            <p>Last message: {lastMessage || " -"}</p>
+            <RoomList
+              roomList={roomList}
+              onChangeRoom={handleRoomChange}
+              selectedRoom={roomName}
+            />
+            <Messages messages={chatData} />
             <input value={message} onChange={onMessageChange} />
             <button onClick={sendMessage}>Send</button>
+            <SketchPad color={color} />
+            <p>Last message: {lastMessage || " -"}</p>
             <ColorPicker color={color} setColor={setColor} />
           </>
         )}

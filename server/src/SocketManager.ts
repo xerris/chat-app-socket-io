@@ -2,7 +2,11 @@ import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
 import { port } from "./App";
 import { joinRoom, leaveRoom, saveRoomMessage } from "./DynamoPuts";
-import { getMessagesForRoom, getUsersInRoom } from "./DynamoQueries";
+import {
+  getMessagesForRoom,
+  getRoomList,
+  getUsersInRoom
+} from "./DynamoQueries";
 import { createAdapter } from "socket.io-redis";
 import redis, { RedisClient } from "redis";
 import http = require("http");
@@ -48,16 +52,10 @@ class SocketManager {
     this.generateSocketServer(server);
 
     // Setup redis connection
-    if (
-      this.serverConfig.environment === "local" &&
-      this.serverConfig.configuredLocalRedis
-    ) {
+    if (this.serverConfig.configuredLocalRedis) {
       this.connectToLocalRedis();
       this.redisEnabled = true;
-    } else if (
-      this.serverConfig.environment === "prod" &&
-      this.serverConfig.remoteRedisEndpoint
-    ) {
+    } else if (this.serverConfig.remoteRedisEndpoint) {
       this.connectToHostedRedis(this.serverConfig.remoteRedisEndpoint);
       this.redisEnabled = true;
     }
@@ -127,14 +125,21 @@ class SocketManager {
   };
 
   updateOnlineUsers = () => {
-    this.pubClient.lrange(`onlineUsers`, 0, -1, (err, roomList: string[]) => {
-      this.io.emit("onlineUserUpdate", roomList);
+    this.pubClient.lrange(`onlineUsers`, 0, -1, (err, userList: string[]) => {
+      let uniqueUserList = [...new Set(userList)];
+      this.io.emit("onlineUserUpdate", uniqueUserList);
     });
   };
 
+  sendRoomList = async (socket: Socket) => {
+    const roomList = await getRoomList();
+    socket.emit("roomListUpdate", roomList);
+  };
+
   updateUsersInRoom = async (roomId: string) => {
+    // TODO: Configure on front-end
     const userList = await getUsersInRoom(roomId);
-    this.io.in(roomId).emit("roomListUpdate", userList);
+    this.io.in(roomId).emit("usersInRoom", userList);
   };
 
   registerSocketListeners = () => {
@@ -151,6 +156,7 @@ class SocketManager {
         this.pubClient.lpush(`onlineUsers`, socket.username);
         this.updateOnlineUsers();
       }
+      this.sendRoomList(socket);
       this.sendRoomDrawingsOnLoad(socket);
 
       socket.on("message", async (m: ISocketMessage) => {
@@ -193,7 +199,7 @@ class SocketManager {
       });
 
       socket.on("joinRoom", async (data: IRoomData) => {
-        console.log("socket joining room ID", data.roomId);
+        console.log(`${socket.username} joining room ID ${data.roomId}`);
         socket.join(data.roomId);
 
         if (this.dynamoEnabled) {
@@ -229,7 +235,7 @@ class SocketManager {
             socket.emit("draw", JSON.parse(drawData))
           );
         }),
-      300
+      100
     );
   };
 }

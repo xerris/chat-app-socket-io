@@ -36,8 +36,8 @@ export const port = process.env.PORT || 3001;
 // Set up Socket.IO server and redis client
 const config: IServerConfig = {
   configuredDynamo: true,
-  configuredLocalRedis: true,
-  remoteRedisEndpoint: undefined,
+  configuredLocalRedis: true && process.env.ENV === "local",
+  remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
   environment: process.env.ENV === "local" ? "local" : "prod"
 };
 
