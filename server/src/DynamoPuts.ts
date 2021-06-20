@@ -1,7 +1,8 @@
 import { dynamo } from "./Dynamo";
 import { v4 as uuidv4 } from "uuid";
-import { ISocketMessage } from "./Socket";
+
 import * as bcrypt from "bcrypt";
+import { ISocketMessage } from "./SocketManager";
 
 const createRoomList = async (
   roomList: {
@@ -31,7 +32,7 @@ export const joinRoom = async (
     .put({
       TableName: "xerris-socket-app-db",
       Item: {
-        PK: `user#${userId}`,
+        PK: `user#${username}`,
         SK: `#ROOM#${roomId}`,
         message: isMessage,
         roomName: "Sample room",

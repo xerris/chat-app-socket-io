@@ -202,8 +202,8 @@ class SocketManager {
         console.log(`${socket.username} joining room ID ${data.roomId}`);
         socket.join(data.roomId);
 
-        if (this.dynamoEnabled) {
-          joinRoom(data.roomId, data.userId, data.username, false);
+        if (this.dynamoEnabled && socket.username) {
+          joinRoom(data.roomId, data.userId, socket.username, false);
           // Dynamo query room messages for newly connected user
           const roomMessageList = await getMessagesForRoom(data.roomId);
           socket.emit("messageList", roomMessageList);
