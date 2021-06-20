@@ -89,6 +89,8 @@ export const createPrivateMessage = async (
 
 export const saveRoomMessage = async (m: ISocketMessage) => {
   return new Promise(async (resolve, reject) => {
+    console.log("🚀 ~ file: DynamoPuts.ts ~ line 112 ~ saveRoomMessage ~ m", m);
+
     try {
       await dynamo
         .put({
