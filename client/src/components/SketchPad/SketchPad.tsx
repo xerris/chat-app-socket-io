@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 import p5 from "p5";
-import { SocketContext } from "../SocketContext";
+import { ISocketContext, SocketContext } from "../SocketContext";
 
 interface Props {
   color: string;
@@ -16,7 +16,7 @@ interface SocketDrawing {
 }
 
 const SketchPad: React.FC<Props> = ({ color }) => {
-  const socket = useContext(SocketContext);
+  const socket: ISocketContext = useContext(SocketContext);
   const divRef = useRef<HTMLDivElement>();
   const colorRef = useRef<string>();
   const boardRef: React.MutableRefObject<p5> = React.useRef();
@@ -34,13 +34,13 @@ const SketchPad: React.FC<Props> = ({ color }) => {
       strokeWidth: 5
     };
 
-    if (socket) {
-      socket.emit("draw", data);
+    if (socket?.connection) {
+      socket?.connection?.emit("draw", data);
     }
   };
 
   useEffect(() => {
-    if (socket) {
+    if (socket?.connection) {
       // Prevents glitch where multiple canvasses appear
       if (boardRef.current) {
         boardRef.current.remove();
@@ -54,7 +54,7 @@ const SketchPad: React.FC<Props> = ({ color }) => {
           );
         };
 
-        socket.on("draw", (data: SocketDrawing) => {
+        socket.connection.on("draw", (data: SocketDrawing) => {
           try {
             sketch.stroke(data.color);
             sketch.strokeWeight(data.strokeWidth);
@@ -65,12 +65,12 @@ const SketchPad: React.FC<Props> = ({ color }) => {
           }
         });
 
-        socket.on("clearBoard", () => boardRef.current.clear());
+        socket.connection.on("clearBoard", () => boardRef.current.clear());
       }, divRef.current);
     }
     return () => {
-      if (socket) {
-        socket.off("draw");
+      if (socket?.connection) {
+        socket.connection.off("draw");
       }
     };
   }, [socket, divRef]);
@@ -90,7 +90,7 @@ const SketchPad: React.FC<Props> = ({ color }) => {
       <button
         onClick={() => {
           boardRef.current.clear();
-          socket.emit("clearBoard");
+          socket?.connection?.emit("clearBoard");
         }}
       >
         Clear Board

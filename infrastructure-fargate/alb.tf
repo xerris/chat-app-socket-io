@@ -41,4 +41,16 @@ resource "aws_alb_listener" "front_end" {
     type             = "forward"
   }
 }
+# Redirect all HTTP traffic from the ALB
+# This allows us to NOT have to use :3001 at end of ALB DNS
+resource "aws_alb_listener" "front_end_2" {
+  load_balancer_arn = aws_alb.main.id
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_alb_target_group.app.id
+    type             = "forward"
+  }
+}
 

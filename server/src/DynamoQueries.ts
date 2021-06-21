@@ -1,5 +1,5 @@
 import { dynamo } from "./Dynamo";
-const env = process.env.ENV;
+import * as bcrypt from "bcrypt";
 
 export interface IUserRoom {
   PK: string;
@@ -25,7 +25,6 @@ export const getUsersInRoom = async (roomId: string) => {
       }
     })
     .promise();
-  console.log("🚀 ~ file: sampleQuery.ts ~", usersInRoomQuery);
   return usersInRoomQuery.Items;
 };
 
@@ -132,21 +131,66 @@ export const getRoomList = async () => {
   const roomListQuery: GetRoomlistQueryResponse = await dynamo
     .query({
       TableName: "xerris-socket-app-db",
-      KeyConditionExpression: "PK = :pk and SK=:sk ",
+      KeyConditionExpression: "PK = :pk  ",
       ExpressionAttributeValues: {
-        ":pk": `ROOMLIST`,
-        ":sk": `ROOMLIST`
+        ":pk": `#ROOMMETADATA`
+        // ":sk": `ROOMLIST`
       }
     })
     .promise();
-  console.log(
-    "🚀 ~ file: sampleQuery.ts ~ line 173 ~ getRoomList ~ roomListQuery.Items?",
-    roomListQuery.Items
-  );
-  roomListQuery.Items[0].roomList.forEach((room: any) =>
-    console.log("room", room)
-  );
+
+  return roomListQuery?.Items;
 };
+
+export interface IUser {
+  username: string;
+  password: string;
+}
+
+export interface DynamoUserResponse {
+  Items: {
+    hash: string;
+    email: string;
+    username: string;
+  }[];
+}
+
+export const verifyLogin = async (user: IUser) =>
+  new Promise(async (resolve, reject) => {
+    const userInfo: DynamoUserResponse = await dynamo
+      .query({
+        TableName: "xerris-socket-app-db",
+        KeyConditionExpression: "PK = :pk and SK=:sk ",
+        ExpressionAttributeValues: {
+          ":pk": `user#${user.username}`,
+          ":sk": `#METADATA`
+        }
+      })
+      .promise();
+
+    if (userInfo?.Items?.[0]?.hash) {
+      await bcrypt.compare(
+        user.password,
+        userInfo.Items[0].hash,
+        (err, result) => {
+          console.log(
+            "🚀 ~ file: DynamoQueries.ts ~ line 176 ~ newPromise ~ result",
+            result
+          );
+          if (result) {
+            resolve({
+              username: user.username,
+              email: userInfo.Items[0].email
+            });
+          } else {
+            reject("Incorrect credentials");
+          }
+        }
+      );
+    } else {
+      reject("User does not exist");
+    }
+  });
 
 // getRoomList();
 // getMessagesForRoom("1f2e9e95-528b-40cf-ade1-d5e47c082fda");

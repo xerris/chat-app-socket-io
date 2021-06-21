@@ -1,7 +1,7 @@
 var AWS = require("aws-sdk");
 if (process.env.ENV === "dev") {
   AWS.config.update({
-    region: "us-west-2",
+    region: "us-east-2",
     endpoint: "https://dynamodb.us-west-2.amazonaws.com"
   });
 }

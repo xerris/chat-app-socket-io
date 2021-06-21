@@ -18,6 +18,12 @@ resource "aws_security_group" "lb" {
     to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     protocol    = "-1"
@@ -55,3 +61,23 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
+# resource "aws_security_group" "ecs_task" {
+#   name        = "socket-app-cluster-security-group"
+#   description = "controls access to the Endpoints"
+#   vpc_id      = aws_vpc.main.id
+
+#   ingress {
+#     protocol    = "tcp"
+#     from_port   = 443
+#     to_port     = 443
+#     cidr_blocks = [aws_vpc.main.cidr_block]
+#   }
+ 
+
+#   egress {
+#     protocol    = "-1"
+#     from_port   = 0
+#     to_port     = 0
+#     cidr_blocks =[aws_vpc_endpoint.s3.prefix_list_id]
+#   }
+# }
