@@ -123,13 +123,7 @@ function App() {
 
     return () => {
       if (socket?.connection) {
-        socket.connection.off("connect");
-        socket.connection.off("disconnect");
-        socket.connection.off("session");
-        socket.connection.off("onlineUserUpdate");
-        socket.connection.off("messageList");
-        socket.connection.off("roomListUpdate");
-        socket.connection.off("message");
+        socket.connection.offAny();
       }
       setIsConnected(false);
     };
