@@ -147,10 +147,6 @@ class SocketManager {
 
   sendRoomList = async (socket: Socket) => {
     const roomList = await getRoomList();
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 150 ~ SocketManager ~ sendRoomList= ~ roomList",
-      roomList
-    );
     socket.emit("roomListUpdate", roomList);
   };
 
@@ -189,11 +185,13 @@ class SocketManager {
       socket.on("disconnect", () => {
         if (socket.username && socket.sessionId) {
           console.log(`${socket.username} disconnected`);
-          this.sessionStore.saveSession(socket.sessionId, {
-            username: socket.username,
-            connected: `false`
-          });
-          this.pubClient.LREM(`onlineUsers`, 1, socket.username);
+          if (this.redisEnabled) {
+            this.sessionStore.saveSession(socket.sessionId, {
+              username: socket.username,
+              connected: `false`
+            });
+            this.pubClient.LREM(`onlineUsers`, 1, socket.username);
+          }
           this.updateOnlineUsers();
         }
       });

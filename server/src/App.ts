@@ -1,12 +1,19 @@
 import { createServer } from "http";
 import express from "express";
 import cors from "cors";
-import routes from "./Routes";
+import registerRoutes from "./Routes";
 import * as dotenv from "dotenv";
 import { IServerConfig, SocketManager } from "./SocketManager";
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 dotenv.config();
+
+const config: IServerConfig = {
+  configuredDynamo: false,
+  configuredLocalRedis: true && process.env.ENV === "local",
+  remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
+  environment: process.env.ENV === "local" ? "local" : "prod"
+};
 
 // Express server config
 const app = express();
@@ -29,18 +36,12 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static("build"));
 app.use(morgan("dev"));
-app.use("/api", routes);
+app.use("/api", registerRoutes(config.configuredDynamo));
 
 const server = createServer(app);
 export const port = process.env.PORT || 3001;
-// Set up Socket.IO server and redis client
-const config: IServerConfig = {
-  configuredDynamo: true,
-  configuredLocalRedis: true && process.env.ENV === "local",
-  remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
-  environment: process.env.ENV === "local" ? "local" : "prod"
-};
 
+// Set up Socket.IO server and redis client
 new SocketManager(server, config);
 
 app.get("/", (req, res) => {

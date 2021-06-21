@@ -112,6 +112,32 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
   });
 };
 
+export interface IDeleteMessage {
+  room: string;
+  username: string;
+  timestamp: string;
+}
+
+export const deleteRoomMessage = async (m: IDeleteMessage) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await dynamo
+        .delete({
+          TableName: "xerris-socket-app-db",
+          Item: {
+            PK: `#ROOM#${m.room}`,
+            SK: `#MESSAGE#${m.username}${m.timestamp}`
+          }
+        })
+        .promise();
+      resolve("Success");
+    } catch (error) {
+      console.log("error posting message", m, error);
+      reject(error);
+    }
+  });
+};
+
 export interface ICreateUser {
   username: string;
   password: string;
