@@ -52,8 +52,7 @@ export const getMessagesForRoom = async (roomId: string) => {
       }
     })
     .promise();
-  return roomMessageList.Items;
-  console.log("🚀 ~ file: roomMessageList", roomMessageList.Items);
+  return { roomId, messages: roomMessageList.Items };
 };
 
 export interface IUserMetadata {

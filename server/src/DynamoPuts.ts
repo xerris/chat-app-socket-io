@@ -85,6 +85,8 @@ export const createPrivateMessage = async (
       }
     })
     .promise();
+
+  return uuid;
 };
 
 export const saveRoomMessage = async (m: ISocketMessage) => {

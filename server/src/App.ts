@@ -9,7 +9,7 @@ const morgan = require("morgan");
 dotenv.config();
 
 const config: IServerConfig = {
-  configuredDynamo: false,
+  configuredDynamo: true,
   configuredLocalRedis: true && process.env.ENV === "local",
   remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
   environment: process.env.ENV === "local" ? "local" : "prod"

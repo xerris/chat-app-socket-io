@@ -20,7 +20,6 @@ export interface IRoom {
   roomId: string;
   roomName: string;
 }
-
 export interface IMessage {
   SK: string;
   PK: string;
@@ -28,9 +27,12 @@ export interface IMessage {
   username: string;
   timestamp: number;
 }
+export interface IMessageList {
+  roomId: string;
+  messages: IMessage[];
+}
 function App() {
   const [isConnected, setIsConnected] = useState(false);
-  const [lastMessage, setLastMessage] = useState(null);
   const [username, setUsername] = useState("undefined...");
   const [roomName, setRoomName] = useState("Lobby");
   const [chatData, setChatData] = useState([
@@ -86,7 +88,6 @@ function App() {
       });
 
       socket.connection.on("message", (data: IMessage) => {
-        setLastMessage(data.message);
         setChatData((prev) => {
           const chatDataCopy = prev.slice();
           chatDataCopy.push(data);
@@ -94,28 +95,35 @@ function App() {
         });
       });
 
-      socket.connection.on("onlineUserUpdate", (data: string[]) => {
-        console.log("online user update", data);
-      });
+      socket.connection.on(
+        "onlineUserUpdate",
+        (data: { username: string; connected: boolean }[]) => {
+          console.log("online user update", data);
+        }
+      );
 
-      socket.connection.on("messageList", (data: IMessage[]) => {
+      socket.connection.on("messageList", (data: IMessageList) => {
         console.log("🚀 ~ messageList", data);
-        setChatData(data);
+        setChatData(data.messages);
       });
       socket.connection.on("roomListUpdate", (data: IRoom[]) => {
+        console.log("🚀 ~ all public room list", data);
+
         setRoomList(data);
+      });
+      socket.connection.on("userRoomListUpdate", (data: IRoom[]) => {
+        console.log("🚀 ~ rooms user is part of including DM's");
+
+        setRoomList(data);
+      });
+      socket.connection.on("usersInRoom", (data: any) => {
+        console.log("🚀 ~ Update list of users for current room", data);
       });
     }
 
     return () => {
       if (socket?.connection) {
-        socket.connection.off("connect");
-        socket.connection.off("disconnect");
-        socket.connection.off("session");
-        socket.connection.off("onlineUserUpdate");
-        socket.connection.off("messageList");
-        socket.connection.off("roomListUpdate");
-        socket.connection.off("message");
+        socket.connection.offAny();
       }
       setIsConnected(false);
     };
@@ -169,7 +177,6 @@ function App() {
             <button onClick={sendMessage}>Send</button>
             <button onClick={logout}>Logout</button>
             <SketchPad color={color} />
-            <p>Last message: {lastMessage || " -"}</p>
             <ColorPicker color={color} setColor={setColor} />
           </>
         )}
