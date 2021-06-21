@@ -1,10 +1,16 @@
 import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
 import { port } from "./App";
-import { joinRoom, leaveRoom, saveRoomMessage } from "./DynamoPuts";
+import {
+  deleteRoomMessage,
+  joinRoom,
+  leaveRoom,
+  saveRoomMessage
+} from "./DynamoPuts";
 import {
   getMessagesForRoom,
   getRoomList,
+  getRoomlistForUser,
   getUsersInRoom
 } from "./DynamoQueries";
 import { createAdapter } from "socket.io-redis";
@@ -66,6 +72,7 @@ class SocketManager {
 
     this.configureMiddleware();
     this.registerSocketListeners();
+    this.updateOnlineUsers();
   }
 
   generateSocketServer = (server: http.Server) => {
@@ -105,24 +112,14 @@ class SocketManager {
     // in here to secure connection further.
     this.io.use(async (socket: ICustomSocket, next) => {
       const sessionId = socket.handshake.auth.sessionId;
-      console.log(
-        "🚀 ~ file: SocketManager.ts ~ line 108 ~ SocketManager ~ this.io.use ~ sessionId",
-        sessionId
-      );
 
       if (sessionId && this.redisEnabled) {
         const session = await this.sessionStore.findSession(sessionId);
-        console.log(
-          "🚀 ~ file: SocketManager.ts ~ line 111 ~ SocketManager ~ this.io.use ~ session",
-          session
-        );
+
         if (session) {
           socket.sessionId = sessionId;
           socket.username = session.username;
-          console.log(
-            "🚀 ~ file: SocketManager.ts ~ line 122 ~ SocketManager ~ this.io.use ~ username",
-            session.username
-          );
+
           return next();
         }
       }
@@ -138,16 +135,21 @@ class SocketManager {
     });
   };
 
-  updateOnlineUsers = () => {
-    this.pubClient.lrange(`onlineUsers`, 0, -1, (err, userList: string[]) => {
-      let uniqueUserList = [...new Set(userList)];
-      this.io.emit("onlineUserUpdate", uniqueUserList);
-    });
+  updateOnlineUsers = async () => {
+    const userArray = await this.sessionStore.getOnlineUsers();
+    this.io.emit("onlineUserUpdate", userArray);
   };
 
   sendRoomList = async (socket: Socket) => {
     const roomList = await getRoomList();
     socket.emit("roomListUpdate", roomList);
+  };
+
+  sendUserRoomList = async (socket: ICustomSocket) => {
+    if (socket.username) {
+      const userRoomList = await getRoomlistForUser(socket.username);
+      socket.emit("userRoomListUpdate", userRoomList);
+    }
   };
 
   updateUsersInRoom = async (roomId: string) => {
@@ -223,11 +225,24 @@ class SocketManager {
           joinRoom(data.roomId, data.userId, socket.username, false);
           // Dynamo query room messages for newly connected user
           const roomMessageList = await getMessagesForRoom(data.roomId);
-          console.log(
-            "🚀 ~ file: SocketManager.ts ~ line 224 ~ SocketManager ~ socket.on ~ roomMessageList",
-            roomMessageList
-          );
           socket.emit("messageList", roomMessageList);
+          this.updateUsersInRoom(data.roomId);
+        }
+      });
+      socket.on("deleteMessage", async (data: any) => {
+        console.log(`${socket.username} deleting message`);
+
+        if (this.dynamoEnabled && socket.username) {
+          deleteRoomMessage({
+            room: data.room,
+            username: socket.username,
+            timestamp: data.timestamp
+          });
+
+          // Dynamo query room messages for newly connected user
+          const roomMessageList = await getMessagesForRoom(data.roomId);
+          socket.emit("messageList", roomMessageList);
+          socket.to(data.roomId).emit("messageList", roomMessageList);
           this.updateUsersInRoom(data.roomId);
         }
       });

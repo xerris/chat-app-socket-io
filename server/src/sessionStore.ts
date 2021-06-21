@@ -41,6 +41,42 @@ class RedisSessionStore {
       .expire(`session:${id}`, SESSION_TTL)
       .exec();
   }
+
+  getOnlineUsers = async () => {
+    const keys = new Set();
+    let cursor = "0";
+    do {
+      await new Promise((resolve, reject) =>
+        this.redisClient.scan(
+          cursor,
+          "MATCH",
+          "session:*",
+          "COUNT",
+          "100",
+          (err, reply) => {
+            cursor = reply[0];
+            reply[1].forEach((key: string) => keys.add(key));
+            if (cursor === "0") {
+              resolve("ok");
+            }
+          }
+        )
+      );
+    } while (cursor !== "0");
+
+    const commands: any[] = [];
+    keys.forEach((key: unknown) =>
+      commands.push(["hmget", key, "username", "connected"])
+    );
+
+    return await new Promise((resolve, reject) => {
+      this.redisClient.multi(commands).exec((err, reply) => {
+        const userArray = reply.map((result: string[]) => mapSession(result));
+
+        return resolve(userArray.filter((user) => user.connected === "true"));
+      });
+    });
+  };
 }
 
 export { RedisSessionStore };

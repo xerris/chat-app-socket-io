@@ -38,6 +38,7 @@ const SocketProvider = (props: any) => {
 
   const disconnectSocket = () => {
     if (socket) {
+      socket.disconnect();
       localStorage.clear();
       setSocket(null);
     }
