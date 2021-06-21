@@ -160,6 +160,7 @@ class SocketManager {
 
   registerSocketListeners = () => {
     this.io.on("connect", async (socket: ICustomSocket) => {
+      socket.join(`user${socket.username}`);
       if (this.redisEnabled && socket.username && socket.sessionId) {
         this.sessionStore.saveSession(socket.sessionId, {
           username: socket.username,
@@ -267,6 +268,19 @@ class SocketManager {
 
             socket.join(roomId);
             // Find the socket that is the receiver and update their room list
+            const senderRoomList = await getRoomlistForUser(
+              data.senderUsername
+            );
+            socket
+              .to(`user${socket.username}`)
+              .emit("userRoomListUpdate", senderRoomList);
+
+            const receiverRoomList = await getRoomlistForUser(
+              data.receiverUsername
+            );
+            socket
+              .to(`user${data.receiverUsername}`)
+              .emit("userRoomListUpdate", receiverRoomList);
 
             // Emit new list of users to room so UI can update
             this.updateUsersInRoom(roomId);
