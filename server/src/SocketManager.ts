@@ -2,6 +2,7 @@ import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
 import { port } from "./App";
 import {
+  createPrivateMessage,
   deleteRoomMessage,
   joinRoom,
   leaveRoom,
@@ -255,6 +256,23 @@ class SocketManager {
           this.updateUsersInRoom(data.roomId);
         }
       });
+      socket.on(
+        "createPrivateMessage",
+        async (data: { senderUsername: string; receiverUsername: string }) => {
+          if (this.dynamoEnabled) {
+            const roomId = await createPrivateMessage(
+              data.senderUsername,
+              data.receiverUsername
+            );
+
+            socket.join(roomId);
+            // Find the socket that is the receiver and update their room list
+
+            // Emit new list of users to room so UI can update
+            this.updateUsersInRoom(roomId);
+          }
+        }
+      );
     });
   };
 
