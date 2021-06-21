@@ -153,7 +153,6 @@ class SocketManager {
   };
 
   updateUsersInRoom = async (roomId: string) => {
-    // TODO: Configure on front-end
     const userList = await getUsersInRoom(roomId);
     this.io.in(roomId).emit("usersInRoom", userList);
   };

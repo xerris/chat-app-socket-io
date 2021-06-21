@@ -116,6 +116,9 @@ function App() {
 
         setRoomList(data);
       });
+      socket.connection.on("usersInRoom", (data: any) => {
+        console.log("🚀 ~ Update list of users for current room", data);
+      });
     }
 
     return () => {
