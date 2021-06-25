@@ -36,7 +36,7 @@ const RoomList: React.FC<Props> = ({
           onClick={() => onChangeRoom(room.roomId)}
           className={selectedRoom === room.roomId ? "active-2" : "inactive"}
         >
-          {room.roomName}
+          DM with {room.receiver}
         </h5>
       ))}
     </div>

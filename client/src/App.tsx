@@ -28,6 +28,7 @@ export interface IRoom {
   roomId: string;
   roomName: string;
   message?: boolean;
+  receiver?: string;
 }
 export interface IMessage {
   SK: string;
