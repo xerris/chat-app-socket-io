@@ -5,17 +5,16 @@ resource "aws_security_group" "nat" {
   description = "Allow traffic to pass from the private subnet to the internet"
 
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-
-    cidr_blocks = ["${var.private_subnet_cidr}"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["${var.private_subnet_cidr}"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 22
@@ -46,7 +45,7 @@ resource "aws_security_group" "nat" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = element(aws_vpc.main.*.cidr_blocks)
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port   = -1
@@ -57,10 +56,9 @@ resource "aws_security_group" "nat" {
 
   vpc_id = aws_vpc.main.id
 
-  tags {
-    Name = "NAT-Gateway"
-  }
+
 }
+
 
 
 resource "aws_instance" "nat" {
@@ -69,11 +67,11 @@ resource "aws_instance" "nat" {
   instance_type               = "t2.micro"
   key_name                    = "aws"
   vpc_security_group_ids      = ["${aws_security_group.nat.id}"]
-  subnet_id                   = aws_subnet.public.id
+  subnet_id                   = element(aws_subnet.public.*.id, 0)
   associate_public_ip_address = true
   source_dest_check           = false
 
-  tags {
+  tags = {
     Name = "NAT-Gateway"
   }
 }
@@ -84,65 +82,67 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_security_group" "web" {
-    name = "vpc_web"
-    description = "Allow incoming HTTP connections."
+  name        = "vpc_web"
+  description = "Allow incoming HTTP connections."
 
-    ingress {
-        from_port = 80
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port = 443
-        to_port = 443
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port = -1
-        to_port = -1
-        protocol = "icmp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    egress { # SQL Server
-        from_port = 1433
-        to_port = 1433
-        protocol = "tcp"
-        cidr_blocks = ["${var.private_subnet_cidr}"]
-    }
-    egress { # MySQL
-        from_port = 3306
-        to_port = 3306
-        protocol = "tcp"
-        cidr_blocks = ["${var.private_subnet_cidr}"]
-    }
 
-    vpc_id = aws_vpc.main.id
+  egress { # SQL Server
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress { # SQL Server
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    tags {
-        Name = "WebServerSG"
-    }
+
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "WebServerSG"
+  }
 }
 
 resource "aws_instance" "web-1" {
-    ami = "${lookup(var.amis, var.aws_region)}"
-    availability_zone = "us-east-2"
-    instance_type = "t2.micro"
-    key_name = "aws"
-    vpc_security_group_ids = ["${aws_security_group.web.id}"]
-    subnet_id = aws_subnet.public.id
-    associate_public_ip_address = true
-    source_dest_check = false
+  ami                         = lookup(var.amis, var.aws_region)
+  availability_zone           = "us-east-2"
+  instance_type               = "t2.micro"
+  key_name                    = "aws"
+  vpc_security_group_ids      = ["${aws_security_group.web.id}"]
+  subnet_id                   = element(aws_subnet.public.*.id, 0)
+  associate_public_ip_address = true
+  source_dest_check           = false
 
 
-    tags {
-        Name = "Web Server 1"
-    }
+  tags = {
+    Name = "Web Server 1"
+  }
 }
 
 resource "aws_eip" "web-1" {
-    instance = "${aws_instance.web-1.id}"
-    vpc = true
+  instance = aws_instance.web-1.id
+  vpc      = true
 }
