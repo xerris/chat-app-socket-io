@@ -155,6 +155,10 @@ class SocketManager {
 
   updateUsersInRoom = async (roomId: string) => {
     const userList = await getUsersInRoom(roomId);
+    console.log(
+      "🚀 ~ file: SocketManager.ts ~ line 158 ~ SocketManager ~ updateUsersInRoom= ~ userList",
+      userList
+    );
     this.io.in(roomId).emit("usersInRoom", userList);
   };
 

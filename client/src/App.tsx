@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Socket } from "socket.io-client";
 import "./App.css";
+import "./utilities/theme.css";
 import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
 import RoomList from "./components/RoomList";
@@ -8,6 +8,7 @@ import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import { ISocketContext, SocketContext } from "./components/SocketContext";
 import Messages from "./components/Messages";
+import UserList from "./components/UserList";
 
 export interface ISocketMessage {
   room: string;
@@ -16,6 +17,13 @@ export interface ISocketMessage {
   timestamp: number;
 }
 
+export interface IRoomUserList {
+  PK: string;
+  SK: string;
+  roomId: string;
+  roomName: string;
+  username: string;
+}
 export interface IRoom {
   roomId: string;
   roomName: string;
@@ -35,29 +43,10 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("undefined...");
   const [roomName, setRoomName] = useState("Lobby");
-  const [chatData, setChatData] = useState([
-    {
-      SK: "#MESSAGE#rexx921621570384619",
-      message: "Test hello dynamoooo",
-      username: "rexx92",
-      PK: "ROOM#Lobby",
-      timestamp: 1621570384618
-    },
-    {
-      SK: "#MESSAGE#rexx921621571157926",
-      message: "Hi Tobi",
-      username: "rexx92",
-      PK: "ROOM#Lobby",
-      timestamp: 1621571157923
-    }
-  ]);
-  const [roomList, setRoomList] = useState<IRoom[]>([
-    { roomName: "Lobby", roomId: "abcdef" },
-    { roomName: "Sports", roomId: "1223" }
-  ]);
-  const [roomUserList, setRoomUserList] = useState<string[]>([
-    "rexx92, tobi22"
-  ]);
+  const [chatData, setChatData] = useState([]);
+  const [roomList, setRoomList] = useState<IRoom[]>([]);
+  const [usersInRoom, setUsersInRoom] = useState<string[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [color, setColor] = useState("#1362b0");
 
   const socket: ISocketContext = useContext(SocketContext);
@@ -98,6 +87,7 @@ function App() {
       socket.connection.on(
         "onlineUserUpdate",
         (data: { username: string; connected: boolean }[]) => {
+          setOnlineUsers(data.map((user) => user.username));
           console.log("online user update", data);
         }
       );
@@ -116,7 +106,8 @@ function App() {
 
         setRoomList(data);
       });
-      socket.connection.on("usersInRoom", (data: any) => {
+      socket.connection.on("usersInRoom", (data: IRoomUserList[]) => {
+        setUsersInRoom(data.map((roomUser) => roomUser.username));
         console.log("🚀 ~ Update list of users for current room", data);
       });
     }
@@ -167,12 +158,13 @@ function App() {
         )}
         {isConnected && (
           <>
+            <UserList onlineUsers={onlineUsers} usersInRoom={usersInRoom} />
             <RoomList
               roomList={roomList}
               onChangeRoom={handleRoomChange}
               selectedRoom={roomName}
             />
-            <Messages messages={chatData} />
+            <Messages messages={chatData} username={username} />
             <input value={message} onChange={onMessageChange} />
             <button onClick={sendMessage}>Send</button>
             <button onClick={logout}>Logout</button>

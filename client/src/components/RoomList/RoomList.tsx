@@ -12,14 +12,15 @@ const RoomList: React.FC<Props> = ({
   onChangeRoom,
   selectedRoom
 }: Props) => {
-  const socket: ISocketContext = useContext(SocketContext);
-
   return (
     <div>
+      <h4>
+        <u>Rooms</u>
+      </h4>
       {roomList.map((room) => (
         <h5
           onClick={onChangeRoom}
-          style={{ color: selectedRoom === room.roomName && "red" }}
+          className={selectedRoom === room.roomName ? "active-2" : "inactive"}
         >
           {room.roomName}
         </h5>
