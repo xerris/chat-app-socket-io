@@ -27,7 +27,7 @@ resource "aws_dynamodb_table" "dynamodb-table" {
   }
 
   tags = {
-    "Environment" = var.environment_tag
+    "Environment" = var.env
     "Name"        = "xerris-socket-app"
   }
 }

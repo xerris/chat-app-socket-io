@@ -70,7 +70,7 @@ resource "aws_instance" "nat" {
   source_dest_check           = false
 
   tags = {
-    "Environment" = var.environment_tag
+    "Environment" = var.env
     "Name"        = "xerris-socket-app"
   }
 }
@@ -81,7 +81,7 @@ resource "aws_eip" "nat" {
   vpc      = true
 
   tags = {
-    "Environment" = var.environment_tag
+    "Environment" = var.env
     "Name"        = "xerris-socket-app"
   }
 }
@@ -127,7 +127,7 @@ resource "aws_security_group" "web" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    "Environment" = var.environment_tag
+    "Environment" = var.env
     "Name"        = "xerris-socket-app"
   }
 }
