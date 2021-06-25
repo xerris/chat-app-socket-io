@@ -131,11 +131,12 @@ resource "aws_security_group" "web" {
 
 resource "aws_instance" "web-1" {
   ami                         = lookup(var.amis, var.aws_region)
-  availability_zone           = "us-east-2"
+  count                       = var.az_count
+  availability_zone           = data.aws_availability_zones.available.names[count.index]
   instance_type               = "t2.micro"
   key_name                    = "aws"
   vpc_security_group_ids      = ["${aws_security_group.web.id}"]
-  subnet_id                   = element(aws_subnet.public.*.id, 0)
+  subnet_id                   = element(aws_subnet.public.*.id, count.index)
   associate_public_ip_address = true
   source_dest_check           = false
 
@@ -146,6 +147,7 @@ resource "aws_instance" "web-1" {
 }
 
 resource "aws_eip" "web-1" {
-  instance = aws_instance.web-1.id
+  count    = var.az_count
+  instance = element(aws_instance.web-1.*.id, count.index)
   vpc      = true
 }
