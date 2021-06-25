@@ -13,7 +13,7 @@ const UserList: React.FC<Props> = ({
   return (
     <div>
       <h4>
-        <u>Room Users</u>
+        <u>Room Users (click to DM)</u>
       </h4>
       {usersInRoom
         .sort((a, b) =>
