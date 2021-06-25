@@ -39,18 +39,6 @@ resource "aws_route" "internet_access" {
   gateway_id             = aws_internet_gateway.gw.id
 }
 
-# Create a NAT gateway with an Elastic IP for each private subnet to get internet connectivity
-# resource "aws_eip" "gw" {
-#   count = var.az_count
-#   vpc   = true
-#   # depends_on = [aws_internet_gateway.gw]
-# }
-
-# resource "aws_nat_gateway" "gw" {
-#   count         = var.az_count
-#   subnet_id     = element(aws_subnet.public.*.id, count.index)
-#   allocation_id = element(aws_eip.gw.*.id, count.index)
-# }
 
 # Create a new route table for the private subnets, make it route non-local traffic through the NAT gateway to the internet
 resource "aws_route_table" "private" {
@@ -60,8 +48,6 @@ resource "aws_route_table" "private" {
   route {
     cidr_block  = "0.0.0.0/0"
     instance_id = element(aws_instance.nat.*.id, count.index)
-    # gateway_id = aws_internet_gateway.gw.id
-    # nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
   }
 }
 
@@ -71,52 +57,3 @@ resource "aws_route_table_association" "private" {
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
-
-# resource "aws_vpc_endpoint" "s3" {
-#   vpc_id       = aws_vpc.main.id
-#   service_name = "com.amazonaws.${var.aws_region}.s3"
-#  vpc_endpoint_type = "Gateway"
-#  route_table_ids = [aws_route_table.private[0].id]
-#  policy = data.aws_iam_policy_document.s3_ecr_access.json
-
-# }
-
-
-# resource "aws_vpc_endpoint" "ecr-dkr-endpoint" {
-#   vpc_id       = aws_vpc.main.id
-#  private_dns_enabled = true
-#   service_name = "com.amazonaws.${var.aws_region}.ecr.dkr"
-#  vpc_endpoint_type = "Interface"
-#  security_group_ids = [aws_security_group.ecs_task.id]
-#  subnet_ids = "${aws_subnet.private.*.id}"
-
-# }
-
-# resource "aws_vpc_endpoint" "ecr-api-endpoint" {
-#   vpc_id       = aws_vpc.main.id
-#   service_name = "com.amazonaws.${var.aws_region}.ecr.api"
-#  vpc_endpoint_type = "Interface"
-#  private_dns_enabled = true
-#  security_group_ids = [aws_security_group.ecs_task.id]
-#  subnet_ids = "${aws_subnet.private.*.id}"
-# }
-# resource "aws_vpc_endpoint" "ecs-agent" {
-#   vpc_id       = aws_vpc.main.id
-#   service_name = "com.amazonaws.${var.aws_region}.ecs-agent"
-#  vpc_endpoint_type = "Interface"
-#  private_dns_enabled = true
-#  security_group_ids = [aws_security_group.ecs_task.id]
-#  subnet_ids = "${aws_subnet.private.*.id}"
-
-
-# }
-# resource "aws_vpc_endpoint" "ecs-telemetry" {
-#   vpc_id       = aws_vpc.main.id
-#   service_name = "com.amazonaws.${var.aws_region}.ecs-telemetry"
-#  vpc_endpoint_type = "Interface"
-#  private_dns_enabled = true
-#  security_group_ids = [aws_security_group.ecs_task.id]
-#  subnet_ids = "${aws_subnet.private.*.id}"
-
-# }
-

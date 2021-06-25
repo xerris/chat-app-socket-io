@@ -60,19 +60,18 @@ resource "aws_security_group" "nat" {
 }
 
 resource "aws_instance" "nat" {
-  ami               = "ami-001e4628006fd3582" # this is a special ami preconfigured to do NAT
-  availability_zone = data.aws_availability_zones.available.names[count.index]
-  count             = var.az_count
-  instance_type     = "t2.micro"
-  # key_name               = "[default]"
-  vpc_security_group_ids = ["${aws_security_group.nat.id}"]
-  subnet_id              = element(aws_subnet.public.*.id, count.index)
-  # subnet_id                   = element(aws_subnet.public.*.id, 0)
+  ami                         = "ami-001e4628006fd3582" # this is a special ami preconfigured to do NAT
+  availability_zone           = data.aws_availability_zones.available.names[count.index]
+  count                       = var.az_count
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = aws_security_group.nat.id
+  subnet_id                   = element(aws_subnet.public.*.id, count.index)
   associate_public_ip_address = true
   source_dest_check           = false
 
   tags = {
-    Name = "NAT-Gateway"
+    "Environment" = var.environment_tag
+    "Name"        = "xerris-socket-app"
   }
 }
 
@@ -80,6 +79,11 @@ resource "aws_eip" "nat" {
   count    = var.az_count
   instance = element(aws_instance.nat.*.id, count.index)
   vpc      = true
+
+  tags = {
+    "Environment" = var.environment_tag
+    "Name"        = "xerris-socket-app"
+  }
 }
 
 resource "aws_security_group" "web" {
@@ -123,7 +127,8 @@ resource "aws_security_group" "web" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "WebServerSG"
+    "Environment" = var.environment_tag
+    "Name"        = "xerris-socket-app"
   }
 }
 

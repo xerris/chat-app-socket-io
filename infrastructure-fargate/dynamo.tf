@@ -8,12 +8,12 @@ resource "aws_dynamodb_table" "dynamodb-table" {
 
 
   global_secondary_index {
-    name               = "SK-PK-inverted-index"
-    hash_key           = "SK"
-    range_key          = "PK"
-    write_capacity     = 5
-    read_capacity      = 5
-    projection_type    = "ALL"
+    name            = "SK-PK-inverted-index"
+    hash_key        = "SK"
+    range_key       = "PK"
+    write_capacity  = 5
+    read_capacity   = 5
+    projection_type = "ALL"
   }
 
   attribute {
@@ -27,7 +27,7 @@ resource "aws_dynamodb_table" "dynamodb-table" {
   }
 
   tags = {
-    Name        = "xerris-socket-app"
-    Environment = "dev"
+    "Environment" = var.environment_tag
+    "Name"        = "xerris-socket-app"
   }
 }
