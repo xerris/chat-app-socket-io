@@ -70,3 +70,24 @@ variable "dynamodb_table_name" {
   description = "table name for Dynamo table"
   default = "dev-socket-app-terraform-state-lock"
 }
+
+variable "amis" {
+    description = "AMIs by region"
+    default = {
+        us-east-2 = "ami-XXXX" # ubuntu 14.04 LTS
+    }
+}
+variable "vpc_cidr" {
+    description = "CIDR for the whole VPC"
+    default = "172.17.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+    description = "CIDR for the Public Subnet"
+    default = cidrsubnet(aws_vpc.main.cidr_block, 8, var.az_count + count.index)
+}
+
+variable "private_subnet_cidr" {
+    description = "CIDR for the Private Subnet"
+    default = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+}

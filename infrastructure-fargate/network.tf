@@ -5,13 +5,15 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_vpc" "main" {
-  cidr_block = "172.17.0.0/16"
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
 }
 
 # Create var.az_count private subnets, each in a different AZ
 resource "aws_subnet" "private" {
-  count             = var.az_count
-  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  count = var.az_count
+  # cidrsubnet calculates a subnet address within given IP network address prefix.
+  cidr_block        = var.private_subnet_cidr
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.main.id
 }
@@ -19,7 +21,7 @@ resource "aws_subnet" "private" {
 # Create var.az_count public subnets, each in a different AZ
 resource "aws_subnet" "public" {
   count                   = var.az_count
-  cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, var.az_count + count.index)
+  cidr_block              = var.public_subnet_cidr
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   vpc_id                  = aws_vpc.main.id
   map_public_ip_on_launch = true
@@ -38,17 +40,17 @@ resource "aws_route" "internet_access" {
 }
 
 # Create a NAT gateway with an Elastic IP for each private subnet to get internet connectivity
-resource "aws_eip" "gw" {
-  count      = var.az_count
-  vpc        = true
-  depends_on = [aws_internet_gateway.gw]
-}
+# resource "aws_eip" "gw" {
+#   count = var.az_count
+#   vpc   = true
+#   # depends_on = [aws_internet_gateway.gw]
+# }
 
-resource "aws_nat_gateway" "gw" {
-  count         = var.az_count
-  subnet_id     = element(aws_subnet.public.*.id, count.index)
-  allocation_id = element(aws_eip.gw.*.id, count.index)
-}
+# resource "aws_nat_gateway" "gw" {
+#   count         = var.az_count
+#   subnet_id     = element(aws_subnet.public.*.id, count.index)
+#   allocation_id = element(aws_eip.gw.*.id, count.index)
+# }
 
 # Create a new route table for the private subnets, make it route non-local traffic through the NAT gateway to the internet
 resource "aws_route_table" "private" {
@@ -56,8 +58,10 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
+    cidr_block  = "0.0.0.0/0"
+    instance_id = aws_instance.nat.id
+    # gateway_id = aws_internet_gateway.gw.id
+    # nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
   }
 }
 
