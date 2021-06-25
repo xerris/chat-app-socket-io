@@ -5,12 +5,15 @@
 
 .active {
   color: #4d9a0f;
+  cursor: pointer;
 }
 .active-2 {
   color: #8cc63f;
+  cursor: pointer;
 }
 .inactive {
   color: #ffffff;
+  cursor: pointer;
 }
 .text-color {
   color: #ffffff;

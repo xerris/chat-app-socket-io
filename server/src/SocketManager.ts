@@ -149,7 +149,13 @@ class SocketManager {
   sendUserRoomList = async (socket: ICustomSocket) => {
     if (socket.username) {
       const userRoomList = await getRoomlistForUser(socket.username);
-      socket.emit("userRoomListUpdate", userRoomList);
+      console.log(
+        "🚀 ~ file: SocketManager.ts ~ line 152 ~ SocketManager ~ sendUserRoomList= ~ userRoomList",
+        userRoomList
+      );
+      if (userRoomList) {
+        socket.emit("userRoomListUpdate", userRoomList);
+      }
     }
   };
 
@@ -179,6 +185,7 @@ class SocketManager {
         this.updateOnlineUsers();
       }
       this.sendRoomList(socket);
+      this.sendUserRoomList(socket);
       this.sendRoomDrawingsOnLoad(socket);
 
       socket.on("message", async (m: ISocketMessage) => {

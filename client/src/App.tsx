@@ -27,6 +27,7 @@ export interface IRoomUserList {
 export interface IRoom {
   roomId: string;
   roomName: string;
+  message?: boolean;
 }
 export interface IMessage {
   SK: string;
@@ -42,9 +43,10 @@ export interface IMessageList {
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("undefined...");
-  const [roomName, setRoomName] = useState("Lobby");
+  const [selectedRoomId, setSelectedRoomId] = useState("Lobby");
   const [chatData, setChatData] = useState([]);
   const [roomList, setRoomList] = useState<IRoom[]>([]);
+  const [privateMessageList, setPrivateMessageList] = useState<IRoom[]>([]);
   const [usersInRoom, setUsersInRoom] = useState<string[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [color, setColor] = useState("#1362b0");
@@ -102,9 +104,12 @@ function App() {
         setRoomList(data);
       });
       socket.connection.on("userRoomListUpdate", (data: IRoom[]) => {
-        console.log("🚀 ~ rooms user is part of including DM's");
-
-        setRoomList(data);
+        const filteredPrivateMessages = data.filter((room) => !!room.message);
+        console.log(
+          "🚀 ~ Private messages a user is a part of",
+          filteredPrivateMessages
+        );
+        setPrivateMessageList(filteredPrivateMessages);
       });
       socket.connection.on("usersInRoom", (data: IRoomUserList[]) => {
         setUsersInRoom(data.map((roomUser) => roomUser.username));
@@ -122,7 +127,7 @@ function App() {
 
   const sendMessage = () => {
     socket.connection.emit("message", {
-      room: roomName,
+      room: selectedRoomId,
       username,
       message,
       timestamp: Date.now()
@@ -133,10 +138,14 @@ function App() {
     setMessage(event.target.value);
   };
 
-  const handleRoomChange = (event: any) => {
-    setRoomName(event.target.textContent);
+  const handleRoomChange = (roomId: string) => {
+    console.log(
+      "🚀 ~ file: App.tsx ~ line 138 ~ handleRoomChange ~ roomId",
+      roomId
+    );
+    setSelectedRoomId(roomId);
     setChatData([]);
-    socket.connection.emit("joinRoom", { roomId: event.target.textContent });
+    socket.connection.emit("joinRoom", { roomId });
   };
 
   const onLogin = (username: string) => setUsername(username);
@@ -144,6 +153,15 @@ function App() {
   const logout = () => {
     localStorage.clear();
     socket.disconnectSocket();
+  };
+
+  const createPrivateMessage = (receiverUsername: string) => {
+    if (receiverUsername !== username) {
+      socket.connection?.emit("createPrivateMessage", {
+        senderUsername: username,
+        receiverUsername
+      });
+    }
   };
 
   return (
@@ -158,11 +176,16 @@ function App() {
         )}
         {isConnected && (
           <>
-            <UserList onlineUsers={onlineUsers} usersInRoom={usersInRoom} />
+            <UserList
+              onlineUsers={onlineUsers}
+              usersInRoom={usersInRoom}
+              createPrivateMessage={createPrivateMessage}
+            />
             <RoomList
               roomList={roomList}
+              privateMessageList={privateMessageList}
               onChangeRoom={handleRoomChange}
-              selectedRoom={roomName}
+              selectedRoom={selectedRoomId}
             />
             <Messages messages={chatData} username={username} />
             <input value={message} onChange={onMessageChange} />

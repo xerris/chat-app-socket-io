@@ -3,8 +3,13 @@ import React from "react";
 interface Props {
   usersInRoom: string[];
   onlineUsers: string[];
+  createPrivateMessage: (user: string) => void;
 }
-const UserList: React.FC<Props> = ({ usersInRoom, onlineUsers }: Props) => {
+const UserList: React.FC<Props> = ({
+  usersInRoom,
+  onlineUsers,
+  createPrivateMessage
+}: Props) => {
   return (
     <div>
       <h4>
@@ -15,7 +20,10 @@ const UserList: React.FC<Props> = ({ usersInRoom, onlineUsers }: Props) => {
           a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())
         )
         .map((user) => (
-          <h6 className={onlineUsers.includes(user) ? "active" : "inactive"}>
+          <h6
+            className={onlineUsers.includes(user) ? "active" : "inactive"}
+            onClick={() => createPrivateMessage(user)}
+          >
             {user}
           </h6>
         ))}
