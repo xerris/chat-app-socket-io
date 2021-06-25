@@ -59,7 +59,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block  = "0.0.0.0/0"
-    instance_id = aws_instance.nat.id
+    instance_id = element(aws_instance.nat.*.id, count.index)
     # gateway_id = aws_internet_gateway.gw.id
     # nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
   }

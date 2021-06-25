@@ -74,6 +74,6 @@ variable "dynamodb_table_name" {
 variable "amis" {
   description = "AMIs by region"
   default = {
-    us-east-2 = "ami-XXXX" # ubuntu 14.04 LTS
+    us-east-2 = "ami-001e4628006fd3582" # ubuntu 14.04 LTS
   }
 }
