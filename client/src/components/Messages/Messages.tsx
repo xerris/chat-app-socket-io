@@ -1,20 +1,30 @@
-import React, { useContext, useState } from "react";
-import { IMessage, IRoom } from "../../App";
-import { ISocketContext, SocketContext } from "../SocketContext";
+import React from "react";
+import { IMessage } from "../../App";
 
 interface Props {
   messages: IMessage[];
+  username: string;
 }
-const Messages: React.FC<Props> = ({ messages }: Props) => {
-  const socket: ISocketContext = useContext(SocketContext);
-
+const Messages: React.FC<Props> = ({ messages, username }: Props) => {
   return (
     <div>
-      {messages.map((message) => (
-        <p>
-          {message.username}: {message.message}
-        </p>
-      ))}
+      <h4>
+        <u>Messages</u>
+      </h4>
+      <div className="message-list">
+        {messages.map((message) => (
+          <div className="message">
+            <span
+              className={
+                message.username === username ? "active-2" : "inactive"
+              }
+            >
+              <strong>{message.username}:</strong>
+            </span>
+            <span>{message.message}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

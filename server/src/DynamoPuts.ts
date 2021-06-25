@@ -67,8 +67,9 @@ export const createPrivateMessage = async (
         SK: `#ROOM#${uuid}`,
         roomName: "Private Message",
         message: true,
-        roomid: uuid,
-        username: senderUserId
+        roomId: uuid,
+        username: senderUserId,
+        receiver: receiverUserId
       }
     })
     .promise();
@@ -80,8 +81,9 @@ export const createPrivateMessage = async (
         SK: `#ROOM#${uuid}`,
         roomName: "Private Message",
         message: true,
-        roomid: uuid,
-        username: receiverUserId
+        roomId: uuid,
+        username: receiverUserId,
+        receiver: senderUserId
       }
     })
     .promise();

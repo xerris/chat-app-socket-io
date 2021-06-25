@@ -4,18 +4,19 @@ resource "aws_alb" "main" {
   name            = "socket-app-load-balancer"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.lb.id]
+  idle_timeout    = 90
 }
 
 resource "aws_alb_target_group" "app" {
-  name        = "xerris-target-group"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
-  target_type = "ip"
+  name                 = "xerris-target-group"
+  port                 = 80
+  protocol             = "HTTP"
+  vpc_id               = aws_vpc.main.id
+  target_type          = "ip"
   deregistration_delay = 30
   stickiness {
     enabled = true
-    type = "lb_cookie"
+    type    = "lb_cookie"
 
   }
 

@@ -87,7 +87,7 @@ class SocketManager {
         credentials: true
       },
       maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
-      pingInterval: 60 * 1000, // 1 minute
+      pingInterval: 45 * 1000, // 1 minute
       pingTimeout: 4 * 60 * 1000
     });
   };
@@ -149,12 +149,22 @@ class SocketManager {
   sendUserRoomList = async (socket: ICustomSocket) => {
     if (socket.username) {
       const userRoomList = await getRoomlistForUser(socket.username);
-      socket.emit("userRoomListUpdate", userRoomList);
+      console.log(
+        "🚀 ~ file: SocketManager.ts ~ line 152 ~ SocketManager ~ sendUserRoomList= ~ userRoomList",
+        userRoomList
+      );
+      if (userRoomList) {
+        socket.emit("userRoomListUpdate", userRoomList);
+      }
     }
   };
 
   updateUsersInRoom = async (roomId: string) => {
     const userList = await getUsersInRoom(roomId);
+    console.log(
+      "🚀 ~ file: SocketManager.ts ~ line 158 ~ SocketManager ~ updateUsersInRoom= ~ userList",
+      userList
+    );
     this.io.in(roomId).emit("usersInRoom", userList);
   };
 
@@ -175,6 +185,7 @@ class SocketManager {
         this.updateOnlineUsers();
       }
       this.sendRoomList(socket);
+      this.sendUserRoomList(socket);
       this.sendRoomDrawingsOnLoad(socket);
 
       socket.on("message", async (m: ISocketMessage) => {

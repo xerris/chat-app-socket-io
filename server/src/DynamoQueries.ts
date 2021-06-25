@@ -101,7 +101,7 @@ interface GetRoomlistForUserQueryResponse {
 
 export const getRoomlistForUser = async (username: string) => {
   // Rooms a particular user is in
-  const userRoomQuery: any = await dynamo
+  const userRoomQuery: { Items: IUserRoom[] } = await dynamo
     .query({
       TableName: "xerris-socket-app-db",
       KeyConditionExpression: "PK = :pk and begins_with(SK, :sk) ",
@@ -111,7 +111,8 @@ export const getRoomlistForUser = async (username: string) => {
       }
     })
     .promise();
-  console.log("🚀 ~ file: sampleQuery.ts ~", userRoomQuery);
+
+  return userRoomQuery?.Items;
 };
 
 export interface IRoom {

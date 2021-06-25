@@ -1,0 +1,32 @@
+.column-bg {
+  color: #1d2229;
+  background-color: #1d2229;
+}
+
+.active {
+  color: #4d9a0f;
+  cursor: pointer;
+}
+.active-2 {
+  color: #8cc63f;
+  cursor: pointer;
+}
+.inactive {
+  color: #ffffff;
+  cursor: pointer;
+}
+.text-color {
+  color: #ffffff;
+}
+.message-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.message {
+  min-width: 300px;
+  margin-bottom: 10px;
+  align-self: flex-start;
+  display: flex;
+}
