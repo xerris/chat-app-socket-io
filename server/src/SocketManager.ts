@@ -87,7 +87,7 @@ class SocketManager {
         credentials: true
       },
       maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
-      pingInterval: 60 * 1000, // 1 minute
+      pingInterval: 45 * 1000, // 1 minute
       pingTimeout: 4 * 60 * 1000
     });
   };
