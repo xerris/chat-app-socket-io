@@ -66,7 +66,7 @@ resource "aws_instance" "nat" {
   availability_zone      = data.aws_availability_zones.available.names[count.index]
   count                  = var.az_count
   instance_type          = "t2.micro"
-  key_name               = "default"
+  key_name               = "[default]"
   vpc_security_group_ids = ["${aws_security_group.nat.id}"]
   subnet_id              = element(aws_subnet.public.*.id, count.index)
   # subnet_id                   = element(aws_subnet.public.*.id, 0)
