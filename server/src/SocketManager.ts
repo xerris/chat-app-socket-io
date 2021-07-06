@@ -143,6 +143,10 @@ class SocketManager {
 
   sendRoomList = async (socket: Socket) => {
     const roomList = await getRoomList();
+    console.log(
+      "🚀 ~ file: SocketManager.ts ~ line 146 ~ SocketManager ~ sendRoomList= ~ roomList",
+      roomList
+    );
     socket.emit("roomListUpdate", roomList);
   };
 
@@ -165,7 +169,7 @@ class SocketManager {
       "🚀 ~ file: SocketManager.ts ~ line 158 ~ SocketManager ~ updateUsersInRoom= ~ userList",
       userList
     );
-    this.io.in(roomId).emit("usersInRoom", userList);
+    this.io.in(roomId).emit("usersInRoom", { users: userList, roomId });
   };
 
   registerSocketListeners = () => {
@@ -282,12 +286,20 @@ class SocketManager {
             const senderRoomList = await getRoomlistForUser(
               data.senderUsername
             );
+            console.log(
+              "🚀 ~ file: SocketManager.ts ~ line 285 ~ SocketManager ~ senderRoomList",
+              senderRoomList
+            );
             socket
               .to(`user${socket.username}`)
               .emit("userRoomListUpdate", senderRoomList);
 
             const receiverRoomList = await getRoomlistForUser(
               data.receiverUsername
+            );
+            console.log(
+              "🚀 ~ file: SocketManager.ts ~ line 293 ~ SocketManager ~ receiverRoomList",
+              receiverRoomList
             );
             socket
               .to(`user${data.receiverUsername}`)
