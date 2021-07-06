@@ -58,10 +58,22 @@ export interface MessageStore {
   };
 }
 
+export interface IPrivateMessage {
+  messages: ISocketMessage[];
+  newMessages: number;
+  receivingUser: string;
+  roomId: string;
+  joined: boolean;
+}
+export interface PrivateMessageStore {
+  [key: string]: IPrivateMessage;
+}
+
 export interface State {
   rooms: MessageStore;
-  privateMessages: MessageStore;
+  privateMessages: PrivateMessageStore;
   username: string;
   currentRoomId: string;
   onlineUsers: string[];
+  privateRoomJoined: boolean;
 }

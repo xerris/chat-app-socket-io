@@ -1,9 +1,11 @@
 import React, { useContext, useMemo } from "react";
+import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
 
 const UserList: React.FC = () => {
-  const { state, socket } = useContext(AppContext);
-  const { rooms, username, currentRoomId, onlineUsers } = state;
+  const { state, socket, dispatch } = useContext(AppContext);
+  const { rooms, username, currentRoomId, onlineUsers, privateMessages } =
+    state;
 
   const createPrivateMessage = (receiverUsername: string) => {
     if (receiverUsername !== username) {
@@ -13,6 +15,13 @@ const UserList: React.FC = () => {
       });
     }
   };
+  const joinRoom = (roomId: string) => {
+    socket.emit("joinRoom", {
+      roomId
+    });
+  };
+
+  console.log(Object.values(privateMessages));
 
   const roomUsers = useMemo(() => {
     if (rooms[currentRoomId]) {
@@ -26,15 +35,42 @@ const UserList: React.FC = () => {
       <h4>
         <u>Room Users (click to DM)</u>
       </h4>
-      {roomUsers.map((user) => (
-        <h6
-          className={onlineUsers.includes(user) ? "active" : "inactive"}
-          onClick={() => createPrivateMessage(user)}
-          key={user}
-        >
-          {user}
-        </h6>
-      ))}
+      {roomUsers &&
+        roomUsers.map((user) => (
+          <h6
+            className={onlineUsers.includes(user) ? "active" : "inactive"}
+            onClick={() => {
+              let privateMessageId = Object.keys(privateMessages).find(
+                (privateMessageId) =>
+                  privateMessages[privateMessageId].receivingUser === user
+              );
+              if (!privateMessageId) {
+                console.log("Creating private message!");
+                createPrivateMessage(user);
+              } else {
+                dispatch({
+                  type: DispatchEvent.JoinRoomId,
+                  data: {
+                    private: true,
+                    roomId: privateMessageId
+                  }
+                });
+              }
+
+              const privateRoom: any = Object.values(privateMessages).find(
+                (privateMessage: IPrivateMessage) =>
+                  privateMessage.receivingUser === user
+              );
+
+              if (privateRoom?.roomId) {
+                joinRoom(privateRoom.roomId);
+              }
+            }}
+            key={user}
+          >
+            {user}
+          </h6>
+        ))}
     </div>
   );
 };

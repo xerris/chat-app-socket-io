@@ -1,10 +1,14 @@
 import React, { useContext } from "react";
-import { DispatchEvent } from "../../utilities/interfaces";
+import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
 
 const RoomList: React.FC = () => {
   const { state, dispatch, socket } = useContext(AppContext);
-  const { rooms, currentRoomId } = state;
+  const { rooms, currentRoomId, privateMessages } = state;
+  console.log(
+    "🚀 ~ file: RoomList.tsx ~ line 8 ~ privateMessages",
+    privateMessages
+  );
 
   return (
     <div>
@@ -19,7 +23,10 @@ const RoomList: React.FC = () => {
               if (!rooms[roomId].joined) {
                 socket.emit("joinRoom", { roomId });
               }
-              dispatch({ type: DispatchEvent.JoinRoomId, data: roomId });
+              dispatch({
+                type: DispatchEvent.JoinRoomId,
+                data: { roomId, private: false }
+              });
             }}
             className={currentRoomId === roomId ? "active-2" : "inactive"}
           >
@@ -30,17 +37,31 @@ const RoomList: React.FC = () => {
       <h4>
         <u>DMs</u>
       </h4>
-      {/* {privateMessageList.map((room) => {
+      {Object.values(privateMessages).map((privateMessage: IPrivateMessage) => {
+        console.log(
+          "🚀 ~ file: RoomList.tsx ~ line 41 ~ {Object.values ~ privateMessage",
+          privateMessage
+        );
         return (
           <h5
-            key={room.roomId}
-            onClick={() => onChangeRoom(room.roomId)}
-            className={selectedRoom === room.roomId ? "active-2" : "inactive"}
+            key={privateMessage.roomId}
+            onClick={() => {
+              if (!privateMessage.joined) {
+                socket.emit("joinRoom", { roomId: privateMessage.roomId });
+              }
+              dispatch({
+                type: DispatchEvent.JoinRoomId,
+                data: { roomId: privateMessage.roomId, private: true }
+              });
+            }}
+            className={
+              currentRoomId === privateMessage.roomId ? "active-2" : "inactive"
+            }
           >
-            DM with {room.receiver}
+            DM with {privateMessage.receivingUser}
           </h5>
         );
-      })} */}
+      })}
     </div>
   );
 };

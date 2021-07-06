@@ -21,6 +21,10 @@ const Messages: React.FC = () => {
       </h4>
       <div className="message-list">
         {messages.map((message) => {
+          console.log(
+            "🚀 ~ file: Messages.tsx ~ line 24 ~ {messages.map ~ message",
+            message
+          );
           return (
             <div className="message" key={message.SK}>
               <span

@@ -19,7 +19,10 @@ type Action =
   | { type: DispatchEvent.SetUserRoomList; data: IRoom[] }
   | { type: DispatchEvent.SetPublicRoomList; data: IRoom[] }
   | { type: DispatchEvent.SetOnlineUsers; data: string[] }
-  | { type: DispatchEvent.JoinRoomId; data: string }
+  | {
+      type: DispatchEvent.JoinRoomId;
+      data: { private: boolean; roomId: string };
+    }
   | { type: DispatchEvent.SetPrivateMessageList; data: IRoom[] };
 
 const reducer = produce((state: State, action: Action) => {
@@ -43,40 +46,55 @@ const reducer = produce((state: State, action: Action) => {
 
     case DispatchEvent.SetUsersInRoom:
       console.log("set users in room", action.data);
-      state.rooms[action.data.roomId].users = action.data.users
-        .sort((a, b) =>
-          a.username.toLowerCase().localeCompare(b.username.toLowerCase())
-        )
-        .map((user) => user.username);
+      if (state.rooms[action.data.roomId]) {
+        state.rooms[action.data.roomId].users = action.data.users
+          .sort((a, b) =>
+            a.username.toLowerCase().localeCompare(b.username.toLowerCase())
+          )
+          .map((user) => user.username);
+      }
       break;
     case DispatchEvent.SetPublicRoomList:
-      action.data.forEach(
-        (room) =>
-          (state.rooms[room.roomId] = {
-            messages: [],
-            users: [],
-            newMessages: 0,
-            roomName: room.roomName,
-            joined: false
-          })
-      );
+      action.data.forEach((room) => {
+        console.log(
+          "🚀 ~ file: AppContext.tsx ~ line 59 ~ action.data.forEach ~ room",
+          room
+        );
+        state.rooms[room.roomId] = {
+          messages: [],
+          users: [],
+          newMessages: 0,
+          roomName: room.roomName,
+          joined: false
+        };
+      });
       break;
     case DispatchEvent.SetPrivateMessageList:
       action.data.forEach(
         (room) =>
           (state.privateMessages[room.roomId] = {
             messages: [],
-            users: [],
+            receivingUser: room.receiver,
             newMessages: 0,
-            roomName: room.roomName,
+            roomId: room.roomId,
             joined: false
           })
       );
       break;
     case DispatchEvent.JoinRoomId:
-      state.currentRoomId = action.data;
-      if (state.rooms[action.data]) {
-        state.rooms[action.data].joined = true;
+      console.log(
+        "🚀 ~ file: AppContext.tsx ~ line 84 ~ reducer ~ action.data",
+        state.privateMessages
+      );
+      state.currentRoomId = action.data.roomId;
+      state.privateRoomJoined = action.data.private;
+      if (action.data.private && state.rooms[action.data.roomId]) {
+        state.rooms[action.data.roomId].joined = true;
+      } else if (
+        !action.data.private &&
+        state.privateMessages[action.data.roomId]
+      ) {
+        state.privateMessages[action.data.roomId].joined = true;
       }
       break;
   }
@@ -90,7 +108,8 @@ const AppProvider = (props: any) => {
     rooms: {},
     currentRoomId: "",
     onlineUsers: [],
-    privateMessages: {}
+    privateMessages: {},
+    privateRoomJoined: false
   });
   const [socket, setSocket] = useState<Socket>(null);
 
@@ -119,12 +138,19 @@ const AppProvider = (props: any) => {
       socketConnection.on("session", ({ sessionId, username }) => {
         // Store session in localStorage
         dispatch({ type: DispatchEvent.SetUsername, data: username });
-        dispatch({ type: DispatchEvent.JoinRoomId, data: "1" });
+        dispatch({
+          type: DispatchEvent.JoinRoomId,
+          data: { roomId: "1", private: false }
+        });
         socketConnection.auth = { sessionId };
         localStorage.setItem("sessionId", sessionId);
       });
 
       socketConnection.on("message", (data: IMessage) => {
+        console.log(
+          "🚀 ~ file: AppContext.tsx ~ line 130 ~ socketConnection.on ~ data",
+          data
+        );
         dispatch({ type: DispatchEvent.AddMessage, data });
       });
 
@@ -151,6 +177,10 @@ const AppProvider = (props: any) => {
         });
       });
       socketConnection.on("userRoomListUpdate", (data: IRoom[]) => {
+        console.log(
+          "🚀 ~ file: AppContext.tsx ~ line 160 ~ socketConnection.on ~ data",
+          data
+        );
         const filteredPrivateMessages = data.filter((room) => !!room.message);
         dispatch({
           type: DispatchEvent.SetPrivateMessageList,
