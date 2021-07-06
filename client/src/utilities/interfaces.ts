@@ -11,6 +11,7 @@ export interface IRoomUserList {
   roomId: string;
   roomName: string;
   username: string;
+  receiver?: string;
 }
 export interface IRoom {
   roomId: string;
@@ -45,7 +46,9 @@ export enum DispatchEvent {
   SetPublicRoomList,
   SetPrivateMessageList,
   SetUsersInRoom,
-  JoinRoomId
+  JoinRoomId,
+  JoinPrivateMessageId,
+  JoinInitialRooms
 }
 
 export interface MessageStore {

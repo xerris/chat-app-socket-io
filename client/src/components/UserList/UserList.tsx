@@ -21,8 +21,6 @@ const UserList: React.FC = () => {
     });
   };
 
-  console.log(Object.values(privateMessages));
-
   const roomUsers = useMemo(() => {
     if (rooms[currentRoomId]) {
       return rooms[currentRoomId].users;
@@ -49,7 +47,7 @@ const UserList: React.FC = () => {
                 createPrivateMessage(user);
               } else {
                 dispatch({
-                  type: DispatchEvent.JoinRoomId,
+                  type: DispatchEvent.JoinPrivateMessageId,
                   data: {
                     private: true,
                     roomId: privateMessageId

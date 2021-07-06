@@ -5,10 +5,6 @@ import { AppContext } from "../AppContext";
 const RoomList: React.FC = () => {
   const { state, dispatch, socket } = useContext(AppContext);
   const { rooms, currentRoomId, privateMessages } = state;
-  console.log(
-    "🚀 ~ file: RoomList.tsx ~ line 8 ~ privateMessages",
-    privateMessages
-  );
 
   return (
     <div>
@@ -46,11 +42,8 @@ const RoomList: React.FC = () => {
           <h5
             key={privateMessage.roomId}
             onClick={() => {
-              if (!privateMessage.joined) {
-                socket.emit("joinRoom", { roomId: privateMessage.roomId });
-              }
               dispatch({
-                type: DispatchEvent.JoinRoomId,
+                type: DispatchEvent.JoinPrivateMessageId,
                 data: { roomId: privateMessage.roomId, private: true }
               });
             }}

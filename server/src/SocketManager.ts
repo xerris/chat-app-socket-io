@@ -158,6 +158,7 @@ class SocketManager {
         userRoomList
       );
       if (userRoomList) {
+        userRoomList.forEach((room) => socket.join(room.roomId));
         socket.emit("userRoomListUpdate", userRoomList);
       }
     }
@@ -241,6 +242,10 @@ class SocketManager {
           joinRoom(data.roomId, data.userId, socket.username, false);
           // Dynamo query room messages for newly connected user
           const roomMessageList = await getMessagesForRoom(data.roomId);
+          console.log(
+            "🚀 ~ file: SocketManager.ts ~ line 244 ~ SocketManager ~ socket.on ~ roomMessageList",
+            roomMessageList
+          );
           socket.emit("messageList", roomMessageList);
           this.updateUsersInRoom(data.roomId);
         }
