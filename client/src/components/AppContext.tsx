@@ -100,6 +100,9 @@ const AppProvider = (props: any) => {
           data
         });
       });
+      socketConnection.on("privateMessageCreation", (roomId: string) => {
+        socketConnection.emit("joinPrivateMessage", roomId);
+      });
 
       // Log all socket items
       socketConnection.onAny((data, params) =>

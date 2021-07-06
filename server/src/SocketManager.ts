@@ -341,9 +341,17 @@ class SocketManager {
                 messages: [],
                 receiver: data.senderUsername
               });
+
+            // Let the other socket know about the room creation so it can join live
+            socket
+              .to(`user${data.receiverUsername}`)
+              .emit("privateMessageCreation", roomId);
           }
         }
       );
+      socket.on("joinPrivateMessage", (roomId: string) => {
+        socket.join(roomId);
+      });
     });
   };
 
