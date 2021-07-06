@@ -64,7 +64,7 @@ export const createPrivateMessage = async (
       TableName: "xerris-socket-app-db",
       Item: {
         PK: `user#${senderUserId}`,
-        SK: `#ROOM#${uuid}`,
+        SK: `#PRIVATEMESSAGE#${uuid}`,
         roomName: "Private Message",
         message: true,
         roomId: uuid,
@@ -78,7 +78,7 @@ export const createPrivateMessage = async (
       TableName: "xerris-socket-app-db",
       Item: {
         PK: `user#${receiverUserId}`,
-        SK: `#ROOM#${uuid}`,
+        SK: `#PRIVATEMESSAGE#${uuid}`,
         roomName: "Private Message",
         message: true,
         roomId: uuid,
@@ -96,18 +96,35 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
     console.log("🚀 ~ file: DynamoPuts.ts ~ line 112 ~ saveRoomMessage ~ m", m);
 
     try {
-      await dynamo
-        .put({
-          TableName: "xerris-socket-app-db",
-          Item: {
-            PK: `#ROOM#${m.room}`,
-            SK: `#MESSAGE#${m.username}${Date.now()}`,
-            username: m.username,
-            message: m.message,
-            timestamp: m.timestamp
-          }
-        })
-        .promise();
+      if (m.privateMessage) {
+        await dynamo
+          .put({
+            TableName: "xerris-socket-app-db",
+            Item: {
+              PK: `#PRIVATEMESSAGE#${m.room}`,
+              SK: `#MESSAGE#${m.username}${Date.now()}`,
+              username: m.username,
+              message: m.message,
+              timestamp: m.timestamp,
+              roomName: m.privateMessage ? "Private Message" : ""
+            }
+          })
+          .promise();
+      } else {
+        await dynamo
+          .put({
+            TableName: "xerris-socket-app-db",
+            Item: {
+              PK: `#ROOM#${m.room}`,
+              SK: `#MESSAGE#${m.username}${Date.now()}`,
+              username: m.username,
+              message: m.message,
+              timestamp: m.timestamp,
+              roomName: m.privateMessage ? "Private Message" : ""
+            }
+          })
+          .promise();
+      }
       resolve("Success");
     } catch (error) {
       console.log("error posting message", m, error);
@@ -174,38 +191,3 @@ export const createUser = async (user: ICreateUser) =>
       reject("Fail");
     }
   });
-// Sample queries (can be run if Dynamo is connected)
-// joinRoom("3333", "id-1", "bobby", false);
-// leaveRoom("3333", "id-1");
-// createPrivateMessage("bobby", "rexx92");
-// createRoomList([
-//   {
-//     roomName: "Lobby",
-//     id: "001"
-//   },
-//   {
-//     roomName: "Tech",
-//     id: "002"
-//   },
-//   {
-//     roomName: "Coffee",
-//     id: "003"
-//   },
-//   {
-//     roomName: "Whiteboard",
-//     id: "004"
-//   }
-// ]);
-
-// saveRoomMessage({
-//   message: "Hello Bobby",
-//   room: "1f2e9e95-528b-40cf-ade1-d5e47c082fda",
-//   timestamp: Date.now(),
-//   username: "rexx92"
-// });
-// saveRoomMessage({
-//   message: "Hello Alex",
-//   room: "1f2e9e95-528b-40cf-ade1-d5e47c082fda",
-//   timestamp: Date.now(),
-//   username: "bobby"
-// });

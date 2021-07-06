@@ -2,9 +2,10 @@ import React, { useContext, useMemo } from "react";
 import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
 
-const UserList: React.FC = () => {
+const RoomUserList: React.FC = () => {
   const { state, socket, dispatch } = useContext(AppContext);
-  const { rooms, username, onlineUsers, allUsers, privateMessages } = state;
+  const { rooms, username, currentRoomId, onlineUsers, privateMessages } =
+    state;
 
   const createPrivateMessage = (receiverUsername: string) => {
     if (receiverUsername !== username) {
@@ -15,13 +16,20 @@ const UserList: React.FC = () => {
     }
   };
 
+  const roomUsers = useMemo(() => {
+    if (rooms[currentRoomId]) {
+      return rooms[currentRoomId].users;
+    }
+    return [];
+  }, [rooms, currentRoomId]);
+
   return (
     <div>
       <h4>
-        <u>All Users (click to DM)</u>
+        <u>Room Users (click to DM)</u>
       </h4>
-      {allUsers &&
-        allUsers.map((user) => (
+      {roomUsers &&
+        roomUsers.map((user) => (
           <h6
             className={onlineUsers.includes(user) ? "active" : "inactive"}
             onClick={() => {
@@ -52,4 +60,4 @@ const UserList: React.FC = () => {
   );
 };
 
-export default UserList;
+export default RoomUserList;

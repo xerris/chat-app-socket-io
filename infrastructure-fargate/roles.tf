@@ -21,9 +21,14 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 }
 
 # ECS task execution role policy attachment
+
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_dyanmo" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
 }
 
 # ECS task role data (So our container can contact AWS APIs ie dynamodb)
@@ -60,7 +65,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_permissions" {
 
 
 data "aws_iam_policy_document" "s3_ecr_access" {
-   version = "2012-10-17"
+  version = "2012-10-17"
   statement {
     sid     = "s3access"
     effect  = "Allow"
