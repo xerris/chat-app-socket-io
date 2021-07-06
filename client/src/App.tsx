@@ -10,12 +10,14 @@ import { AppContext } from "./components/AppContext";
 import Messages from "./components/Messages";
 import Input from "./components/Input";
 import RoomUserList from "./components/RoomUserList";
+import { DispatchEvent } from "./utilities/interfaces";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [color, setColor] = useState("#1362b0");
 
-  const { socket, connectSocket, disconnectSocket } = useContext(AppContext);
+  const { socket, connectSocket, disconnectSocket, dispatch } =
+    useContext(AppContext);
 
   useEffect(() => {
     // Connect to socket on refresh
@@ -36,6 +38,9 @@ function App() {
 
   const logout = () => {
     localStorage.clear();
+    dispatch({
+      type: DispatchEvent.Logout
+    });
     disconnectSocket();
   };
 

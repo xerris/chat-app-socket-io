@@ -7,6 +7,7 @@ import {
   IUsersInRoom,
   State
 } from "../utilities/interfaces";
+import { initialState } from "./AppContext";
 
 type Action =
   | { type: DispatchEvent.AddMessage; data: IMessage }
@@ -27,7 +28,8 @@ type Action =
     }
   | { type: DispatchEvent.SetInitalPrivateMessageData; data: IMessageList }
   | { type: DispatchEvent.JoinInitialRooms; data: IRoom[] }
-  | { type: DispatchEvent.UserListUpdate; data: any };
+  | { type: DispatchEvent.UserListUpdate; data: any }
+  | { type: DispatchEvent.Logout };
 
 export const reducer = produce((state: State, action: Action) => {
   switch (action.type) {
@@ -100,16 +102,13 @@ export const reducer = produce((state: State, action: Action) => {
       });
       break;
     case DispatchEvent.SetInitalPrivateMessageData:
+      console.log("🚀 ~ file: SetInitialprivateMessageData", action.data);
       if (state.privateMessages[action.data.roomId]) {
         state.privateMessages[action.data.roomId] = {
           ...state.privateMessages[action.data.roomId],
           messages: action.data.messages || []
         };
       } else {
-        console.log(
-          "🚀 ~ file: Reducer.ts ~ line 109 ~ reducer ~ action.data",
-          action.data
-        );
         state.privateMessages[action.data.roomId] = {
           messages: action.data.messages || [],
           joined: true,
@@ -136,8 +135,8 @@ export const reducer = produce((state: State, action: Action) => {
       }
       break;
     case DispatchEvent.JoinPrivateMessageId:
-      state.currentRoomId = action.data.roomId;
       state.privateRoomJoined = action.data.private;
+      state.currentRoomId = action.data.roomId;
       if (action.data.private && state.privateMessages[action.data.roomId]) {
         state.privateMessages[action.data.roomId].joined = true;
       }
@@ -147,6 +146,9 @@ export const reducer = produce((state: State, action: Action) => {
       state.allUsers = action.data.sort((a, b) =>
         a.toLowerCase().localeCompare(b.toLowerCase())
       );
+      break;
+    case DispatchEvent.Logout:
+      state = initialState;
       break;
   }
 });

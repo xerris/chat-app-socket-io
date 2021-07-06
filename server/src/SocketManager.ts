@@ -77,8 +77,8 @@ class SocketManager {
 
     this.configureMiddleware();
     this.registerSocketListeners();
-    this.updateAllUsers();
     this.updateOnlineUsers();
+    this.updateAllUsers();
   }
 
   generateSocketServer = (server: http.Server) => {
@@ -168,6 +168,10 @@ class SocketManager {
   sendUserRoomList = async (socket: ICustomSocket) => {
     if (socket.username) {
       const userRoomList = await getRoomlistForUser(socket.username);
+      console.log(
+        "🚀 ~ file: SocketManager.ts ~ line 171 ~ SocketManager ~ sendUserRoomList= ~ userRoomList",
+        userRoomList
+      );
 
       if (userRoomList) {
         userRoomList.forEach(async (room) => {
@@ -191,7 +195,6 @@ class SocketManager {
             receiver: room.receiver
           });
         });
-        // socket.emit("privateMessageList", userPrivateMessageList);
       }
     }
   };
@@ -323,29 +326,20 @@ class SocketManager {
             );
 
             socket.join(roomId);
-            // Find the socket that is the receiver and update their room list
-            const senderRoomList = await getPrivateMessagesForUser(
-              data.senderUsername
-            );
 
-            this.io
-              .to(`user${socket.username}`)
-              .emit("privateMessageList", senderRoomList);
-            console.log(
-              "🚀 ~ file: SocketManager.ts ~ line 334 ~ SocketManager ~ senderRoomList",
-              senderRoomList
-            );
-
-            const receiverRoomList = await getPrivateMessagesForUser(
-              data.receiverUsername
-            );
+            this.io.to(`user${socket.username}`).emit("privateMessageList", {
+              roomId,
+              messages: [],
+              receiver: data.receiverUsername
+            });
 
             this.io
               .to(`user${data.receiverUsername}`)
-              .emit("privateMessageList", receiverRoomList);
-
-            // Emit new list of users to room so UI can update
-            this.updateUsersInRoom(roomId);
+              .emit("privateMessageList", {
+                roomId,
+                messages: [],
+                receiver: data.senderUsername
+              });
           }
         }
       );

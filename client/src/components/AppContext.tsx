@@ -10,17 +10,17 @@ import socketIOClient, { Socket } from "socket.io-client";
 import { reducer } from "./Reducer";
 
 const AppContext = createContext(null);
-
+export const initialState = {
+  username: "",
+  rooms: {},
+  currentRoomId: "",
+  privateMessages: {},
+  privateRoomJoined: false,
+  onlineUsers: [],
+  allUsers: []
+};
 const AppProvider = (props: any) => {
-  const [state, dispatch] = useReducer(reducer, {
-    username: "",
-    rooms: {},
-    currentRoomId: "",
-    privateMessages: {},
-    privateRoomJoined: false,
-    onlineUsers: [],
-    allUsers: []
-  });
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [socket, setSocket] = useState<Socket>(null);
 
   const connectSocket = (username?, sessionId?) => {

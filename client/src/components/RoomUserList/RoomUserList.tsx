@@ -28,6 +28,8 @@ const RoomUserList: React.FC = () => {
     return [];
   }, [rooms, currentRoomId]);
 
+  console.log("PMS", Object.values(privateMessages));
+
   return (
     <div>
       <h4>
@@ -38,11 +40,15 @@ const RoomUserList: React.FC = () => {
           <h6
             className={onlineUsers.includes(user) ? "active" : "inactive"}
             onClick={() => {
-              let privateMessageId = Object.keys(privateMessages).find(
-                (privateMessageId) =>
-                  privateMessages[privateMessageId].receivingUser === user
+              let privateMessage: any = Object.values(privateMessages).find(
+                (privateMessage: IPrivateMessage) =>
+                  privateMessage.receivingUser === user
               );
-              if (!privateMessageId) {
+              console.log(
+                "🚀 ~ file: RoomUserList.tsx ~ line 47 ~ privateMessageId",
+                privateMessage
+              );
+              if (!privateMessage?.roomId) {
                 console.log("Creating private message!");
                 createPrivateMessage(user);
               } else {
@@ -50,18 +56,9 @@ const RoomUserList: React.FC = () => {
                   type: DispatchEvent.JoinPrivateMessageId,
                   data: {
                     private: true,
-                    roomId: privateMessageId
+                    roomId: privateMessage?.roomId
                   }
                 });
-              }
-
-              const privateRoom: any = Object.values(privateMessages).find(
-                (privateMessage: IPrivateMessage) =>
-                  privateMessage.receivingUser === user
-              );
-
-              if (privateRoom?.roomId) {
-                joinRoom(privateRoom.roomId);
               }
             }}
             key={user}

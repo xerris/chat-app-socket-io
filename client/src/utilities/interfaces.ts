@@ -50,7 +50,8 @@ export enum DispatchEvent {
   JoinRoomId,
   JoinPrivateMessageId,
   JoinInitialRooms,
-  UserListUpdate
+  UserListUpdate,
+  Logout
 }
 
 export interface MessageStore {
