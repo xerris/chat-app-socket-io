@@ -26,7 +26,7 @@ const RoomList: React.FC = () => {
             }}
             className={currentRoomId === roomId ? "active-2" : "inactive"}
           >
-            *{rooms[roomId].roomName}
+            [{rooms[roomId].roomName}]
           </h5>
         );
       })}

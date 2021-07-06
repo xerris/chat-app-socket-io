@@ -9,7 +9,6 @@ import SignUp from "./components/SignUp";
 import { AppContext } from "./components/AppContext";
 import Messages from "./components/Messages";
 import Input from "./components/Input";
-import RoomUserList from "./components/RoomUserList";
 import UserList from "./components/UserList";
 import { DispatchEvent } from "./utilities/interfaces";
 
@@ -37,10 +36,10 @@ function App() {
   }, [socket]);
 
   const logout = () => {
-    localStorage.clear();
     dispatch({
       type: DispatchEvent.Logout
     });
+    localStorage.clear();
     disconnectSocket();
   };
 
