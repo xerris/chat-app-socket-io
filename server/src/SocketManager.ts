@@ -78,7 +78,7 @@ class SocketManager {
     this.configureMiddleware();
     this.registerSocketListeners();
     this.updateOnlineUsers();
-    this.updateAllUsers();
+    // this.updateAllUsers();
   }
 
   generateSocketServer = (server: http.Server) => {
@@ -144,9 +144,7 @@ class SocketManager {
   updateOnlineUsers = async () => {
     const onlineUserArray = await this.sessionStore.getOnlineUsers();
     this.io.emit("onlineUserUpdate", onlineUserArray);
-  };
 
-  updateAllUsers = async () => {
     const userArray = await getAllUsers();
     const usernameArray = userArray.map((user: IRoomData) => user.username);
     console.log(
@@ -155,6 +153,9 @@ class SocketManager {
     );
     this.io.emit("allUserUpdate", usernameArray);
   };
+
+  // updateAllUsers = async () => {
+  // };
 
   sendRoomList = async (socket: Socket) => {
     const roomList = await getRoomList();

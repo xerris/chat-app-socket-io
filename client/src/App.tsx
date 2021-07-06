@@ -10,6 +10,7 @@ import { AppContext } from "./components/AppContext";
 import Messages from "./components/Messages";
 import Input from "./components/Input";
 import RoomUserList from "./components/RoomUserList";
+import UserList from "./components/UserList";
 import { DispatchEvent } from "./utilities/interfaces";
 
 function App() {
@@ -28,7 +29,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Set up socket message handlers
     if (socket) {
       setIsConnected(true);
     } else {
@@ -56,7 +56,9 @@ function App() {
         )}
         {isConnected && (
           <>
-            <RoomUserList />
+            {/* For that specific room: */}
+            {/* <RoomUserList /> */}
+            <UserList />
             <RoomList />
             <Messages />
             <Input />

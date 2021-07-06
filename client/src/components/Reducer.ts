@@ -132,7 +132,6 @@ export const reducer = produce((state: State, action: Action) => {
       }
       break;
     case DispatchEvent.UserListUpdate:
-      console.log("USER LIST UPDATEEEEEE", action.data);
       state.allUsers = action.data.sort((a, b) =>
         a.toLowerCase().localeCompare(b.toLowerCase())
       );
