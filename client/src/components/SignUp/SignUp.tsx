@@ -9,7 +9,7 @@ const SignUp: React.FC = () => {
 
   const signup = async (event) => {
     event.preventDefault();
-    const res = await fetch(`${prefix}/api/SignUp`, {
+    await fetch(`${prefix}/api/SignUp`, {
       ...fetchPostOptions,
       body: JSON.stringify({
         username,
@@ -25,7 +25,6 @@ const SignUp: React.FC = () => {
         }
       })
       .catch((err) => setStatus("Error"));
-    console.log("🚀 ~ file: SignUp.tsx ~ line 24 ~ SignUp ~ res", res);
   };
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

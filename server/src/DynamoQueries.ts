@@ -7,6 +7,8 @@ export interface IUserRoom {
   roomName: string;
   roomId: string;
   message: boolean;
+  messages?: IRoomMessage[];
+  receiver?: string;
 }
 
 interface GetUsersInRoomQueryReponse {
@@ -48,6 +50,20 @@ export const getMessagesForRoom = async (roomId: string) => {
       KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
       ExpressionAttributeValues: {
         ":pk": `#ROOM#${roomId}`,
+        ":sk": "#MESSAGE"
+      }
+    })
+    .promise();
+  return { roomId, messages: roomMessageList.Items };
+};
+export const getPrivateMessagesForRoom = async (roomId: string) => {
+  // Get messages for room
+  const roomMessageList: GetMessagesForRoomQueryResponse = await dynamo
+    .query({
+      TableName: "xerris-socket-app-db",
+      KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+      ExpressionAttributeValues: {
+        ":pk": `#PRIVATEMESSAGE#${roomId}`,
         ":sk": "#MESSAGE"
       }
     })
@@ -114,6 +130,21 @@ export const getRoomlistForUser = async (username: string) => {
 
   return userRoomQuery?.Items;
 };
+export const getPrivateMessagesForUser = async (username: string) => {
+  // Rooms a particular user is in
+  const userRoomQuery: { Items: IUserRoom[] } = await dynamo
+    .query({
+      TableName: "xerris-socket-app-db",
+      KeyConditionExpression: "PK = :pk and begins_with(SK, :sk) ",
+      ExpressionAttributeValues: {
+        ":pk": `user#${username}`,
+        ":sk": `#PRIVATEMESSAGE`
+      }
+    })
+    .promise();
+
+  return userRoomQuery?.Items;
+};
 
 export interface IRoom {
   PK: string;
@@ -126,6 +157,22 @@ interface GetRoomlistQueryResponse {
   Items: [{ roomList: IRoom[] }];
 }
 
+export const getAllUsers = async () => {
+  // General RoomList
+  const userQuery = await dynamo
+    .query({
+      TableName: "xerris-socket-app-db",
+      IndexName: "SK-PK-inverted-index",
+      KeyConditionExpression: "SK = :sk AND begins_with(PK, :pk)  ",
+      ExpressionAttributeValues: {
+        ":pk": `user#`,
+        ":sk": `#METADATA`
+      }
+    })
+    .promise();
+
+  return userQuery?.Items;
+};
 export const getRoomList = async () => {
   // General RoomList
   const roomListQuery: GetRoomlistQueryResponse = await dynamo
@@ -191,8 +238,3 @@ export const verifyLogin = async (user: IUser) =>
       reject("User does not exist");
     }
   });
-
-// getRoomList();
-// getMessagesForRoom("1f2e9e95-528b-40cf-ade1-d5e47c082fda");
-// getUsersInRoom("1f2e9e95-528b-40cf-ade1-d5e47c082fda");
-// getRoomlistForUser("rexx92");

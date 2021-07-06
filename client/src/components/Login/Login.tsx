@@ -1,17 +1,15 @@
 import { Socket } from "dgram";
 import React, { useContext, useState } from "react";
 import { fetchPostOptions, prefix } from "../../config/constants";
-import { ISocketContext, SocketContext } from "../SocketContext";
+import { DispatchEvent } from "../../utilities/interfaces";
+import { AppContext } from "../AppContext";
 
-interface Props {
-  onLogin: (username: string) => void;
-}
-const Login: React.FC<Props> = ({ onLogin }: Props) => {
+const Login: React.FC = () => {
+  const { connectSocket, dispatch } = useContext(AppContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const socket: ISocketContext = useContext(SocketContext);
 
   const login = async (event) => {
     event.preventDefault();
@@ -31,8 +29,8 @@ const Login: React.FC<Props> = ({ onLogin }: Props) => {
     if (res?.email) {
       setEmail(res.email);
       setError("");
-      socket.connectSocket(res.username);
-      onLogin(res.username);
+      dispatch({ action: DispatchEvent.SetUsername, data: res.username });
+      connectSocket(res.username);
     } else {
       setError("Login Error");
     }
