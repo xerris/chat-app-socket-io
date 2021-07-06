@@ -1,32 +1,40 @@
-import React from "react";
+import React, { useContext, useMemo } from "react";
+import { AppContext } from "../AppContext";
 
-interface Props {
-  usersInRoom: string[];
-  onlineUsers: string[];
-  createPrivateMessage: (user: string) => void;
-}
-const UserList: React.FC<Props> = ({
-  usersInRoom,
-  onlineUsers,
-  createPrivateMessage
-}: Props) => {
+const UserList: React.FC = () => {
+  const { state, socket } = useContext(AppContext);
+  const { rooms, username, currentRoomId, onlineUsers } = state;
+
+  const createPrivateMessage = (receiverUsername: string) => {
+    if (receiverUsername !== username) {
+      socket.emit("createPrivateMessage", {
+        senderUsername: username,
+        receiverUsername
+      });
+    }
+  };
+
+  const roomUsers = useMemo(() => {
+    if (rooms[currentRoomId]) {
+      return rooms[currentRoomId].users;
+    }
+    return [];
+  }, [rooms, currentRoomId]);
+
   return (
     <div>
       <h4>
         <u>Room Users (click to DM)</u>
       </h4>
-      {usersInRoom
-        .sort((a, b) =>
-          a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())
-        )
-        .map((user) => (
-          <h6
-            className={onlineUsers.includes(user) ? "active" : "inactive"}
-            onClick={() => createPrivateMessage(user)}
-          >
-            {user}
-          </h6>
-        ))}
+      {roomUsers.map((user) => (
+        <h6
+          className={onlineUsers.includes(user) ? "active" : "inactive"}
+          onClick={() => createPrivateMessage(user)}
+          key={user}
+        >
+          {user}
+        </h6>
+      ))}
     </div>
   );
 };
