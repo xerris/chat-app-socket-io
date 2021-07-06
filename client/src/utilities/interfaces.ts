@@ -35,6 +35,7 @@ export interface IMessage {
 export interface IMessageList {
   roomId: string;
   messages: IMessage[];
+  receiver?: string;
 }
 
 export enum DispatchEvent {
@@ -44,11 +45,12 @@ export enum DispatchEvent {
   SetInitialChatData,
   SetUserRoomList,
   SetPublicRoomList,
-  SetPrivateMessageList,
+  SetInitalPrivateMessageData,
   SetUsersInRoom,
   JoinRoomId,
   JoinPrivateMessageId,
-  JoinInitialRooms
+  JoinInitialRooms,
+  UserListUpdate
 }
 
 export interface MessageStore {
@@ -78,5 +80,6 @@ export interface State {
   username: string;
   currentRoomId: string;
   onlineUsers: string[];
+  allUsers: string[];
   privateRoomJoined: boolean;
 }

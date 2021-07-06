@@ -3,16 +3,22 @@ import { IMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
 
 const Messages: React.FC = () => {
-  const { rooms, currentRoomId, username } = useContext(AppContext).state;
+  const { rooms, currentRoomId, username, privateRoomJoined, privateMessages } =
+    useContext(AppContext).state;
 
   const messages = useMemo(() => {
+    if (privateRoomJoined && privateMessages[currentRoomId]?.messages) {
+      return privateMessages[currentRoomId].messages
+        ?.slice()
+        .sort((a, b) => a.timestamp - b.timestamp);
+    }
     if (rooms[currentRoomId]?.messages) {
       return rooms[currentRoomId].messages
         ?.slice()
         .sort((a, b) => a.timestamp - b.timestamp);
     }
     return [];
-  }, [rooms, currentRoomId]);
+  }, [rooms, currentRoomId, privateRoomJoined, privateMessages]);
 
   return (
     <div>

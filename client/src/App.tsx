@@ -9,7 +9,7 @@ import SignUp from "./components/SignUp";
 import { AppContext } from "./components/AppContext";
 import Messages from "./components/Messages";
 import Input from "./components/Input";
-import UserList from "./components/UserList";
+import RoomUserList from "./components/RoomUserList";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -51,7 +51,7 @@ function App() {
         )}
         {isConnected && (
           <>
-            <UserList />
+            <RoomUserList />
             <RoomList />
             <Messages />
             <Input />

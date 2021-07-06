@@ -16,9 +16,10 @@ const AppProvider = (props: any) => {
     username: "",
     rooms: {},
     currentRoomId: "",
-    onlineUsers: [],
     privateMessages: {},
-    privateRoomJoined: false
+    privateRoomJoined: false,
+    onlineUsers: [],
+    allUsers: []
   });
   const [socket, setSocket] = useState<Socket>(null);
 
@@ -75,23 +76,26 @@ const AppProvider = (props: any) => {
           data
         });
       });
+      socketConnection.on("privateMessageList", (data: IMessageList) => {
+        dispatch({
+          type: DispatchEvent.SetInitalPrivateMessageData,
+          data
+        });
+      });
       socketConnection.on("roomListUpdate", (data: IRoom[]) => {
         dispatch({
           type: DispatchEvent.SetPublicRoomList,
           data
         });
       });
-      socketConnection.on("userRoomListUpdate", (data: IRoom[]) => {
-        const filteredPrivateMessages = data.filter((room) => !!room.message);
+      socketConnection.on("allUserUpdate", (data: any) => {
+        console.log(
+          "🚀 ~ file: AppContext.tsx ~ line 91 ~ socketConnection.on ~ data",
+          data
+        );
         dispatch({
-          type: DispatchEvent.SetPrivateMessageList,
-          data: filteredPrivateMessages
-        });
-
-        const joinedRooms = data.filter((room) => !room.message);
-        dispatch({
-          type: DispatchEvent.JoinInitialRooms,
-          data: joinedRooms
+          type: DispatchEvent.UserListUpdate,
+          data
         });
       });
       socketConnection.on("usersInRoom", (data: IUsersInRoom) => {

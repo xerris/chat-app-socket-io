@@ -13,7 +13,8 @@ const UserList: React.FC = () => {
       room: state.currentRoomId,
       username: state.username,
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      privateMessage: state.privateRoomJoined
     });
 
     setMessage("");

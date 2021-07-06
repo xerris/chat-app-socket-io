@@ -25,8 +25,9 @@ type Action =
       type: DispatchEvent.JoinPrivateMessageId;
       data: { private: boolean; roomId: string };
     }
-  | { type: DispatchEvent.SetPrivateMessageList; data: IRoom[] }
-  | { type: DispatchEvent.JoinInitialRooms; data: IRoom[] };
+  | { type: DispatchEvent.SetInitalPrivateMessageData; data: IMessageList }
+  | { type: DispatchEvent.JoinInitialRooms; data: IRoom[] }
+  | { type: DispatchEvent.UserListUpdate; data: any };
 
 export const reducer = produce((state: State, action: Action) => {
   switch (action.type) {
@@ -44,7 +45,6 @@ export const reducer = produce((state: State, action: Action) => {
       state.onlineUsers = action.data;
       break;
     case DispatchEvent.SetInitialChatData:
-      console.log("initial chat data", action.data);
       state.rooms[action.data.roomId] = {
         ...state.rooms[action.data.roomId],
         messages: action.data.messages
@@ -99,17 +99,25 @@ export const reducer = produce((state: State, action: Action) => {
         };
       });
       break;
-    case DispatchEvent.SetPrivateMessageList:
-      action.data.forEach(
-        (room) =>
-          (state.privateMessages[room.roomId] = {
-            messages: [],
-            receivingUser: room.receiver,
-            newMessages: 0,
-            roomId: room.roomId,
-            joined: true
-          })
-      );
+    case DispatchEvent.SetInitalPrivateMessageData:
+      if (state.privateMessages[action.data.roomId]) {
+        state.privateMessages[action.data.roomId] = {
+          ...state.privateMessages[action.data.roomId],
+          messages: action.data.messages || []
+        };
+      } else {
+        console.log(
+          "🚀 ~ file: Reducer.ts ~ line 109 ~ reducer ~ action.data",
+          action.data
+        );
+        state.privateMessages[action.data.roomId] = {
+          messages: action.data.messages || [],
+          joined: true,
+          newMessages: 1,
+          receivingUser: action.data.receiver,
+          roomId: action.data.roomId
+        };
+      }
       break;
     case DispatchEvent.JoinInitialRooms:
       action.data.forEach(
@@ -133,6 +141,12 @@ export const reducer = produce((state: State, action: Action) => {
       if (action.data.private && state.privateMessages[action.data.roomId]) {
         state.privateMessages[action.data.roomId].joined = true;
       }
+      break;
+    case DispatchEvent.UserListUpdate:
+      console.log("USER LIST UPDATEEEEEE", action.data);
+      state.allUsers = action.data.sort((a, b) =>
+        a.toLowerCase().localeCompare(b.toLowerCase())
+      );
       break;
   }
 });
