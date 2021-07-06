@@ -15,11 +15,6 @@ const RoomUserList: React.FC = () => {
       });
     }
   };
-  const joinRoom = (roomId: string) => {
-    socket.emit("joinRoom", {
-      roomId
-    });
-  };
 
   const roomUsers = useMemo(() => {
     if (rooms[currentRoomId]) {
@@ -27,8 +22,6 @@ const RoomUserList: React.FC = () => {
     }
     return [];
   }, [rooms, currentRoomId]);
-
-  console.log("PMS", Object.values(privateMessages));
 
   return (
     <div>
@@ -44,10 +37,7 @@ const RoomUserList: React.FC = () => {
                 (privateMessage: IPrivateMessage) =>
                   privateMessage.receivingUser === user
               );
-              console.log(
-                "🚀 ~ file: RoomUserList.tsx ~ line 47 ~ privateMessageId",
-                privateMessage
-              );
+
               if (!privateMessage?.roomId) {
                 console.log("Creating private message!");
                 createPrivateMessage(user);

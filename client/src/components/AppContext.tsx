@@ -89,10 +89,6 @@ const AppProvider = (props: any) => {
         });
       });
       socketConnection.on("allUserUpdate", (data: any) => {
-        console.log(
-          "🚀 ~ file: AppContext.tsx ~ line 91 ~ socketConnection.on ~ data",
-          data
-        );
         dispatch({
           type: DispatchEvent.UserListUpdate,
           data
@@ -107,7 +103,7 @@ const AppProvider = (props: any) => {
 
       // Log all socket items
       socketConnection.onAny((data, params) =>
-        console.log("🚀🚀🚀🚀🚀 ", data, params)
+        console.log("🚀 SOCKET:", data, params)
       );
     }
   };

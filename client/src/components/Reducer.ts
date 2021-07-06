@@ -55,16 +55,11 @@ export const reducer = produce((state: State, action: Action) => {
 
     case DispatchEvent.SetUsersInRoom:
       // Private message
-      console.log("SET USERS IN ROOM", action.data);
       if (action.data.users[0]?.receiver) {
-        console.log("Assigning private message!!!!");
         const otherUser = action.data.users.find(
           (user) => user.receiver !== state.username
         );
-        console.log(
-          "🚀 ~ file: Reducer.ts ~ line 51 ~ reducer ~ otherUser",
-          otherUser
-        );
+
         if (otherUser?.receiver && state.privateMessages[action.data.roomId]) {
           state.privateMessages[action.data.roomId].receivingUser =
             otherUser.receiver;
@@ -88,10 +83,6 @@ export const reducer = produce((state: State, action: Action) => {
       break;
     case DispatchEvent.SetPublicRoomList:
       action.data.forEach((room) => {
-        console.log(
-          "🚀 ~ file: AppContext.tsx ~ line 59 ~ action.data.forEach ~ room",
-          room
-        );
         state.rooms[room.roomId] = {
           messages: [],
           users: [],
@@ -102,7 +93,6 @@ export const reducer = produce((state: State, action: Action) => {
       });
       break;
     case DispatchEvent.SetInitalPrivateMessageData:
-      console.log("🚀 ~ file: SetInitialprivateMessageData", action.data);
       if (state.privateMessages[action.data.roomId]) {
         state.privateMessages[action.data.roomId] = {
           ...state.privateMessages[action.data.roomId],

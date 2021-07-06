@@ -5,7 +5,6 @@ import { AppContext } from "../AppContext";
 const RoomList: React.FC = () => {
   const { state, dispatch, socket } = useContext(AppContext);
   const { rooms, currentRoomId, privateMessages } = state;
-  console.log("🚀 ~ file: RoomList.tsx ~ line 7 ~ state", state);
 
   return (
     <div>
@@ -35,10 +34,6 @@ const RoomList: React.FC = () => {
         <u>DMs</u>
       </h4>
       {Object.values(privateMessages).map((privateMessage: IPrivateMessage) => {
-        console.log(
-          "🚀 ~ file: RoomList.tsx ~ line 41 ~ {Object.values ~ privateMessage",
-          privateMessage
-        );
         return (
           <h5
             key={privateMessage.roomId}
