@@ -29,16 +29,10 @@ const AppProvider = (props: any) => {
       process.env.REACT_APP_ENV === "dev"
         ? socketIOClient(`${prefix}`, {
             withCredentials: true,
-            extraHeaders: {
-              "my-custom-header": "abcd"
-            },
             auth: { username, sessionId }
           })
         : socketIOClient(process.env.REACT_APP_SOCKET_CONNECTION, {
             withCredentials: true,
-            extraHeaders: {
-              "my-custom-header": "abcd"
-            },
             auth: { username, sessionId }
           });
 

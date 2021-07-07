@@ -19,7 +19,7 @@ const config: IServerConfig = {
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true
   })

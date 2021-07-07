@@ -86,7 +86,7 @@ class SocketManager {
       cors: {
         // Would change origin to eventual DNS for react app if
         // uploaded to S3 instead of served.
-        origin: "http://localhost",
+        origin: "http://localhost:3000",
         methods: ["GET", "POST"],
         credentials: true
       },
