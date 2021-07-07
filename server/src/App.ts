@@ -19,9 +19,8 @@ const config: IServerConfig = {
 const app = express();
 app.use(
   cors({
-    origin: true,
-    methods: "POST",
-    allowedHeaders: ["Content-Type", "my-custom-header"],
+    origin: "http://localhost",
+    methods: ["GET", "POST"],
     credentials: true
   })
 );
