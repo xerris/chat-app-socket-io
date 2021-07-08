@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import p5 from "p5";
-import { SocketContext } from "../SocketContext";
+import { AppContext } from "../AppContext";
 
 interface Props {
   color: string;
@@ -16,7 +16,8 @@ interface SocketDrawing {
 }
 
 const SketchPad: React.FC<Props> = ({ color }) => {
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(AppContext);
+
   const divRef = useRef<HTMLDivElement>();
   const colorRef = useRef<string>();
   const boardRef: React.MutableRefObject<p5> = React.useRef();
@@ -55,11 +56,17 @@ const SketchPad: React.FC<Props> = ({ color }) => {
         };
 
         socket.on("draw", (data: SocketDrawing) => {
-          sketch.stroke(data.color);
-          sketch.strokeWeight(data.strokeWidth);
-
-          sketch.line(data.px, data.py, data.x, data.y);
+          try {
+            sketch.stroke(data.color);
+            sketch.strokeWeight(data.strokeWidth);
+            sketch.line(data.px, data.py, data.x, data.y);
+          } catch (error) {
+            // Prevents crashing on inital draw data
+            console.log("error drawing", error);
+          }
         });
+
+        socket.on("clearBoard", () => boardRef.current.clear());
       }, divRef.current);
     }
     return () => {
@@ -72,8 +79,16 @@ const SketchPad: React.FC<Props> = ({ color }) => {
   useEffect(() => {
     if (boardRef.current) {
       boardRef.current.mouseDragged = (event: MouseEvent) => {
-        const { offsetX, offsetY, movementX, movementY } = event;
-        sendDrawing(offsetX, offsetY, offsetX - movementX, offsetY - movementY);
+        // Drawings only sent if drag on canvas
+        if (String(event.target) === "[object HTMLCanvasElement]") {
+          const { offsetX, offsetY, movementX, movementY } = event;
+          sendDrawing(
+            offsetX,
+            offsetY,
+            offsetX - movementX,
+            offsetY - movementY
+          );
+        }
       };
     }
   });
@@ -81,6 +96,14 @@ const SketchPad: React.FC<Props> = ({ color }) => {
   return (
     <div ref={divRef}>
       <button onClick={() => boardRef.current.save("drawing.jpg")}>Save</button>
+      <button
+        onClick={() => {
+          boardRef.current.clear();
+          socket.emit("clearBoard");
+        }}
+      >
+        Clear Board
+      </button>
     </div>
   );
 };

@@ -14,6 +14,7 @@
     "@types/react": "^17.0.4",
     "@types/react-dom": "^17.0.3",
     "formik": "^2.2.7",
+    "immer": "^8.0.1",
     "p5": "^1.1.9",
     "react": "^17.0.2",
     "react-colorful": "^5.1.4",
@@ -53,6 +54,11 @@
     ]
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@types/yup": "^0.29.11"
+=======
+    "react-scripts": "^4.0.3",
+    "webpack-cli": "^4.7.0"
+>>>>>>> main
   }
 }

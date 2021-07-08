@@ -1,0 +1,155 @@
+version: 2.1
+anchors:
+  configure-aws-access: &configure-aws-access
+    run:
+      name: Configure AWS access
+      command: |
+        mkdir -p ~/.aws
+        file=~/.aws/credentials
+        echo "[default]" > $file
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $file
+        echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> $file
+        echo "aws_region = $AWS_REGION" >> $file
+  create-docker-env: &create-docker-env
+    run:
+      name: Configure ENV file
+      command: |
+        ls
+        file=server/.env
+        echo "ENV=$ENV" >> $file
+        echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
+orbs:
+  node: circleci/node@4.2.0
+  aws-ecr: circleci/aws-ecr@7.0.0
+executors:
+  docker:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+  default:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+jobs:
+  Build react app:
+    executor: docker
+    working_directory: /tmp/project
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    steps:
+      - checkout
+      - *configure-aws-access
+      - *create-docker-env
+      - run:
+          name: Install node dependencies and run build
+          command: |
+            cd client
+            npm install .
+            CI=false npm run build
+            cd ../server
+            ls
+            cat .env
+            npm install .
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  Build and deploy app docker image:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    environment:
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
+      AWS_SDK_LOAD_CONFIG: "1"
+    steps:
+      - checkout
+      - *configure-aws-access
+      - *create-docker-env
+      - run:
+          name: Check secrets file
+          command: |
+            cd ~/.aws
+            cat credentials
+      # Install docker (not to be confused with remote docker, which aws-ecr uses)
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
+      - setup_remote_docker:
+          version: 18.09.3
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          path: ./server
+          region: AWS_REGION
+          repo: xerris-socket-app-repo
+          tag: "latest"
+          attach-workspace: true
+      - run:
+          name: Force redeploy of ECS Cluster
+          command: |
+            aws ecs update-service --cluster xerris-socket-app-cluster --service xerris-socket-app-service --force-new-deployment
+  Deploy infrastructure:
+    docker:
+      - image: public.ecr.aws/t6q5r3l2/laprairefoe-circleci
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - *configure-aws-access
+      - run:
+          name: Deploy Terraform to AWS
+          command: |
+            which aws
+            cd server
+            ls
+            cd ../infrastructure-fargate
+            ls
+            sh terraform-exec.sh 1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  Destroy:
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - *configure-aws-access
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform run destroy plan
+          command: |
+            ls
+            cd infrastructure-fargate
+            sh terraform-destroy.sh 1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+workflows:
+  devDeploy:
+    jobs:
+      - hold-deploy-app:
+          type: approval
+      - hold-deploy-infrastructure:
+          type: approval
+      - hold-DESTROY:
+          type: approval
+      - Destroy:
+          context: CIRCLE
+          requires:
+            - hold-DESTROY
+      - Build react app:
+          context: CIRCLE
+          requires:
+            - hold-deploy-app
+      - Build and deploy app docker image:
+          context: CIRCLE
+          requires:
+            - Build react app
+      - Deploy infrastructure:
+          context: CIRCLE
+          requires:
+            - hold-deploy-infrastructure

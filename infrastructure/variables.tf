@@ -1,10 +1,4 @@
 # # Variables
-# variable "access_key" {
-#   default = "ACCESS_KEY_HERE"
-# }
-# variable "secret_key" {
-#   default = "SECRET_KEY_HERE"
-# }
 variable "region" {
   default = "us-east-2"
 }

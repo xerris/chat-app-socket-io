@@ -1,65 +1,55 @@
 import { createServer } from "http";
 import express from "express";
 import cors from "cors";
-import { Server, Socket } from "socket.io";
-import { createAdapter } from "socket.io-redis";
-import { RedisClient } from "redis";
+import registerRoutes from "./Routes";
+import * as dotenv from "dotenv";
+import { IServerConfig, SocketManager } from "./SocketManager";
+const cookieSession = require("cookie-session");
+const morgan = require("morgan");
+dotenv.config();
 
-require("dotenv").config({ path: "./.env" });
+const config: IServerConfig = {
+  configuredDynamo: true,
+  configuredLocalRedis: true && process.env.ENV === "local",
+  remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
+  environment: process.env.ENV === "local" ? "local" : "prod"
+};
+
+// Express server config
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    methods: "POST",
+    allowedHeaders: ["Content-Type", "my-custom-header"],
+    credentials: true
+  })
+);
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  })
+);
+app.use(express.urlencoded());
+app.use(express.json());
+app.use(express.static("build"));
+app.use(morgan("dev"));
+app.use("/api", registerRoutes(config.configuredDynamo));
 
 const server = createServer(app);
-const port = process.env.PORT || 3001;
-const env = process.env.ENV;
-const io =
-  env === "dev"
-    ? new Server(server, {
-        cors: {
-          origin: "http://localhost:3000",
-          methods: ["GET", "POST"],
-          allowedHeaders: ["my-custom-header"],
-          credentials: true
-        }
-      })
-    : new Server(server);
+export const port = process.env.PORT || 3001;
 
-// Toggle Redis if you want to test locally
-const redis = true;
-if (redis && env === "prod") {
-  const pubClient = new RedisClient({
-    host: process.env.REDIS_ENDPOINT,
-    port: 6379
-  });
-  console.log(`Connecting to Redis client @ ${process.env.REDIS_ENDPOINT}`);
-  const subClient = pubClient.duplicate();
+// Set up Socket.IO server and redis client
+new SocketManager(server, config);
 
-  io.adapter(createAdapter({ pubClient, subClient }));
-}
-
-// Serve the react file build
-app.use(express.static("build"));
-app.get("*", (req, res) => res.sendFile("index.html"));
+app.get("/", (req, res) => {
+  res.sendFile("index.html");
+});
 
 server.listen(port, () => {
   console.log("Running server on port %s", port);
-});
-
-io.on("connect", (socket: Socket) => {
-  console.log("Connected client on port %s", port);
-
-  socket.on("message", (m: any) => {
-    console.log("got it");
-    io.emit("message", m);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-
-  socket.on("draw", (data) => {
-    io.emit("draw", data);
-  });
 });
 
 export default app;
