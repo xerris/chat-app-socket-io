@@ -18,11 +18,6 @@
 .text-color {
   color: #ffffff;
 }
-.message-list {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
 
 .message {
   min-width: 300px;

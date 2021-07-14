@@ -1,0 +1,12 @@
+.messageList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* background-color: white; */
+  height: 100vh;
+  width: calc(100vw - 250px);
+  margin: 20px 0px 0px 250px;
+}
+
+.sketchPad {
+}
