@@ -30,14 +30,8 @@ const Messages: React.FC = () => {
           messages.map((message) => {
             return (
               <div className="message" key={message.timestamp}>
-                <span
-                  className={
-                    message.username === username ? "active-2" : "inactive"
-                  }
-                >
-                  <strong>{message.username}:</strong>
-                </span>
-                <span>{message.message}</span>
+                <span className="username">{message.username} </span>
+                <span className="messageContent">{message.message}</span>
               </div>
             );
           })}
