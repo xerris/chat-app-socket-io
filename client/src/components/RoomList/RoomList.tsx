@@ -5,7 +5,7 @@ import Logo from "../../xerris-logo.svg";
 import "./RoomList.css";
 
 const RoomList: React.FC = () => {
-  const { state, dispatch, socket } = useContext(AppContext);
+  const { state, dispatch, socket, disconnectSocket } = useContext(AppContext);
   console.log("🚀 ~ file: RoomList.tsx ~ line 8 ~ socket", socket);
   const {
     rooms,
@@ -23,6 +23,14 @@ const RoomList: React.FC = () => {
         receiverUsername
       });
     }
+  };
+
+  const logout = () => {
+    dispatch({
+      type: DispatchEvent.Logout
+    });
+    localStorage.clear();
+    disconnectSocket();
   };
 
   return (
@@ -130,6 +138,9 @@ const RoomList: React.FC = () => {
               {user}
             </h5>
           ))}
+      <div className="logout">
+        <h5 onClick={logout}>Logout</h5>
+      </div>
     </div>
   );
 };
