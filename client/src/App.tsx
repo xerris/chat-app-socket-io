@@ -46,7 +46,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>Connected: {"" + isConnected}</p>
         {!isConnected && (
           <>
             <SignUp />
