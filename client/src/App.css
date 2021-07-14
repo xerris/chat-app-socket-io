@@ -36,3 +36,39 @@
     transform: rotate(360deg);
   }
 }
+
+h4 {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  margin: 10px 0px 10px 10px;
+  font-weight: 400;
+}
+h5 {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  margin-left: 10px;
+  margin: 10px 0px 10px 20px;
+  font-weight: 300;
+}
+
+.roomList {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: #1d2229;
+  padding: 10px;
+  width: 200px;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.roomMessage {
+  margin-left: 10px;
+}
+
+img {
+  margin: 10px 30px 20px 30px;
+}

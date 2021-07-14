@@ -1,6 +1,6 @@
 import React from "react";
 import { IRoom } from "../../App";
-
+import Logo from "../../xerris-logo.svg";
 interface Props {
   roomList: IRoom[];
   privateMessageList: IRoom[];
@@ -14,10 +14,9 @@ const RoomList: React.FC<Props> = ({
   selectedRoom
 }: Props) => {
   return (
-    <div>
-      <h4>
-        <u>Rooms</u>
-      </h4>
+    <div className="roomList">
+      <img src={Logo} alt="Xerris logo" />
+      <h4>Channels</h4>
       {roomList.map((room) => (
         <h5
           key={room.roomId}
@@ -27,9 +26,7 @@ const RoomList: React.FC<Props> = ({
           {room.roomName}
         </h5>
       ))}
-      <h4>
-        <u>DMs</u>
-      </h4>
+      <h4>Direct messages</h4>
       {privateMessageList.map((room) => (
         <h5
           key={room.roomId}
