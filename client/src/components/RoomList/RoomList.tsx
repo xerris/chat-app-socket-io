@@ -1,41 +1,58 @@
-import React from "react";
-import { IRoom } from "../../App";
+import React, { useContext } from "react";
+import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
+import { AppContext } from "../AppContext";
 import Logo from "../../xerris-logo.svg";
-interface Props {
-  roomList: IRoom[];
-  privateMessageList: IRoom[];
-  onChangeRoom: (room) => void;
-  selectedRoom: string;
-}
-const RoomList: React.FC<Props> = ({
-  roomList,
-  privateMessageList,
-  onChangeRoom,
-  selectedRoom
-}: Props) => {
+
+const RoomList: React.FC = () => {
+  const { state, dispatch, socket } = useContext(AppContext);
+  const { rooms, currentRoomId, privateMessages } = state;
+
   return (
     <div className="roomList">
       <img src={Logo} alt="Xerris logo" />
-      <h4>Channels</h4>
-      {roomList.map((room) => (
-        <h5
-          key={room.roomId}
-          onClick={() => onChangeRoom(room.roomId)}
-          className={selectedRoom === room.roomId ? "active-2" : "inactive"}
-        >
-          {room.roomName}
-        </h5>
-      ))}
-      <h4>Direct messages</h4>
-      {privateMessageList.map((room) => (
-        <h5
-          key={room.roomId}
-          onClick={() => onChangeRoom(room.roomId)}
-          className={selectedRoom === room.roomId ? "active-2" : "inactive"}
-        >
-          DM with {room.receiver}
-        </h5>
-      ))}
+      <h4>
+        <u>Rooms</u>
+      </h4>
+      {Object.keys(rooms).map((roomId) => {
+        return (
+          <h5
+            key={roomId}
+            onClick={() => {
+              if (!rooms[roomId].joined) {
+                socket.emit("joinRoom", { roomId });
+              }
+              dispatch({
+                type: DispatchEvent.JoinRoomId,
+                data: { roomId, private: false }
+              });
+            }}
+            className={currentRoomId === roomId ? "active-2" : "inactive"}
+          >
+            [{rooms[roomId].roomName}]
+          </h5>
+        );
+      })}
+      <h4>
+        <u>DMs</u>
+      </h4>
+      {Object.values(privateMessages).map((privateMessage: IPrivateMessage) => {
+        return (
+          <h5
+            key={privateMessage.roomId}
+            onClick={() => {
+              dispatch({
+                type: DispatchEvent.JoinPrivateMessageId,
+                data: { roomId: privateMessage.roomId, private: true }
+              });
+            }}
+            className={
+              currentRoomId === privateMessage.roomId ? "active-2" : "inactive"
+            }
+          >
+            DM with {privateMessage.receivingUser}
+          </h5>
+        );
+      })}
     </div>
   );
 };
