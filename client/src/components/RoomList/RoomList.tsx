@@ -10,9 +10,7 @@ const RoomList: React.FC = () => {
   return (
     <div className="roomList">
       <img src={Logo} alt="Xerris logo" />
-      <h4>
-        <u>Rooms</u>
-      </h4>
+      <h4>Channels</h4>
       {Object.keys(rooms).map((roomId) => {
         return (
           <h5
@@ -28,13 +26,11 @@ const RoomList: React.FC = () => {
             }}
             className={currentRoomId === roomId ? "active-2" : "inactive"}
           >
-            [{rooms[roomId].roomName}]
+            {rooms[roomId].roomName}
           </h5>
         );
       })}
-      <h4>
-        <u>DMs</u>
-      </h4>
+      <h4>Private messages</h4>
       {Object.values(privateMessages).map((privateMessage: IPrivateMessage) => {
         return (
           <h5
@@ -49,7 +45,7 @@ const RoomList: React.FC = () => {
               currentRoomId === privateMessage.roomId ? "active-2" : "inactive"
             }
           >
-            DM with {privateMessage.receivingUser}
+            {privateMessage.receivingUser}
           </h5>
         );
       })}
