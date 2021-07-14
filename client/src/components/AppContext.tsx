@@ -8,6 +8,7 @@ import {
 } from "../utilities/interfaces";
 import socketIOClient, { Socket } from "socket.io-client";
 import { reducer } from "./Reducer";
+import { prefix } from "../config/constants";
 
 const AppContext = createContext(null);
 export const initialState = {
@@ -26,18 +27,12 @@ const AppProvider = (props: any) => {
   const connectSocket = (username?, sessionId?) => {
     const socketConnection =
       process.env.REACT_APP_ENV === "dev"
-        ? socketIOClient("localhost:3001", {
+        ? socketIOClient(`${prefix}`, {
             withCredentials: true,
-            extraHeaders: {
-              "my-custom-header": "abcd"
-            },
             auth: { username, sessionId }
           })
         : socketIOClient(process.env.REACT_APP_SOCKET_CONNECTION, {
             withCredentials: true,
-            extraHeaders: {
-              "my-custom-header": "abcd"
-            },
             auth: { username, sessionId }
           });
 

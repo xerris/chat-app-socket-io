@@ -88,9 +88,9 @@ class SocketManager {
         // uploaded to S3 instead of served.
         origin: "http://localhost:3000",
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
         credentials: true
       },
+      allowEIO3: true,
       maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
       pingInterval: 45 * 1000, // 1 minute
       pingTimeout: 4 * 60 * 1000

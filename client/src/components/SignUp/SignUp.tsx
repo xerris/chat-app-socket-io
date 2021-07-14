@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchPostOptions, prefix } from "../../config/constants";
+import { fetchPostOptions, apiPrefix } from "../../config/constants";
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -9,7 +9,7 @@ const SignUp: React.FC = () => {
 
   const signup = async (event) => {
     event.preventDefault();
-    await fetch(`${prefix}/api/SignUp`, {
+    await fetch(`${apiPrefix}/api/SignUp`, {
       ...fetchPostOptions,
       body: JSON.stringify({
         username,
