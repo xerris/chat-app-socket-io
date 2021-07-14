@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { HexColorPicker } from "react-colorful";
-
+import "./ColorPicker.css";
 interface Props {
   color: string;
   setColor: Dispatch<SetStateAction<string>>;

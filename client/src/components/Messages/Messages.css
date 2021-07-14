@@ -1,0 +1,38 @@
+.messageList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: white;
+  height: 100vh;
+  width: calc(100vw - 200px);
+  margin: 0px 0px 0px 200px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sketchPad {
+}
+
+.username {
+  color: black;
+  margin-right: 5px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.messageContent {
+  color: black;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.message {
+  /* min-width: 300px; */
+  width: 100%;
+  margin-bottom: 10px;
+  align-self: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  display: flex;
+  margin-right: auto;
+}
