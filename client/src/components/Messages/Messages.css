@@ -6,7 +6,7 @@
   height: 100vh;
   width: calc(100vw - 200px);
   margin: 0px 0px 0px 200px;
-  padding: 20px;
+  padding: 20px 0px 20px 20px;
   box-sizing: border-box;
 }
 
@@ -20,12 +20,6 @@
   font-weight: 700;
 }
 
-.messageContent {
-  color: black;
-  font-size: 18px;
-  font-weight: 300;
-}
-
 .message {
   /* min-width: 300px; */
   width: 100%;
@@ -35,4 +29,17 @@
   flex-direction: column;
   display: flex;
   margin-right: auto;
+}
+.messageContainer {
+  /* min-width: 300px; */
+  top: 0;
+  height: calc(100vh - 242px);
+  width: 100%;
+  margin-bottom: 10px;
+  align-self: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  display: flex;
+  margin-right: auto;
+  overflow: scroll;
 }

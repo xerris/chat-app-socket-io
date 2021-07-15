@@ -1,11 +1,12 @@
 import React, { useContext, useMemo } from "react";
 import { AppContext } from "../AppContext";
 import Input from "../Input";
+import Message from "../Message";
 import SketchPad from "../SketchPad";
 import "./Messages.css";
 
 const Messages: React.FC = () => {
-  const { rooms, currentRoomId, username, privateRoomJoined, privateMessages } =
+  const { rooms, currentRoomId, privateRoomJoined, privateMessages } =
     useContext(AppContext).state;
 
   const messages = useMemo(() => {
@@ -26,15 +27,18 @@ const Messages: React.FC = () => {
     <div>
       <div className="sketchPad">{currentRoomId === "2" && <SketchPad />}</div>
       <div className="messageList">
-        {currentRoomId !== "2" &&
-          messages.map((message) => {
-            return (
-              <div className="message" key={message.timestamp}>
-                <span className="username">{message.username} </span>
-                <span className="messageContent">{message.message}</span>
-              </div>
-            );
-          })}
+        <div className="messageContainer">
+          {currentRoomId !== "2" &&
+            messages.map((message) => {
+              return (
+                <Message
+                  username={message.username}
+                  timestamp={message.timestamp}
+                  message={message.message}
+                />
+              );
+            })}
+        </div>
         {currentRoomId !== "2" && <Input />}
       </div>
     </div>
