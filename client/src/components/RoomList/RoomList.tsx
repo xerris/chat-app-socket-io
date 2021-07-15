@@ -137,7 +137,7 @@ const RoomList: React.FC = () => {
             </h5>
           ))}
       <div className="logout">
-        <h5 onClick={logout}>Logout</h5>
+        <h4 onClick={logout}>Logout</h4>
       </div>
     </div>
   );
