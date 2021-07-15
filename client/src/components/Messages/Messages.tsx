@@ -25,19 +25,26 @@ const Messages: React.FC = () => {
 
   return (
     <div>
-      <div className="sketchPad">{currentRoomId === "2" && <SketchPad />}</div>
-      <div className="messageList">
+      <div
+        className="sketchPad"
+        style={{ display: currentRoomId === "2" ? "block" : "none" }}
+      >
+        <SketchPad />
+      </div>
+      <div
+        className="messageList"
+        style={{ display: currentRoomId === "2" ? "none" : "block" }}
+      >
         <div className="messageContainer">
-          {currentRoomId !== "2" &&
-            messages.map((message) => {
-              return (
-                <Message
-                  username={message.username}
-                  timestamp={message.timestamp}
-                  message={message.message}
-                />
-              );
-            })}
+          {messages.map((message) => {
+            return (
+              <Message
+                username={message.username}
+                timestamp={message.timestamp}
+                message={message.message}
+              />
+            );
+          })}
         </div>
         {currentRoomId !== "2" && <Input />}
       </div>
