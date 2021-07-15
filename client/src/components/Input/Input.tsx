@@ -23,8 +23,12 @@ const UserList: React.FC = () => {
   };
   return (
     <form onSubmit={sendMessage}>
-      <input className="input" value={message} onChange={onMessageChange} />
-      <button type="button">Send</button>
+      <div className="inputContainer">
+        <input className="input" value={message} onChange={onMessageChange} />
+        <button type="button" className="button">
+          Send
+        </button>
+      </div>
     </form>
   );
 };

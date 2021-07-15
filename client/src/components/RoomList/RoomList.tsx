@@ -36,8 +36,6 @@ const RoomList: React.FC = () => {
   return (
     <div className="roomList">
       <img src={Logo} alt="Xerris logo" />
-      {socket?.connected && <h4 className="connected">Connected</h4>}
-
       <h4>Channels</h4>
       {Object.keys(rooms).map((roomId) => {
         return (
