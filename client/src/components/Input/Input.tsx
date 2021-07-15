@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../AppContext";
+import "./Input.css";
 
 const UserList: React.FC = () => {
   const { state, socket } = useContext(AppContext);
@@ -8,7 +9,8 @@ const UserList: React.FC = () => {
     setMessage(event.target.value);
   };
 
-  const sendMessage = () => {
+  const sendMessage = (event) => {
+    event.preventDefault();
     socket.emit("message", {
       room: state.currentRoomId,
       username: state.username,
@@ -20,10 +22,14 @@ const UserList: React.FC = () => {
     setMessage("");
   };
   return (
-    <div>
-      <input value={message} onChange={onMessageChange} />
-      <button onClick={sendMessage}>Send</button>
-    </div>
+    <form onSubmit={sendMessage}>
+      <div className="inputContainer">
+        <input className="input" value={message} onChange={onMessageChange} />
+        <button type="button" className="button">
+          Send
+        </button>
+      </div>
+    </form>
   );
 };
 

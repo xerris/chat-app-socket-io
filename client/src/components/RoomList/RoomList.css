@@ -29,6 +29,7 @@ h5 {
   align-items: flex-start;
   flex-direction: column;
   box-sizing: border-box;
+  overflow: auto;
 }
 
 .roomMessage {

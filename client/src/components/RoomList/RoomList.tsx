@@ -36,8 +36,6 @@ const RoomList: React.FC = () => {
   return (
     <div className="roomList">
       <img src={Logo} alt="Xerris logo" />
-      {socket?.connected && <h4 className="connected">Connected</h4>}
-
       <h4>Channels</h4>
       {Object.keys(rooms).map((roomId) => {
         return (
@@ -139,7 +137,7 @@ const RoomList: React.FC = () => {
             </h5>
           ))}
       <div className="logout">
-        <h5 onClick={logout}>Logout</h5>
+        <h4 onClick={logout}>Logout</h4>
       </div>
     </div>
   );
