@@ -49,7 +49,7 @@ export const createPrivateMessage = async (
     .put({
       TableName,
       Item: {
-        PK: `user#${senderUserId}`,
+        PK: `user#${senderUserId.toLowerCase()}`,
         SK: `#PRIVATEMESSAGE#${uuid}`,
         roomName: "Private Message",
         message: true,
@@ -63,7 +63,7 @@ export const createPrivateMessage = async (
     .put({
       TableName,
       Item: {
-        PK: `user#${receiverUserId}`,
+        PK: `user#${receiverUserId.toLowerCase()}`,
         SK: `#PRIVATEMESSAGE#${uuid}`,
         roomName: "Private Message",
         message: true,

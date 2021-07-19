@@ -80,7 +80,7 @@ const RoomList: React.FC = () => {
       <h4>Users</h4>
       {onlineUsers &&
         onlineUsers
-          .filter((user) => user !== username)
+          .filter((user) => user.toLowerCase() !== username.toLowerCase())
           .map((user) => (
             <h5
               className={"active"}
@@ -110,7 +110,11 @@ const RoomList: React.FC = () => {
           ))}
       {allUsers &&
         allUsers
-          .filter((user) => !onlineUsers.includes(user) && user !== username)
+          .filter(
+            (user) =>
+              !onlineUsers.includes(user) &&
+              user.toLowerCase() !== username.toLowerCase()
+          )
           .map((user) => (
             <h5
               className={"inactive"}

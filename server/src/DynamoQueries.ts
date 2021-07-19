@@ -93,7 +93,7 @@ export const getMetadataForUser = async (userId: string) => {
       TableName,
       KeyConditionExpression: "PK = :pk and SK=:sk ",
       ExpressionAttributeValues: {
-        ":pk": `user#${userId}`,
+        ":pk": `user#${userId.toLowerCase()}`,
         ":sk": `#METADATA`
       }
     })
@@ -126,7 +126,7 @@ export const getRoomlistForUser = async (username: string) => {
       TableName,
       KeyConditionExpression: "PK = :pk and begins_with(SK, :sk) ",
       ExpressionAttributeValues: {
-        ":pk": `user#${username}`,
+        ":pk": `user#${username.toLowerCase()}`,
         ":sk": `#ROOM`
       }
     })
@@ -141,7 +141,7 @@ export const getPrivateMessagesForUser = async (username: string) => {
       TableName,
       KeyConditionExpression: "PK = :pk and begins_with(SK, :sk) ",
       ExpressionAttributeValues: {
-        ":pk": `user#${username}`,
+        ":pk": `user#${username.toLowerCase()}`,
         ":sk": `#PRIVATEMESSAGE`
       }
     })
@@ -213,7 +213,7 @@ export const verifyLogin = async (user: IUser) =>
         TableName,
         KeyConditionExpression: "PK = :pk and SK=:sk ",
         ExpressionAttributeValues: {
-          ":pk": `user#${user.username}`,
+          ":pk": `user#${user.username.toLowerCase()}`,
           ":sk": `#METADATA`
         }
       })
