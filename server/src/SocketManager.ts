@@ -307,8 +307,7 @@ class SocketManager {
             this.io.to(`user${socket.username}`).emit("privateMessageList", {
               roomId,
               messages: [],
-              receiver: data.receiverUsername,
-              joinRoom: true
+              receiver: data.receiverUsername
             });
 
             this.io
