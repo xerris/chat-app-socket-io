@@ -16,11 +16,14 @@
   bottom: 0px;
   left: 0px;
   width: calc(100vw - 200px);
-  margin: 0px 20px 20px 200px;
+  margin: 0px 0px 20px 200px;
 }
 
 .button {
   z-index: 10;
   position: fixed;
-  right: 5%;
+  right: 4.5vw;
+  bottom: 21px;
+  height: 35px;
+  margin: 0;
 }

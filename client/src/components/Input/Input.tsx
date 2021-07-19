@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../AppContext";
 import "./Input.css";
+import SendButton from "../../sendLogo.svg";
 
 const UserList: React.FC = () => {
   const { state, socket } = useContext(AppContext);
@@ -25,9 +26,12 @@ const UserList: React.FC = () => {
     <form onSubmit={sendMessage}>
       <div className="inputContainer">
         <input className="input" value={message} onChange={onMessageChange} />
-        <button type="button" className="button">
-          Send
-        </button>
+        <img
+          src={SendButton}
+          onClick={sendMessage}
+          alt="send"
+          className="button"
+        />
       </div>
     </form>
   );
