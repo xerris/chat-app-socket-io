@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
-import Logo from "../../xerris-logo.svg";
+import Logo from "../../assets/xerris-logo.svg";
 import "./RoomList.css";
 
 const RoomList: React.FC = () => {
@@ -68,7 +68,9 @@ const RoomList: React.FC = () => {
               });
             }}
             className={
-              currentRoomId === privateMessage.roomId ? "active-item" : "inactive"
+              currentRoomId === privateMessage.roomId
+                ? "active-item"
+                : "inactive"
             }
           >
             {privateMessage.receivingUser}

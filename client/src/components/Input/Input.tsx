@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../AppContext";
 import "./Input.css";
-import SendButton from "../../sendLogo.svg";
+import SendButton from "../../assets/sendLogo.svg";
 
 const UserList: React.FC = () => {
   const { state, socket } = useContext(AppContext);
