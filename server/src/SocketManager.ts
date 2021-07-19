@@ -147,32 +147,17 @@ class SocketManager {
 
     const userArray = await getAllUsers();
     const usernameArray = userArray.map((user: IRoomData) => user.username);
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 152 ~ SocketManager ~ updateAllUsers= ~ usernameArray",
-      usernameArray
-    );
     this.io.emit("allUserUpdate", usernameArray);
   };
 
-  // updateAllUsers = async () => {
-  // };
-
   sendRoomList = async (socket: Socket) => {
     const roomList = await getRoomList();
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 146 ~ SocketManager ~ sendRoomList= ~ roomList",
-      roomList
-    );
     socket.emit("roomListUpdate", roomList);
   };
 
   sendUserRoomList = async (socket: ICustomSocket) => {
     if (socket.username) {
       const userRoomList = await getRoomlistForUser(socket.username);
-      console.log(
-        "🚀 ~ file: SocketManager.ts ~ line 171 ~ SocketManager ~ sendUserRoomList= ~ userRoomList",
-        userRoomList
-      );
 
       if (userRoomList) {
         userRoomList.forEach(async (room) => {
@@ -180,7 +165,6 @@ class SocketManager {
           const messages = await getMessagesForRoom(room.roomId);
           socket.emit("messageList", messages);
         });
-        // socket.emit("userRoomListUpdate", userRoomList);
       }
       const userPrivateMessageList = await getPrivateMessagesForUser(
         socket.username
@@ -202,10 +186,6 @@ class SocketManager {
 
   updateUsersInRoom = async (roomId: string) => {
     const userList = await getUsersInRoom(roomId);
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 158 ~ SocketManager ~ updateUsersInRoom= ~ userList",
-      userList
-    );
     this.io.in(roomId).emit("usersInRoom", { users: userList, roomId });
   };
 
@@ -282,10 +262,6 @@ class SocketManager {
           // Dynamo query room messages for newly connected user
           const roomMessageList = await getMessagesForRoom(data.roomId);
           socket.emit("messageList", roomMessageList);
-          console.log(
-            "🚀 ~ file: SocketManager.ts ~ line 244 ~ SocketManager ~ socket.on ~ roomMessageList",
-            roomMessageList
-          );
           this.updateUsersInRoom(data.roomId);
         }
       });
@@ -331,7 +307,8 @@ class SocketManager {
             this.io.to(`user${socket.username}`).emit("privateMessageList", {
               roomId,
               messages: [],
-              receiver: data.receiverUsername
+              receiver: data.receiverUsername,
+              joinRoom: true
             });
 
             this.io
@@ -343,6 +320,10 @@ class SocketManager {
               });
 
             // Let the other socket know about the room creation so it can join live
+            socket
+              .to(`user${data.senderUsername}`)
+              .emit("privateMessageCreation", roomId);
+              
             socket
               .to(`user${data.receiverUsername}`)
               .emit("privateMessageCreation", roomId);

@@ -18,6 +18,7 @@ anchors:
         file=server/.env
         echo "ENV=$ENV" >> $file
         echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $file
+        echo "DYNAMODB_TABLE_NAME=$DYNAMODB_TABLE_NAME" >> $file
 orbs:
   node: circleci/node@4.2.0
   aws-ecr: circleci/aws-ecr@7.0.0

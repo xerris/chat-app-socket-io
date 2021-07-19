@@ -36,6 +36,7 @@ export interface IMessageList {
   roomId: string;
   messages: IMessage[];
   receiver?: string;
+  joinRoom?: boolean;
 }
 
 export enum DispatchEvent {
