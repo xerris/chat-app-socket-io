@@ -307,7 +307,8 @@ class SocketManager {
             this.io.to(`user${socket.username}`).emit("privateMessageList", {
               roomId,
               messages: [],
-              receiver: data.receiverUsername
+              receiver: data.receiverUsername,
+              joinRoom: true
             });
 
             this.io
@@ -319,6 +320,10 @@ class SocketManager {
               });
 
             // Let the other socket know about the room creation so it can join live
+            socket
+              .to(`user${data.senderUsername}`)
+              .emit("privateMessageCreation", roomId);
+              
             socket
               .to(`user${data.receiverUsername}`)
               .emit("privateMessageCreation", roomId);
