@@ -3,8 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from "bcrypt";
 import { ISocketMessage } from "./SocketManager";
 import { checkValidUser } from "./DynamoQueries";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const TableName = process.env.DYNAMODB_TABLE_NAME;
+
 export const joinRoom = async (
   roomId: string,
   userId: string,
