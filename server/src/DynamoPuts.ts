@@ -1,28 +1,10 @@
 import { dynamo } from "./Dynamo";
 import { v4 as uuidv4 } from "uuid";
-
 import * as bcrypt from "bcrypt";
 import { ISocketMessage } from "./SocketManager";
 import { checkValidUser } from "./DynamoQueries";
 
-const createRoomList = async (
-  roomList: {
-    roomName: string;
-    id: string;
-  }[]
-) => {
-  await dynamo
-    .put({
-      TableName: "xerris-socket-app-db",
-      Item: {
-        PK: `ROOMLIST`,
-        SK: `ROOMLIST`,
-        roomList
-      }
-    })
-    .promise();
-};
-
+const TableName = process.env.DYNAMODB_TABLE_NAME;
 export const joinRoom = async (
   roomId: string,
   userId: string,
@@ -31,7 +13,7 @@ export const joinRoom = async (
 ) => {
   await dynamo
     .put({
-      TableName: "xerris-socket-app-db",
+      TableName,
       Item: {
         PK: `user#${username}`,
         SK: `#ROOM#${roomId}`,
@@ -46,7 +28,7 @@ export const joinRoom = async (
 export const leaveRoom = async (roomId: string, userId: string) => {
   await dynamo
     .delete({
-      TableName: "xerris-socket-app-db",
+      TableName,
       Key: {
         PK: `user#${userId}`,
         SK: `#ROOM#${roomId}`
@@ -62,7 +44,7 @@ export const createPrivateMessage = async (
   const uuid = uuidv4();
   await dynamo
     .put({
-      TableName: "xerris-socket-app-db",
+      TableName,
       Item: {
         PK: `user#${senderUserId}`,
         SK: `#PRIVATEMESSAGE#${uuid}`,
@@ -76,7 +58,7 @@ export const createPrivateMessage = async (
     .promise();
   await dynamo
     .put({
-      TableName: "xerris-socket-app-db",
+      TableName,
       Item: {
         PK: `user#${receiverUserId}`,
         SK: `#PRIVATEMESSAGE#${uuid}`,
@@ -100,7 +82,7 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
       if (m.privateMessage) {
         await dynamo
           .put({
-            TableName: "xerris-socket-app-db",
+            TableName,
             Item: {
               PK: `#PRIVATEMESSAGE#${m.room}`,
               SK: `#MESSAGE#${m.username}${Date.now()}`,
@@ -114,7 +96,7 @@ export const saveRoomMessage = async (m: ISocketMessage) => {
       } else {
         await dynamo
           .put({
-            TableName: "xerris-socket-app-db",
+            TableName,
             Item: {
               PK: `#ROOM#${m.room}`,
               SK: `#MESSAGE#${m.username}${Date.now()}`,
@@ -145,7 +127,7 @@ export const deleteRoomMessage = async (m: IDeleteMessage) => {
     try {
       await dynamo
         .delete({
-          TableName: "xerris-socket-app-db",
+          TableName,
           Item: {
             PK: `#ROOM#${m.room}`,
             SK: `#MESSAGE#${m.username}${m.timestamp}`
@@ -181,7 +163,7 @@ export const createUser = async (user: ICreateUser) =>
       bcrypt.hash(user.password, 10, async (err, hash) => {
         await dynamo
           .put({
-            TableName: "xerris-socket-app-db",
+            TableName,
             Item: {
               PK: `user#${user.username.toLowerCase()}`,
               SK: `#METADATA`,
