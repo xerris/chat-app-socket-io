@@ -54,3 +54,12 @@ img {
   margin-top: auto;
   cursor: pointer;
 }
+
+.active-item {
+  background-color: #4D9A0F;
+  cursor: pointer;
+}
+
+.active-item:hover {
+  background-color: #4D9A0F;
+}
