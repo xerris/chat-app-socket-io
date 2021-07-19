@@ -7,9 +7,13 @@
   color: #4d9a0f;
   cursor: pointer;
 }
-.active-2 {
-  color: #8cc63f;
+.active-item {
+  background-color: #8cc63f;
   cursor: pointer;
+}
+
+.active-item:hover {
+  background-color: #8cc63f;
 }
 .inactive {
   color: #ffffff;
@@ -18,5 +22,3 @@
 .text-color {
   color: #ffffff;
 }
-
-

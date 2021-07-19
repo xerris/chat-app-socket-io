@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import * as bcrypt from "bcrypt";
 import { ISocketMessage } from "./SocketManager";
+import { checkValidUser } from "./DynamoQueries";
 
 const createRoomList = async (
   roomList: {
@@ -166,17 +167,23 @@ export interface ICreateUser {
 }
 
 export const createUser = async (user: ICreateUser) =>
-  new Promise((resolve, reject) => {
+  new Promise(async (resolve, reject) => {
     try {
       if (!(user.password && user.email && user.username)) {
         reject("Missing credentials");
+      }
+
+      const uniqueUser = await checkValidUser(user.username);
+
+      if (!uniqueUser) {
+        reject("Duplicate user");
       }
       bcrypt.hash(user.password, 10, async (err, hash) => {
         await dynamo
           .put({
             TableName: "xerris-socket-app-db",
             Item: {
-              PK: `user#${user.username}`,
+              PK: `user#${user.username.toLowerCase()}`,
               SK: `#METADATA`,
               hash,
               email: user.email,

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { DispatchEvent, IPrivateMessage } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
-import Logo from "../../xerris-logo.svg";
+import Logo from "../../assets/xerris-logo.svg";
 import "./RoomList.css";
 
 const RoomList: React.FC = () => {
@@ -50,7 +50,7 @@ const RoomList: React.FC = () => {
                 data: { roomId, private: false }
               });
             }}
-            className={currentRoomId === roomId ? "active-2" : "inactive"}
+            className={currentRoomId === roomId ? "active-item" : "inactive"}
           >
             {rooms[roomId].roomName}
           </h5>
@@ -68,7 +68,9 @@ const RoomList: React.FC = () => {
               });
             }}
             className={
-              currentRoomId === privateMessage.roomId ? "active-2" : "inactive"
+              currentRoomId === privateMessage.roomId
+                ? "active-item"
+                : "inactive"
             }
           >
             {privateMessage.receivingUser}

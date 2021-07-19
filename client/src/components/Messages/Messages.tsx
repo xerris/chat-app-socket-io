@@ -1,14 +1,16 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { AppContext } from "../AppContext";
 import Input from "../Input";
 import Message from "../Message";
 import SketchPad from "../SketchPad";
 import "./Messages.css";
 
+
 const Messages: React.FC = () => {
   const { rooms, currentRoomId, privateRoomJoined, privateMessages } =
     useContext(AppContext).state;
 
+  const scrollRef = useRef<HTMLDivElement>(null);
   const messages = useMemo(() => {
     if (privateRoomJoined && privateMessages[currentRoomId]?.messages) {
       return privateMessages[currentRoomId].messages
@@ -22,6 +24,16 @@ const Messages: React.FC = () => {
     }
     return [];
   }, [rooms, currentRoomId, privateRoomJoined, privateMessages]);
+
+  const scrollToBottom = () => {
+    if (scrollRef?.current) {
+      scrollRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <div>
@@ -45,6 +57,7 @@ const Messages: React.FC = () => {
               />
             );
           })}
+          <div ref={scrollRef} />
         </div>
         {currentRoomId !== "2" && <Input />}
       </div>

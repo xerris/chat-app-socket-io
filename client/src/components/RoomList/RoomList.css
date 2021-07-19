@@ -5,15 +5,25 @@
 h4 {
   font-family: "Roboto", sans-serif;
   font-size: 18px;
-  margin: 10px 0px 10px 10px;
+  padding: 10px 0px 10px 10px;
   font-weight: 400;
+  margin: 0;
+  width: 100%;
+  text-align: left;
 }
 h5 {
   font-family: "Roboto", sans-serif;
   font-size: 18px;
   margin-left: 10px;
-  margin: 10px 0px 10px 20px;
+  padding: 10px 0px 10px 20px;
   font-weight: 300;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+}
+
+h5:hover {
+  background-color: #313843;
 }
 
 .roomList {
@@ -43,4 +53,13 @@ img {
 .logout {
   margin-top: auto;
   cursor: pointer;
+}
+
+.active-item {
+  background-color: #4D9A0F;
+  cursor: pointer;
+}
+
+.active-item:hover {
+  background-color: #4D9A0F;
 }

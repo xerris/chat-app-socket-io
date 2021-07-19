@@ -107,6 +107,11 @@ export const reducer = produce((state: State, action: Action) => {
           roomId: action.data.roomId
         };
       }
+
+      // If user created the room, they should join
+      if (action.data.joinRoom) {
+        state.currentRoomId = action.data.roomId;
+      }
       break;
     case DispatchEvent.JoinInitialRooms:
       action.data.forEach(

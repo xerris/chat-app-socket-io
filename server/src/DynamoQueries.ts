@@ -238,3 +238,22 @@ export const verifyLogin = async (user: IUser) =>
       reject("User does not exist");
     }
   });
+
+export const checkValidUser = async (username: string) => {
+  // General RoomList
+  const userQuery: { Items: IUser[] } = await dynamo
+    .query({
+      TableName: "xerris-socket-app-db",
+      KeyConditionExpression: "PK = :pk and SK=:sk",
+      ExpressionAttributeValues: {
+        ":pk": `user#${username.toLowerCase()}`,
+        ":sk": `#METADATA`
+      }
+    })
+    .promise();
+
+  if (userQuery.Items.length) {
+    return false;
+  }
+  return true;
+};
