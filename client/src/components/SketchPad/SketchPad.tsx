@@ -81,7 +81,7 @@ const SketchPad: React.FC<Props> = ({}) => {
 
   useEffect(() => {
     if (boardRef.current) {
-      boardRef.current.mouseDragged = (event: MouseEvent) => {
+      boardRef.current.touchMoved = (event: MouseEvent) => {
         // Drawings only sent if drag on canvas
         if (String(event.target) === "[object HTMLCanvasElement]") {
           const { offsetX, offsetY, movementX, movementY } = event;
