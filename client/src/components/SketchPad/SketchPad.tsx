@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext, useState } from "react";
 import p5 from "p5";
 import { AppContext } from "../AppContext";
-
-interface Props {
-  color: string;
-}
+import ColorPicker from "../ColorPicker/ColorPicker";
+import "./SketchPad.css";
+import SaveLogo from "./save.svg";
+import TrashLogo from "./trash.svg";
+interface Props {}
 
 interface SocketDrawing {
   color: string;
@@ -15,10 +16,12 @@ interface SocketDrawing {
   x: number;
 }
 
-const SketchPad: React.FC<Props> = ({ color }) => {
+const SketchPad: React.FC<Props> = ({}) => {
   const { socket } = useContext(AppContext);
 
   const divRef = useRef<HTMLDivElement>();
+  const [color, setColor] = useState("#1362b0");
+
   const colorRef = useRef<string>();
   const boardRef: React.MutableRefObject<p5> = React.useRef();
   useEffect(() => {
@@ -78,7 +81,7 @@ const SketchPad: React.FC<Props> = ({ color }) => {
 
   useEffect(() => {
     if (boardRef.current) {
-      boardRef.current.mouseDragged = (event: MouseEvent) => {
+      boardRef.current.touchMoved = (event: MouseEvent) => {
         // Drawings only sent if drag on canvas
         if (String(event.target) === "[object HTMLCanvasElement]") {
           const { offsetX, offsetY, movementX, movementY } = event;
@@ -95,15 +98,24 @@ const SketchPad: React.FC<Props> = ({ color }) => {
 
   return (
     <div ref={divRef}>
-      <button onClick={() => boardRef.current.save("drawing.jpg")}>Save</button>
-      <button
-        onClick={() => {
-          boardRef.current.clear();
-          socket.emit("clearBoard");
-        }}
-      >
-        Clear Board
-      </button>
+      <div className="container">
+        <ColorPicker color={color} setColor={setColor} />
+        <div className="buttonContainer">
+          <img
+            onClick={() => boardRef.current.save("drawing.jpg")}
+            src={SaveLogo}
+            alt="Download"
+          />
+          <img
+            onClick={() => {
+              boardRef.current.clear();
+              socket.emit("clearBoard");
+            }}
+            src={TrashLogo}
+            alt="Delete"
+          />
+        </div>
+      </div>
     </div>
   );
 };

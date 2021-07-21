@@ -6,5 +6,6 @@ export const fetchPostOptions = {
   }
 };
 
-export const prefix =
+export const prefix = process.env.REACT_APP_ENV === "dev" ? "http://localhost:3001" : "";
+export const apiPrefix =
   process.env.REACT_APP_ENV === "dev" ? "http://localhost:3001" : "";
