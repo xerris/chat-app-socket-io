@@ -24,7 +24,6 @@ const theme = createTheme({
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
-  const [color, setColor] = useState("#1362b0");
 
   const { socket, connectSocket, disconnectSocket, dispatch } =
     useContext(AppContext);
@@ -45,21 +44,12 @@ function App() {
     }
   }, [socket]);
 
-  const logout = () => {
-    dispatch({
-      type: DispatchEvent.Logout,
-    });
-    localStorage.clear();
-    disconnectSocket();
-  };
-
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
         <Routes />
       </ThemeProvider>
       {/* <header className="App-header">
-        <p>Connected: {"" + isConnected}</p>
         {!isConnected && (
           <>
             <SignUp />
@@ -68,15 +58,8 @@ function App() {
         )}
         {isConnected && (
           <>
-            For that specific room:
-            <RoomUserList />
-            <UserList />
             <RoomList />
             <Messages />
-            <Input />
-            <button onClick={logout}>Logout</button>
-            <SketchPad color={color} />
-            <ColorPicker color={color} setColor={setColor} />
           </>
         )}
       </header> */}

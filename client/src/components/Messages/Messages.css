@@ -1,0 +1,38 @@
+.messageList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: white;
+  height: 100vh;
+  width: calc(100vw - 200px);
+  margin: 0px 0px 0px 200px;
+  padding: 10px 0px 20px 20px;
+  box-sizing: border-box;
+}
+
+.sketchPad {
+}
+
+
+
+.message {
+  width: 100%;
+  margin-bottom: 10px;
+  align-self: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  display: flex;
+  margin-right: auto;
+}
+.messageContainer {
+  top: 0;
+  height: calc(100vh - 70px);
+  width: 100%;
+  margin-bottom: 10px;
+  align-self: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  display: flex;
+  margin-right: auto;
+  overflow: scroll;
+}

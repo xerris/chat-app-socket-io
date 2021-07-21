@@ -4,5 +4,8 @@
   },
   "devDependencies": {
     "concurrently": "^6.0.2"
+  },
+  "dependencies": {
+    "dayjs": "^1.10.6"
   }
 }

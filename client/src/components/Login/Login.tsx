@@ -9,7 +9,7 @@ import {
   SubText,
   AuthTextField,
 } from "./../Shared/AuthSection";
-import { fetchPostOptions, prefix } from "../../config/constants";
+import { fetchPostOptions, apiPrefix } from "../../config/constants";
 import { DispatchEvent } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
 
@@ -28,7 +28,10 @@ const Login = () => {
     setErrors: (errors: FormikErrors<LoginForm>) => void
   ) => {
     console.log("___here!");
-    const res = await fetch(`${prefix}/api/login`, {
+  //   const res = await fetch(`${prefix}/api/login`, {
+  // const login = async (event) => {
+  //   event.preventDefault();
+    const res = await fetch(`${apiPrefix}/api/login`, {
       ...fetchPostOptions,
       body: JSON.stringify({
         username,

@@ -1,11 +1,16 @@
-import React, { useContext, useMemo } from "react";
-import { IMessage } from "../../utilities/interfaces";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { AppContext } from "../AppContext";
+import Input from "../Input";
+import Message from "../Message";
+import SketchPad from "../SketchPad";
+import "./Messages.css";
+
 
 const Messages: React.FC = () => {
-  const { rooms, currentRoomId, username, privateRoomJoined, privateMessages } =
+  const { rooms, currentRoomId, privateRoomJoined, privateMessages } =
     useContext(AppContext).state;
 
+  const scrollRef = useRef<HTMLDivElement>(null);
   const messages = useMemo(() => {
     if (privateRoomJoined && privateMessages[currentRoomId]?.messages) {
       return privateMessages[currentRoomId].messages
@@ -20,26 +25,41 @@ const Messages: React.FC = () => {
     return [];
   }, [rooms, currentRoomId, privateRoomJoined, privateMessages]);
 
+  const scrollToBottom = () => {
+    if (scrollRef?.current) {
+      scrollRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div>
-      <h4>
-        <u>Messages</u>
-      </h4>
-      <div className="message-list">
-        {messages.map((message) => {
-          return (
-            <div className="message" key={message.timestamp}>
-              <span
-                className={
-                  message.username === username ? "active-2" : "inactive"
-                }
-              >
-                <strong>{message.username}:</strong>
-              </span>
-              <span>{message.message}</span>
-            </div>
-          );
-        })}
+      <div
+        className="sketchPad"
+        style={{ display: currentRoomId === "2" ? "block" : "none" }}
+      >
+        <SketchPad />
+      </div>
+      <div
+        className="messageList"
+        style={{ display: currentRoomId === "2" ? "none" : "block" }}
+      >
+        <div className="messageContainer">
+          {messages.map((message) => {
+            return (
+              <Message
+                username={message.username}
+                timestamp={message.timestamp}
+                message={message.message}
+              />
+            );
+          })}
+          <div ref={scrollRef} />
+        </div>
+        {currentRoomId !== "2" && <Input />}
       </div>
     </div>
   );

@@ -89,14 +89,15 @@ Create the following Context variables in CircleCI under 'Organization Settings'
 - ENV (prod)
 - REACT_APP_ENV (prod)
 - REDIS_PORT (6379)
+- DYNAMODB_TABLE_NAME (xerris-socket-app-db is the default)
 
 Then in CircleCI, approve the 'hold-deploy-infrastructure' step. Your AWS resources will be created.
 
 ## 3) Deploy app
 
-This will build a docker image for your app and deploy it to your newly created ECR repository. From there, a fargate cluster will be created that can scale automatically.
+This will build a docker image for your app and deploy it to your newly created ECR repository. From there, the fargate cluster will be redeployed and scale automatically.
 
-You firrst need to navigate to your AWS account and find the endpoint for your Redis Elasticache cluster (xerris-redis-cluster.XXXXXX.#####.xyz.cache.amazonaws.com
+You first need to navigate to your AWS account and find the endpoint for your Redis Elasticache cluster (xerris-redis-cluster.XXXXXX.#####.xyz.cache.amazonaws.com
 ), and the ECR repo endpoint (12345.dkr.ecr.us-east-2.amazonaws.com/xerris-socket-app-repo) that were created in step 1.
 
 You need to put these Context variables into CircleCI as well, under REDIS_ENDPOINT and AWS_ECR_ACCOUNT_URL, respectively.

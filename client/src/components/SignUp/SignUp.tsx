@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchPostOptions, prefix } from "../../config/constants";
+import { fetchPostOptions, apiPrefix } from "../../config/constants";
 import {
   AuthSection,
   AuthButton,
@@ -20,7 +20,9 @@ const SignUp = (props: Props) => {
     password: string,
     username: string
   ) => {
-    await fetch(`${prefix}/api/SignUp`, {
+    // const signup = async (event) => {
+    // event.preventDefault();
+    await fetch(`${apiPrefix}/api/SignUp`, {
       ...fetchPostOptions,
       body: JSON.stringify({
         username,
