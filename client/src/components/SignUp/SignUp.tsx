@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { fetchPostOptions, prefix } from "../../config/constants";
 import {
   AuthSection,
   AuthButton,
@@ -11,9 +12,32 @@ import * as Yup from "yup";
 
 interface Props {}
 
-const signUpSubmit = (email: string, password: string, username: string) => {};
-
 const SignUp = (props: Props) => {
+  const [status, setStatus] = useState("");
+
+  const submitSignUp = async (
+    email: string,
+    password: string,
+    username: string
+  ) => {
+    await fetch(`${prefix}/api/SignUp`, {
+      ...fetchPostOptions,
+      body: JSON.stringify({
+        username,
+        password,
+        email,
+      }),
+    })
+      .then((res) => {
+        if (res?.status === 200) {
+          setStatus("success");
+        } else {
+          setStatus("Error");
+        }
+      })
+      .catch((err) => setStatus("Error"));
+  };
+
   const formik = useFormik({
     initialValues: {
       username: "",
@@ -32,7 +56,7 @@ const SignUp = (props: Props) => {
         .max(20, "Can not exceed 20 characters"),
     }),
     onSubmit: (values) =>
-      signUpSubmit(values.email, values.password, values.username),
+      submitSignUp(values.email, values.password, values.username),
   });
 
   return (
@@ -75,7 +99,7 @@ const SignUp = (props: Props) => {
         <SubText>Already a member? Login</SubText>
       </Link>
     </AuthSection>
-  )
+  );
 };
 
 // import React, { useState } from "react";

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { useFormik } from "formik";
+import { useFormik, FormikErrors } from "formik";
 import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
 import {
@@ -9,40 +9,74 @@ import {
   SubText,
   AuthTextField,
 } from "./../Shared/AuthSection";
+import { fetchPostOptions, prefix } from "../../config/constants";
+import { DispatchEvent } from "../../utilities/interfaces";
+import { AppContext } from "../AppContext";
 
-interface Props {}
+interface LoginForm {
+  username: string;
+  password: string;
+}
 
-const Login = (props: Props) => {
+const Login = () => {
+  const { connectSocket, dispatch } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loginSubmit = async (email: string, password: string) => {};
+  const loginSubmit = async (
+    username: string,
+    password: string,
+    setErrors: (errors: FormikErrors<LoginForm>) => void
+  ) => {
+    console.log("___here!");
+    const res = await fetch(`${prefix}/api/login`, {
+      ...fetchPostOptions,
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          return res.json();
+        }
+      })
+      .catch((err) => console.log(err));
+    if (res?.email) {
+      // setEmail(res.email);
+      dispatch({ action: DispatchEvent.SetUsername, data: res.username });
+      connectSocket(res.username);
+    } else {
+      setErrors({ username: "Login error" });
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      username: "",
       password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string().email("Invalid email address").required("Required"),
+      username: Yup.string().required("Required"),
       password: Yup.string()
         .min(6, "Must be 6 characters at least")
         .required("Required")
         .max(20, "Can not exceed 20 characters"),
     }),
-    onSubmit: (values) => loginSubmit(values.email, values.password),
+    onSubmit: (values, { setErrors }) =>
+      loginSubmit(values.username, values.password, setErrors),
   });
 
   return (
     <AuthSection>
       <AuthTextField
-        id="email"
-        label="Email"
+        id="username"
+        label="Username"
         variant="outlined"
         type="primary"
         color="secondary"
-        helperText={formik.touched.email && formik.errors.email}
-        error={formik.touched.email && !!formik.errors.email}
-        {...formik.getFieldProps("email")}
+        helperText={formik.touched.username && formik.errors.username}
+        error={formik.touched.username && !!formik.errors.username}
+        {...formik.getFieldProps("username")}
       />
       <AuthTextField
         color="primary"
@@ -67,8 +101,8 @@ const Login = (props: Props) => {
         <SubText>Don't have an account? Sign Up</SubText>
       </Link>
     </AuthSection>
-  )
-}
+  );
+};
 
 // import { Socket } from "dgram";
 // import React, { useContext, useState } from "react";

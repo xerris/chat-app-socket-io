@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./css/App.css";
-import "./App.css";
 import "./utilities/theme.css";
 import RoomList from "./components/RoomList";
 import Login from "./components/Login";
@@ -13,16 +12,15 @@ import { DispatchEvent } from "./utilities/interfaces";
 import ColorPicker from "./components/ColorPicker/ColorPicker";
 import SketchPad from "./components/SketchPad";
 import Routes from "./Routes";
-import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: {
       main: "#527a00",
     },
   },
 });
-
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -49,19 +47,18 @@ function App() {
 
   const logout = () => {
     dispatch({
-      type: DispatchEvent.Logout
+      type: DispatchEvent.Logout,
     });
     localStorage.clear();
     disconnectSocket();
   };
 
-function App() {
   return (
     <div className="App">
-      {/* <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <Routes />
-      </ThemeProvider> */}
-      <header className="App-header">
+      </ThemeProvider>
+      {/* <header className="App-header">
         <p>Connected: {"" + isConnected}</p>
         {!isConnected && (
           <>
@@ -71,8 +68,8 @@ function App() {
         )}
         {isConnected && (
           <>
-            {/* For that specific room: */}
-            {/* <RoomUserList /> */}
+            For that specific room:
+            <RoomUserList />
             <UserList />
             <RoomList />
             <Messages />
@@ -82,7 +79,7 @@ function App() {
             <ColorPicker color={color} setColor={setColor} />
           </>
         )}
-      </header>
+      </header> */}
     </div>
   );
 }
