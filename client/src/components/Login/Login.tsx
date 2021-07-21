@@ -12,6 +12,7 @@ import {
 import { fetchPostOptions, apiPrefix } from "../../config/constants";
 import { DispatchEvent } from "../../utilities/interfaces";
 import { AppContext } from "../AppContext";
+import Logo from "../../assets/xerris-logo.svg";
 
 interface LoginForm {
   username: string;
@@ -19,6 +20,8 @@ interface LoginForm {
 }
 
 const Login = () => {
+  const history = useHistory();
+
   const { connectSocket, dispatch } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,10 +30,6 @@ const Login = () => {
     password: string,
     setErrors: (errors: FormikErrors<LoginForm>) => void
   ) => {
-    console.log("___here!");
-  //   const res = await fetch(`${prefix}/api/login`, {
-  // const login = async (event) => {
-  //   event.preventDefault();
     const res = await fetch(`${apiPrefix}/api/login`, {
       ...fetchPostOptions,
       body: JSON.stringify({
@@ -45,11 +44,11 @@ const Login = () => {
       })
       .catch((err) => console.log(err));
     if (res?.email) {
-      // setEmail(res.email);
       dispatch({ action: DispatchEvent.SetUsername, data: res.username });
       connectSocket(res.username);
+      history.push("/");
     } else {
-      setErrors({ username: "Login error" });
+      setErrors({ username: "Login error. Check your username and password." });
     }
   };
 
@@ -69,24 +68,36 @@ const Login = () => {
       loginSubmit(values.username, values.password, setErrors),
   });
 
+  const onKeyUp = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      formik.handleSubmit();
+    }
+  };
+
   return (
-    <AuthSection>
+    <AuthSection className="dark-bg">
+      <Link to="/">
+        <img className="logo" src={Logo} alt="Xerris logo" />
+      </Link>
       <AuthTextField
         id="username"
         label="Username"
         variant="outlined"
-        type="primary"
-        color="secondary"
+        type="text"
+        color="primary"
+        autoComplete="off"
+        onKeyPress={onKeyUp}
         helperText={formik.touched.username && formik.errors.username}
         error={formik.touched.username && !!formik.errors.username}
         {...formik.getFieldProps("username")}
       />
       <AuthTextField
-        color="primary"
         id="password"
         label="Password"
         variant="outlined"
         type="password"
+        color="primary"
+        onKeyPress={onKeyUp}
         {...formik.getFieldProps("password")}
         helperText={formik.touched.password && formik.errors.password}
         error={formik.touched.password && !!formik.errors.password}
@@ -106,85 +117,5 @@ const Login = () => {
     </AuthSection>
   );
 };
-
-// import { Socket } from "dgram";
-// import React, { useContext, useState } from "react";
-// import { fetchPostOptions, prefix } from "../../config/constants";
-// import { DispatchEvent } from "../../utilities/interfaces";
-// import { AppContext } from "../AppContext";
-
-// const Login: React.FC = () => {
-//   const { connectSocket, dispatch } = useContext(AppContext);
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [error, setError] = useState("");
-
-//   const login = async (event) => {
-//     event.preventDefault();
-//     const res = await fetch(`${prefix}/api/login`, {
-//       ...fetchPostOptions,
-//       body: JSON.stringify({
-//         username,
-//         password
-//       })
-//     })
-//       .then((res) => {
-//         if (res.status === 200) {
-//           return res.json();
-//         }
-//       })
-//       .catch((err) => console.log(err));
-//     if (res?.email) {
-//       setEmail(res.email);
-//       setError("");
-//       dispatch({ action: DispatchEvent.SetUsername, data: res.username });
-//       connectSocket(res.username);
-//     } else {
-//       setError("Login Error");
-//     }
-//   };
-
-//   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setUsername(event.target.value);
-//   };
-//   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setPassword(event.target.value);
-//   };
-//   return (
-//     <div>
-//       <form
-//         style={{
-//           display: "flex",
-//           flexDirection: "column",
-//           backgroundColor: "#261447"
-//         }}
-//       >
-//         <h5>Login</h5>
-
-//         {email ? (
-//           <p>Logged in as {email}</p>
-//         ) : (
-//           <>
-//             <input
-//               placeholder="username"
-//               value={username}
-//               onChange={handleUsernameChange}
-//             />
-//             <input
-//               placeholder="password"
-//               value={password}
-//               type="password"
-//               onChange={handlePasswordChange}
-//             />
-//             <button onClick={login}>Login</button>
-//           </>
-//         )}
-
-//         {error && <p>{error}</p>}
-//       </form>
-//     </div>
-//   );
-// };
 
 export default Login;

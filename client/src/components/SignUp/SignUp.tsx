@@ -9,10 +9,13 @@ import {
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Logo from "../../assets/xerris-logo.svg";
+import { useHistory } from "react-router-dom";
 
 interface Props {}
 
 const SignUp = (props: Props) => {
+  const history = useHistory();
   const [status, setStatus] = useState("");
 
   const submitSignUp = async (
@@ -20,8 +23,6 @@ const SignUp = (props: Props) => {
     password: string,
     username: string
   ) => {
-    // const signup = async (event) => {
-    // event.preventDefault();
     await fetch(`${apiPrefix}/api/SignUp`, {
       ...fetchPostOptions,
       body: JSON.stringify({
@@ -33,6 +34,7 @@ const SignUp = (props: Props) => {
       .then((res) => {
         if (res?.status === 200) {
           setStatus("success");
+          history.push("/login");
         } else {
           setStatus("Error");
         }
@@ -50,23 +52,33 @@ const SignUp = (props: Props) => {
       username: Yup.string()
         .min(2, "Must be 2 characters at least")
         .required("Required")
-        .max(12, "Can not exceed 12 characters"),
+        .max(20, "Can not exceed 20 characters"),
       email: Yup.string().email("Invalid email address").required("Required"),
       password: Yup.string()
         .min(6, "Must be 6 characters at least")
-        .required("Required")
-        .max(20, "Can not exceed 20 characters"),
+        .required("Required"),
     }),
     onSubmit: (values) =>
       submitSignUp(values.email, values.password, values.username),
   });
 
+  const onKeyUp = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      formik.handleSubmit();
+    }
+  };
+
   return (
-    <AuthSection>
+    <AuthSection className="dark-bg">
+      <Link to="/">
+        <img className="logo" src={Logo} alt="Xerris logo" />
+      </Link>
       <AuthTextField
         id="username"
         label="Username"
         variant="outlined"
+        autoComplete="off"
+        onKeyPress={onKeyUp}
         helperText={formik.touched.username && formik.errors.username}
         error={formik.touched.username && !!formik.errors.username}
         {...formik.getFieldProps("username")}
@@ -75,6 +87,8 @@ const SignUp = (props: Props) => {
         id="email"
         label="Email"
         variant="outlined"
+        autoComplete="off"
+        onKeyPress={onKeyUp}
         helperText={formik.touched.email && formik.errors.email}
         error={formik.touched.email && !!formik.errors.email}
         {...formik.getFieldProps("email")}
@@ -84,6 +98,7 @@ const SignUp = (props: Props) => {
         label="Password"
         type="password"
         variant="outlined"
+        onKeyPress={onKeyUp}
         helperText={formik.touched.password && formik.errors.password}
         error={formik.touched.password && !!formik.errors.password}
         {...formik.getFieldProps("password")}
@@ -103,72 +118,5 @@ const SignUp = (props: Props) => {
     </AuthSection>
   );
 };
-
-// import React, { useState } from "react";
-// import { fetchPostOptions, prefix } from "../../config/constants";
-
-// const SignUp: React.FC = () => {
-//   const [email, setEmail] = useState("");
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [status, setStatus] = useState("");
-
-//   const signup = async (event) => {
-//     event.preventDefault();
-//     await fetch(`${prefix}/api/SignUp`, {
-//       ...fetchPostOptions,
-//       body: JSON.stringify({
-//         username,
-//         password,
-//         email
-//       })
-//     })
-//       .then((res) => {
-//         if (res?.status === 200) {
-//           setStatus("success");
-//         } else {
-//           setStatus("Error");
-//         }
-//       })
-//       .catch((err) => setStatus("Error"));
-//   };
-
-//   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setUsername(event.target.value);
-//   };
-//   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setEmail(event.target.value);
-//   };
-//   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setPassword(event.target.value);
-//   };
-//   return (
-//     <div>
-//       <form
-//         style={{
-//           display: "flex",
-//           flexDirection: "column",
-//           backgroundColor: "#90e39a"
-//         }}
-//       >
-//         <h5>Sign Up</h5>
-//         <input placeholder="email" value={email} onChange={handleEmailChange} />
-//         <input
-//           placeholder="username"
-//           value={username}
-//           onChange={handleUsernameChange}
-//         />
-//         <input
-//           value={password}
-//           type="password"
-//           placeholder="password"
-//           onChange={handlePasswordChange}
-//         />
-//         <button onClick={signup}>Sign Up</button>
-//         {status && <p>{status}</p>}
-//       </form>
-//     </div>
-//   );
-// };
 
 export default SignUp;

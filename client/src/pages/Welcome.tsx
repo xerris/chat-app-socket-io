@@ -5,19 +5,21 @@ import {
   AuthButton,
   SubText,
 } from "./../components/Shared/AuthSection";
+import Logo from "../assets/xerris-logo.svg";
 
 interface Props {}
 
 const Welcome = (props: Props) => {
   return (
-    <AuthSection>
+    <AuthSection className="dark-bg">
+      <img className="logo" src={Logo} alt="Xerris logo" />
       <Link to="/login" ty>
         <AuthButton variant="contained" color="primary" size="large">
           Login
         </AuthButton>
       </Link>
       <Link to="/signup">
-        <AuthButton variant="outlined" color="primary" size="large">
+        <AuthButton variant="contained" color="textPrimary" size="large">
           Sign Up
         </AuthButton>
       </Link>
