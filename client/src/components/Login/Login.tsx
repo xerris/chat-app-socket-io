@@ -23,7 +23,6 @@ const Login = () => {
   const history = useHistory();
 
   const { connectSocket, dispatch } = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(false);
 
   const loginSubmit = async (
     username: string,
