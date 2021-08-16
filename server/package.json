@@ -8,7 +8,8 @@
   "scripts": {
     "start": "nodemon dist/index.js",
     "build": "tsc",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "test-coverage": "npm run test -- --coverage --watchAll"
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",

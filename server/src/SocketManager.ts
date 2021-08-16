@@ -59,10 +59,10 @@ class SocketManager {
   dynamoEnabled: boolean;
   constructor(server: http.Server, config: IServerConfig) {
     this.serverConfig = config;
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 51 ~ SocketManager ~ constructor ~  this.serverConfig",
-      this.serverConfig
-    );
+    // console.log(
+    //   "🚀 ~ file: SocketManager.ts ~ line 51 ~ SocketManager ~ constructor ~  this.serverConfig",
+    //   this.serverConfig
+    // );
     this.dynamoEnabled = config.configuredDynamo;
     this.generateSocketServer(server);
 

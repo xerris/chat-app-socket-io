@@ -2,9 +2,16 @@ const { createServer } = require("http");
 import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
 const Client = require("socket.io-client");
-// import {} from "mocha";
-import { describe, beforeEach, afterEach, expect } from "@jest/globals";
 
+import { describe, beforeEach, afterEach, expect } from "@jest/globals";
+import { IServerConfig, SocketManager } from "./SocketManager";
+
+const config: IServerConfig = {
+  configuredDynamo: true,
+  configuredLocalRedis: true,
+  remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
+  environment: "local"
+};
 interface ISocket extends Socket {
   close?: () => void;
 }
@@ -13,10 +20,12 @@ describe("my awesome project", () => {
   let io: SocketIO.Server;
   let serverSocket: ISocket;
   let clientSocket: ISocket;
+  let socketManager: SocketManager;
 
   beforeEach((done) => {
     const httpServer = createServer();
     io = new Server(httpServer);
+    socketManager = new SocketManager(httpServer, config);
     httpServer.listen(() => {
       const port = httpServer.address().port;
       clientSocket = new Client(`http://localhost:${port}`);
