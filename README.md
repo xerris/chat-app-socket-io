@@ -39,19 +39,20 @@ npm install
 
 ## Starting the Application Locally
 
-The server and client are two separate applications, they must both be running in parrallel. You will need to rename the .env.example files in client/ and server/ to .env
+The server and client are two separate applications, they must both be running in parallel. You will need to rename the .env.example files in client/ and server/ to .env
 
 ## Run REDIS Client locally
 
 [Download Redis here](https://redis.io/topics/quickstart), and run `redis-server` in a terminal.
+
 ## Run Client & Server
 
 ```
 npm run dev
 ```
 
-
 # Deploying our app to a Fargate Cluster with CI/CD
+
 These steps will create the following resources in your AWS Account:
 
 - ECS task which runs our socket-app Docker image via Fargate
@@ -68,7 +69,6 @@ These steps will create the following resources in your AWS Account:
 
 These services mostly fall within the free tier, but you may be charged for extensive use. Always remember to run `terraform destroy` in order to avoid extra costs.
 
-
 ## 1) Create S3 bucket and DynamoDB table to hold the terraform state lock-file.
 
 This is crucial as terraform will use this to reference the resources you created in order to update/destroy them later!
@@ -76,11 +76,13 @@ This is crucial as terraform will use this to reference the resources you create
 - Go to S3 in the console and create an S3 bucket with a unique name.
 - Go to DynamoDB in the console and create a table. The name doesn't matter, but the Primary partition key should be 'LockID' and type string.
 - Add these names to /infrastructure-fargate/terraform-exec.sh under bucket=<name> and dynamodb_table=<name>
+
 ## 2) Deploy infrastructure
 
 You will need to fork this repository, and create an AWS account with proper permissions to create the resources. Then, connect your github account to CircleCI and set up the project (choose 'existing configuration' when it asks).
 
 Create the following Context variables in CircleCI under 'Organization Settings':
+
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 - AWS_REGION (ie us-east-2)
@@ -105,9 +107,8 @@ Next, you can approve the 'hold-deploy-app' step in CircleCI, to build & deploy 
 If you did everything right, you should be able to go to EC2 > Application Load Balancer in the AWS console and find your load balancer URL. Add port 3001 on the end and you're good to go!
 
 ## 4) Teardown
+
 Approve the 'hold-DESTROY' step in CircleCI to tear down your infrastructure.
-
-
 
 ## Resources used
 
@@ -116,4 +117,3 @@ Approve the 'hold-DESTROY' step in CircleCI to tear down your infrastructure.
 [Creating a Docker Image](https://dev.to/dariansampare/setting-up-docker-typescript-node-hot-reloading-code-changes-in-a-running-container-2b2f)
 
 [Socket.io Messaging Example](https://socket.io/get-started/private-messaging-part-1/)
-

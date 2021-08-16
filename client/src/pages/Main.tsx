@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
-import "./css/App.css";
-import "./utilities/theme.css";
-import { AppContext } from "./components/AppContext";
-import Routes from "./Routes";
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
+import Welcome from "./Welcome";
+import Chat from "./Chat";
+import "./../css/main.css";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#527a00",
-    },
-  },
-});
+import { AppContext } from "../components/AppContext";
 
-function App() {
+interface Props {}
+
+const Main = (props: Props) => {
   const [isConnected, setIsConnected] = useState(false);
 
   const { socket, connectSocket } = useContext(AppContext);
@@ -36,11 +30,20 @@ function App() {
 
   return (
     <div className="App">
-      <ThemeProvider theme={theme}>
-        <Routes />
-      </ThemeProvider>
+      <header>
+        {!isConnected && (
+          <>
+            <Welcome />
+          </>
+        )}
+        {isConnected && (
+          <>
+            <Chat />
+          </>
+        )}
+      </header>
     </div>
   );
-}
+};
 
-export default App;
+export default Main;
