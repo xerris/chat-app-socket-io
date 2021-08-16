@@ -13,21 +13,21 @@ const RoomList: React.FC = () => {
     privateMessages,
     onlineUsers,
     username,
-    allUsers,
+    allUsers
   } = state;
 
   const createPrivateMessage = (receiverUsername: string) => {
     if (receiverUsername !== username) {
       socket.emit("createPrivateMessage", {
         senderUsername: username,
-        receiverUsername,
+        receiverUsername
       });
     }
   };
 
   const logout = () => {
     dispatch({
-      type: DispatchEvent.Logout,
+      type: DispatchEvent.Logout
     });
     localStorage.clear();
     disconnectSocket();
@@ -48,13 +48,12 @@ const RoomList: React.FC = () => {
               }
               dispatch({
                 type: DispatchEvent.JoinRoomId,
-                data: { roomId, private: false },
+                data: { roomId, private: false }
               });
             }}
             className={currentRoomId === roomId ? "active-item" : "inactive"}
           >
             {roomId === "1" ? "Everyone" : rooms[roomId].roomName}
-            <span>{rooms[roomId].newMessages}</span>
           </h5>
         );
       })}
@@ -66,7 +65,7 @@ const RoomList: React.FC = () => {
             onClick={() => {
               dispatch({
                 type: DispatchEvent.JoinPrivateMessageId,
-                data: { roomId: privateMessage.roomId, private: true },
+                data: { roomId: privateMessage.roomId, private: true }
               });
             }}
             className={
@@ -100,8 +99,8 @@ const RoomList: React.FC = () => {
                     type: DispatchEvent.JoinPrivateMessageId,
                     data: {
                       private: true,
-                      roomId: privateMessage?.roomId,
-                    },
+                      roomId: privateMessage?.roomId
+                    }
                   });
                 }
               }}
@@ -133,8 +132,8 @@ const RoomList: React.FC = () => {
                     type: DispatchEvent.JoinPrivateMessageId,
                     data: {
                       private: true,
-                      roomId: privateMessage?.roomId,
-                    },
+                      roomId: privateMessage?.roomId
+                    }
                   });
                 }
               }}
