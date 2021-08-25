@@ -42,6 +42,11 @@ h5:hover {
   overflow: auto;
 }
 
+.roomList h4,
+.roomList h5 {
+  width: 89%;
+}
+
 .roomMessage {
   margin-left: 10px;
 }
@@ -50,16 +55,20 @@ img {
   margin: 10px 30px 20px 30px;
 }
 
+.logo {
+  width: 120px;
+}
+
 .logout {
   margin-top: auto;
   cursor: pointer;
 }
 
 .active-item {
-  background-color: #4D9A0F;
+  background-color: #4d9a0f;
   cursor: pointer;
 }
 
 .active-item:hover {
-  background-color: #4D9A0F;
+  background-color: #4d9a0f;
 }
