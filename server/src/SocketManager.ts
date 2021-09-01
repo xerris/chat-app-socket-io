@@ -1,6 +1,5 @@
 import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
-import { port } from "./App";
 import {
   createPrivateMessage,
   deleteRoomMessage,
@@ -50,6 +49,7 @@ export interface IRoomData {
   username: string;
 }
 
+// Contains setup for socket server/listeners and redis connection
 class SocketManager {
   io: SocketIO.Server;
   pubClient: redis.RedisClient;
@@ -57,12 +57,9 @@ class SocketManager {
   serverConfig: IServerConfig;
   redisEnabled: boolean;
   dynamoEnabled: boolean;
+
   constructor(server: http.Server, config: IServerConfig) {
     this.serverConfig = config;
-    console.log(
-      "🚀 ~ file: SocketManager.ts ~ line 51 ~ SocketManager ~ constructor ~  this.serverConfig",
-      this.serverConfig
-    );
     this.dynamoEnabled = config.configuredDynamo;
     this.generateSocketServer(server);
 
@@ -78,10 +75,10 @@ class SocketManager {
     this.configureMiddleware();
     this.registerSocketListeners();
     this.updateOnlineUsers();
-    // this.updateAllUsers();
   }
 
   generateSocketServer = (server: http.Server) => {
+    // Socket server property
     this.io = new Server(server, {
       cors: {
         // Would change origin to eventual DNS for react app if
@@ -90,10 +87,10 @@ class SocketManager {
         methods: ["GET", "POST"],
         credentials: true
       },
-      allowEIO3: true,
+      allowEIO3: true, // Whether to enable compatibility with Socket.IO v2 clients.
       maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
-      pingInterval: 45 * 1000, // 1 minute
-      pingTimeout: 4 * 60 * 1000
+      pingInterval: 45 * 1000, // 45 seconds (less than ALB timeout)
+      pingTimeout: 4 * 60 * 1000 // 4 minutes
     });
   };
 
@@ -189,7 +186,20 @@ class SocketManager {
     this.io.in(roomId).emit("usersInRoom", { users: userList, roomId });
   };
 
+  sendRoomDrawingsOnLoad = (socket: Socket) => {
+    setTimeout(
+      () =>
+        this.pubClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
+          reply.forEach((drawData) =>
+            socket.emit("draw", JSON.parse(drawData))
+          );
+        }),
+      100
+    );
+  };
+
   registerSocketListeners = () => {
+    // When the socket initially connects
     this.io.on("connect", async (socket: ICustomSocket) => {
       // Join user channel, so we can send messages directly to this user.
       socket.join(`user${socket.username}`);
@@ -234,15 +244,6 @@ class SocketManager {
         }
       });
 
-      socket.on("clearBoard", () => {
-        // Clears the drawing data from REDIS and tells clients to do the same
-        console.log("Clearing board...");
-        if (this.redisEnabled) {
-          this.pubClient.DEL("drawDataRoom1");
-        }
-        this.io.emit("clearBoard");
-      });
-
       socket.on("draw", (data) => {
         // Send to all clients. Will replace with io.to('roomName')
         this.io.emit("draw", data);
@@ -251,6 +252,15 @@ class SocketManager {
           // Limit to....10,000 draw items
           this.pubClient.ltrim("drawDataRoom1", 0, 10000);
         }
+      });
+
+      socket.on("clearBoard", () => {
+        // Clears the drawing data from REDIS and tells clients to do the same
+        console.log("Clearing board...");
+        if (this.redisEnabled) {
+          this.pubClient.DEL("drawDataRoom1");
+        }
+        this.io.emit("clearBoard");
       });
 
       socket.on("joinRoom", async (data: IRoomData) => {
@@ -267,8 +277,6 @@ class SocketManager {
       });
 
       socket.on("deleteMessage", async (data: any) => {
-        console.log(`${socket.username} deleting message`);
-
         if (this.dynamoEnabled && socket.username) {
           deleteRoomMessage({
             room: data.room,
@@ -323,7 +331,7 @@ class SocketManager {
             socket
               .to(`user${data.senderUsername}`)
               .emit("privateMessageCreation", roomId);
-              
+
             socket
               .to(`user${data.receiverUsername}`)
               .emit("privateMessageCreation", roomId);
@@ -334,22 +342,6 @@ class SocketManager {
         socket.join(roomId);
       });
     });
-  };
-
-  sendRoomDrawingsOnLoad = (socket: Socket) => {
-    setTimeout(
-      () =>
-        this.pubClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
-          console.log(
-            "Sending new client list of draw items. Size:",
-            reply.length
-          );
-          reply.forEach((drawData) =>
-            socket.emit("draw", JSON.parse(drawData))
-          );
-        }),
-      100
-    );
   };
 }
 

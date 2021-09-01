@@ -8,15 +8,13 @@ import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#527a00",
-    },
-  },
+      main: "#527a00"
+    }
+  }
 });
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
-
-  const { socket, connectSocket } = useContext(AppContext);
+  const { connectSocket } = useContext(AppContext);
 
   useEffect(() => {
     // Connect to socket on refresh
@@ -25,14 +23,6 @@ function App() {
       connectSocket(undefined, sessionId);
     }
   }, []);
-
-  useEffect(() => {
-    if (socket) {
-      setIsConnected(true);
-    } else {
-      setIsConnected(false);
-    }
-  }, [socket]);
 
   return (
     <div className="App">

@@ -21,7 +21,6 @@ class RedisSessionStore {
         "username",
         "connected",
         (err: Error | null, valueArray: string[] | null) => {
-          console.log("vals from findSession", valueArray);
           if (valueArray) {
             return resolve(mapSession(valueArray));
           }

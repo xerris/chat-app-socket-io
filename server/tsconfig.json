@@ -8,6 +8,6 @@
     "strict": true,
     "esModuleInterop": true,
     "strictPropertyInitialization": false,
-    "types": ["node"]
+    "types": ["node", "jest"]
   }
 }

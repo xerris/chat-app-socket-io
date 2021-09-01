@@ -1,11 +1,4 @@
 import React, { useReducer, createContext, useState } from "react";
-import {
-  DispatchEvent,
-  IMessage,
-  IRoom,
-  IUsersInRoom,
-  IMessageList
-} from "../utilities/interfaces";
 import socketIOClient, { Socket } from "socket.io-client";
 import { reducer } from "./Reducer";
 import { prefix } from "../config/constants";
@@ -21,6 +14,7 @@ export const initialState = {
   onlineUsers: [],
   allUsers: []
 };
+
 const AppProvider = (props: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [socket, setSocket] = useState<Socket>(null);
@@ -42,7 +36,6 @@ const AppProvider = (props: any) => {
       setSocket(socketConnection);
     }
   };
-  
 
   const disconnectSocket = () => {
     if (socket) {

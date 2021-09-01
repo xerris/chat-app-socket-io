@@ -1,5 +1,3 @@
-# alb.tf
-
 resource "aws_alb" "main" {
   name            = "socket-app-load-balancer"
   subnets         = aws_subnet.public.*.id
