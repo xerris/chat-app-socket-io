@@ -6,7 +6,6 @@ import "./RoomList.css";
 
 const RoomList: React.FC = () => {
   const { state, dispatch, socket, disconnectSocket } = useContext(AppContext);
-  console.log("🚀 ~ file: RoomList.tsx ~ line 8 ~ socket", socket);
   const {
     rooms,
     currentRoomId,
@@ -37,7 +36,6 @@ const RoomList: React.FC = () => {
     <div className="roomList">
       <img src={Logo} alt="Xerris logo" />
       <h4>Channels</h4>
-      {console.log(rooms)}
       {Object.keys(rooms).map((roomId) => {
         return (
           <h5
@@ -92,7 +90,6 @@ const RoomList: React.FC = () => {
                 );
 
                 if (!privateMessage?.roomId) {
-                  console.log("Creating private message!");
                   createPrivateMessage(user);
                 } else {
                   dispatch({
