@@ -4,7 +4,11 @@ module.exports = {
     "**/__tests__/**/*.+(ts|tsx|js)",
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
-  collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!<rootDir>/node_modules/"],
+  collectCoverageFrom: [
+    "src/**/*.{js,jsx,ts,tsx}",
+    "!<rootDir>/node_modules/",
+    "!src/Dynamo*.ts"
+  ],
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },

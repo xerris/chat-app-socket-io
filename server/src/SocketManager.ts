@@ -1,6 +1,5 @@
 import SocketIO = require("socket.io");
 import { Server, Socket } from "socket.io";
-import { port } from "./App";
 import {
   createPrivateMessage,
   deleteRoomMessage,
@@ -59,10 +58,6 @@ class SocketManager {
   dynamoEnabled: boolean;
   constructor(server: http.Server, config: IServerConfig) {
     this.serverConfig = config;
-    // console.log(
-    //   "🚀 ~ file: SocketManager.ts ~ line 51 ~ SocketManager ~ constructor ~  this.serverConfig",
-    //   this.serverConfig
-    // );
     this.dynamoEnabled = config.configuredDynamo;
     this.generateSocketServer(server);
 
@@ -323,7 +318,7 @@ class SocketManager {
             socket
               .to(`user${data.senderUsername}`)
               .emit("privateMessageCreation", roomId);
-              
+
             socket
               .to(`user${data.receiverUsername}`)
               .emit("privateMessageCreation", roomId);
@@ -340,10 +335,10 @@ class SocketManager {
     setTimeout(
       () =>
         this.pubClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
-          console.log(
-            "Sending new client list of draw items. Size:",
-            reply.length
-          );
+          // console.log(
+          //   "Sending new client list of draw items. Size:",
+          //   reply.length
+          // );
           reply.forEach((drawData) =>
             socket.emit("draw", JSON.parse(drawData))
           );

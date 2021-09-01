@@ -10,7 +10,7 @@ import { IServerConfig, SocketManager } from "./SocketManager";
 
 const config: IServerConfig = {
   configuredDynamo: false,
-  configuredLocalRedis: true,
+  configuredLocalRedis: false,
   remoteRedisEndpoint: process.env.REDIS_ENDPOINT,
   environment: "local"
 };
@@ -86,7 +86,7 @@ describe("my awesome project", () => {
         });
     });
   });
-  
+
   describe("POST /api/signup", () => {
     test("It responds with 500", (done) => {
       request(app)
