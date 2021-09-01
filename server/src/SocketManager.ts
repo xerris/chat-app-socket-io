@@ -87,10 +87,10 @@ class SocketManager {
         methods: ["GET", "POST"],
         credentials: true
       },
-      allowEIO3: true,
+      allowEIO3: true, // Whether to enable compatibility with Socket.IO v2 clients.
       maxHttpBufferSize: 1024, // max message payload size (prevents clients from sending gigabytes of data)
-      pingInterval: 45 * 1000, // 1 minute
-      pingTimeout: 4 * 60 * 1000
+      pingInterval: 45 * 1000, // 45 seconds
+      pingTimeout: 4 * 60 * 1000 // 4 minutes (greater than ALB timeout)
     });
   };
 

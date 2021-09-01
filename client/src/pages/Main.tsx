@@ -10,15 +10,7 @@ interface Props {}
 const Main = (props: Props) => {
   const [isConnected, setIsConnected] = useState(false);
 
-  const { socket, connectSocket } = useContext(AppContext);
-
-  useEffect(() => {
-    // Connect to socket on refresh
-    const sessionId = localStorage.getItem("sessionId");
-    if (sessionId) {
-      connectSocket(undefined, sessionId);
-    }
-  }, []);
+  const { socket } = useContext(AppContext);
 
   useEffect(() => {
     if (socket) {

@@ -3,7 +3,6 @@
     "dev": "concurrently \"cd server && npm start\" \"cd client && npm start\""
   },
   "devDependencies": {
-    "@types/supertest": "^2.0.11",
     "concurrently": "^6.0.2"
   }
 }

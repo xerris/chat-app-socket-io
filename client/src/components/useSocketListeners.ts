@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import socketIOClient, { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import {
   DispatchEvent,
   IMessage,
