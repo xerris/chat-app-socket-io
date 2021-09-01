@@ -144,7 +144,6 @@ export const reducer = produce((state: State, action: Action) => {
       );
       break;
     case DispatchEvent.Logout:
-      console.log("calling logout");
       state.rooms = {};
       state.privateMessages = {};
       break;

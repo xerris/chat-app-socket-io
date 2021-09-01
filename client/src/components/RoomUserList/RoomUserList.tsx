@@ -39,7 +39,6 @@ const RoomUserList: React.FC = () => {
               );
 
               if (!privateMessage?.roomId) {
-                console.log("Creating private message!");
                 createPrivateMessage(user);
               } else {
                 dispatch({

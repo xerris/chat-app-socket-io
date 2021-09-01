@@ -167,7 +167,7 @@ export const getAllUsers = async () => {
     .query({
       TableName,
       IndexName: "SK-PK-inverted-index",
-      KeyConditionExpression: "SK = :sk AND begins_with(PK, :pk)  ",
+      KeyConditionExpression: "SK = :sk AND begins_with(PK, :pk)",
       ExpressionAttributeValues: {
         ":pk": `user#`,
         ":sk": `#METADATA`
@@ -224,10 +224,6 @@ export const verifyLogin = async (user: IUser) =>
         user.password,
         userInfo.Items[0].hash,
         (err, result) => {
-          console.log(
-            "🚀 ~ file: DynamoQueries.ts ~ line 176 ~ newPromise ~ result",
-            result
-          );
           if (result) {
             resolve({
               username: user.username,

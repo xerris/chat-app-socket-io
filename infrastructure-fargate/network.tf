@@ -39,7 +39,6 @@ resource "aws_route" "internet_access" {
   gateway_id             = aws_internet_gateway.gw.id
 }
 
-
 # Create a new route table for the private subnets, make it route non-local traffic through the NAT gateway to the internet
 resource "aws_route_table" "private" {
   count  = var.az_count
