@@ -13,10 +13,6 @@ const registerRoutes = (dynamoEnabled: boolean) => {
           username: req.body.username,
           password: req.body.password
         });
-        console.log(
-          "🚀 ~ file: Routes.ts ~ line 20 ~ router.post ~ loginResult",
-          loginResult
-        );
 
         if (loginResult) {
           res.send(JSON.stringify(loginResult));

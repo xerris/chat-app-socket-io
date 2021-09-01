@@ -49,6 +49,7 @@ export interface IRoomData {
   username: string;
 }
 
+// Contains setup for socket server/listeners and redis connection
 class SocketManager {
   io: SocketIO.Server;
   pubClient: redis.RedisClient;
@@ -56,6 +57,7 @@ class SocketManager {
   serverConfig: IServerConfig;
   redisEnabled: boolean;
   dynamoEnabled: boolean;
+
   constructor(server: http.Server, config: IServerConfig) {
     this.serverConfig = config;
     this.dynamoEnabled = config.configuredDynamo;
@@ -335,10 +337,6 @@ class SocketManager {
     setTimeout(
       () =>
         this.pubClient.lrange("drawDataRoom1", 0, -1, (err, reply) => {
-          // console.log(
-          //   "Sending new client list of draw items. Size:",
-          //   reply.length
-          // );
           reply.forEach((drawData) =>
             socket.emit("draw", JSON.parse(drawData))
           );
