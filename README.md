@@ -12,6 +12,7 @@ First, ensure that you have the following installed:
 
 1. NodeJS
 2. Git
+3. Terraform (if deploying to AWS)
 
 ## Clone the project
 
@@ -51,7 +52,7 @@ The server and client are two separate applications, they must both be running i
 npm run dev
 ```
 
-# Deploying our app to a Fargate Cluster with CI/CD
+# Deploying chat app to a Fargate Cluster with CI/CD
 
 These steps will create the following resources in your AWS Account:
 
@@ -67,15 +68,15 @@ These steps will create the following resources in your AWS Account:
 - Public security group with port 3001 open for public access to our app
 - Private security group for internal communication between ECS, our ALB and Redis.
 
-These services mostly fall within the free tier, but you may be charged for extensive use. Always remember to run `terraform destroy` in order to avoid extra costs.
+Warning! You will be charged for extensive use, especially due to the ECS and Redis serrvices. Always remember to run `terraform destroy` in order to avoid extra costs.
 
 ## 1) Create S3 bucket and DynamoDB table to hold the terraform state lock-file.
 
-This is crucial as terraform will use this to reference the resources you created in order to update/destroy them later!
+This is crucial as terraform will use this to reference the resources you created in order to update/destroy them later.
 
-- Go to S3 in the console and create an S3 bucket with a unique name.
+- Go to the AWS S3 console and create an S3 bucket with a unique name.
 - Go to DynamoDB in the console and create a table. The name doesn't matter, but the Primary partition key should be 'LockID' and type string.
-- Add these names to /infrastructure-fargate/terraform-exec.sh under bucket=<name> and dynamodb_table=<name>
+- Add these names to /infrastructure-fargate/terraform-exec.sh under bucket=<name> and dynamodb_table=<name> (lines 14 and 16)
 
 ## 2) Deploy infrastructure
 
